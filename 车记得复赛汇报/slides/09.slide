@@ -1,0 +1,54 @@
+<Slide style={{ width: '1280px', height: '720px', padding: '20px 64px', flexDirection: 'column', background: '#FFFFFF' }}>
+    {/* A 标题块 */}
+    <Box style={{ height: '100px', flexDirection: 'column', justifyContent: 'center', gap: '6px' }}>
+        <Text style={{ fontSize: 13, fontWeight: 600, color: '#2456E6', letterSpacing: 2 }}>团队与未来 · 可持续吗</Text>
+        <Text style={{ fontSize: 30, fontWeight: 'bold', color: '#16181D', lineHeight: 1.25 }}>从单场提效，走向商圈级客流动线分配</Text>
+    </Box>
+
+    {/* B 内容区 */}
+    <Box style={{ height: '540px', flexDirection: 'column', gap: '16px' }}>
+        {/* 未来目标条 */}
+        <Box style={{ height: '110px', background: '#F5F7FB', border: '1px solid #E5E8EF', borderLeft: '3px solid #2456E6', borderRadius: '10px', padding: '14px 20px', flexDirection: 'column', gap: '6px' }}>
+            <Box style={{ flexDirection: 'row', alignItems: 'center', gap: '8px' }}>
+                <Text style={{ fontSize: 12, fontWeight: 600, color: '#2456E6', letterSpacing: 1 }}>下一步</Text>
+                <Text style={{ fontSize: 17, fontWeight: 'bold', color: '#16181D' }}>同一目的地，跨场比较「哪个场更好停、更近」</Text>
+            </Box>
+            <Text style={{ fontSize: 15, color: '#5C6470', lineHeight: 1.55 }}>停车位选择从「单场提效」升级为「商圈级客流动线分配」——车记得做的事情很克制：在一堆已经算好的数据之上，加一层算法。</Text>
+        </Box>
+
+        {/* 居中金句 */}
+        <Box style={{ flex: 1, flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '14px' }}>
+            <Box style={{ width: '48px', height: '4px', background: '#F5A623', borderRadius: '2px' }} />
+            <Text style={{ fontSize: 44, fontWeight: 'bold', color: '#16181D', lineHeight: 1.45, textAlign: 'center' }}>主办方已建好一座信息完整的停车系统，缺的是最后一步——<span style={{ color: '#2456E6' }}>替用户做那个选择</span>。</Text>
+            <Box style={{ width: '48px', height: '4px', background: '#F5A623', borderRadius: '2px' }} />
+        </Box>
+
+        {/* 团队占位三条 */}
+        <Box style={{ height: '110px', flexDirection: 'column', gap: '10px' }}>
+            <Text style={{ fontSize: 13, fontWeight: 600, color: '#5C6470', letterSpacing: 2 }}>团队构成</Text>
+            <Box style={{ flexDirection: 'row', gap: '12px', flex: 1 }}>
+                <Box style={{ flex: 1, background: '#FFFFFF', border: '1px dashed #E5E8EF', borderRadius: '10px', padding: '12px 16px', flexDirection: 'column', gap: '4px', justifyContent: 'center' }}>
+                    <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#16181D' }}>产品与算法</Text>
+                    <Text style={{ fontSize: 13, color: '#5C6470' }}>负责人与分工待补充</Text>
+                </Box>
+                <Box style={{ flex: 1, background: '#FFFFFF', border: '1px dashed #E5E8EF', borderRadius: '10px', padding: '12px 16px', flexDirection: 'column', gap: '4px', justifyContent: 'center' }}>
+                    <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#16181D' }}>工程实现</Text>
+                    <Text style={{ fontSize: 13, color: '#5C6470' }}>负责人与分工待补充</Text>
+                </Box>
+                <Box style={{ flex: 1, background: '#FFFFFF', border: '1px dashed #E5E8EF', borderRadius: '10px', padding: '12px 16px', flexDirection: 'column', gap: '4px', justifyContent: 'center' }}>
+                    <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#16181D' }}>商圈调研</Text>
+                    <Text style={{ fontSize: 13, color: '#5C6470' }}>负责人与分工待补充</Text>
+                </Box>
+            </Box>
+        </Box>
+    </Box>
+
+    {/* C 页脚条（简化） */}
+    <Box style={{ height: '40px', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'row', alignItems: 'center', gap: '8px' }}>
+            <FAIcon name='car' style={{ fill: '#2456E6', width: '18px', height: '18px' }} />
+            <Text style={{ fontSize: 13, color: '#5C6470' }}>车记得 · 完美金鹰假日商圈 AI 大赛</Text>
+        </Box>
+        <Text style={{ fontSize: 13, color: '#5C6470' }}><span style={{ fontWeight: 'bold', color: '#2456E6' }}>09</span> / 12</Text>
+    </Box>
+</Slide>

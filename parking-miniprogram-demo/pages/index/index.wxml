@@ -1,0 +1,167 @@
+<view class="page-container">
+  <!-- 自定义状态栏 -->
+  <view class="status-bar" style="height: {{systemInfo.statusBarHeight}}px; background: #F7F8FA;"></view>
+
+  <!-- 自定义导航栏 -->
+  <view class="nav-bar" style="height: {{navBarHeight}}px;">
+    <view class="nav-left" bindtap="onHome">
+      <view class="nav-icon home-icon">⌂</view>
+    </view>
+    <view class="nav-title">石岐万象汇（Demo）</view>
+    <view class="nav-right">
+      <view class="nav-more">•••</view>
+      <view class="nav-eye">◎</view>
+    </view>
+  </view>
+
+  <!-- 地图容器 -->
+  <view class="map-container">
+    <movable-area class="map-area" scale-area style="width: 100%; height: 100%;">
+      <movable-view
+        class="map-view {{viewMode === '3D' ? 'mode-3d' : ''}}"
+        direction="all"
+        scale
+        scale-min="0.5"
+        scale-max="4"
+        out-of-bounds
+        style="width: {{mapWidth}}px; height: {{mapHeight}}px;"
+        x="{{mapX}}"
+        y="{{mapY}}"
+        scale-value="{{mapScale}}"
+      >
+        <image
+          class="map-image"
+          src="{{mapSrc}}"
+          mode="aspectFit"
+          style="width: {{mapWidth}}px; height: {{mapHeight}}px;"
+          bindload="onMapLoad"
+        />
+
+        <!-- 车位/设施标记 -->
+        <view
+          wx:for="{{spotMarkers}}"
+          wx:key="id"
+          class="spot-marker {{item.highlight ? 'highlight' : ''}}"
+          style="left: {{item.x}}px; top: {{item.y}}px;"
+          bindtap="onSpotTap"
+          data-item="{{item}}"
+        >
+          <view wx:if="{{item.type === 'elevator'}}" class="marker-elevator">
+            <view class="elevator-icon">{{item.icon}}</view>
+            <view class="elevator-label">{{item.label}}</view>
+          </view>
+          <view wx:elif="{{item.type === 'pin'}}" class="marker-pin">
+            <view class="pin-body"></view>
+            <view class="pin-text">{{item.label}}</view>
+          </view>
+        </view>
+      </movable-view>
+    </movable-area>
+
+    <!-- 指南针 -->
+    <view class="compass">
+      <view class="compass-bg">
+        <view class="compass-n">N</view>
+        <view class="compass-needle"></view>
+      </view>
+    </view>
+
+    <!-- 楼层选择器 -->
+    <view class="floor-selector">
+      <view class="floor-title">总览</view>
+      <view class="floor-arrow up" bindtap="onFloorUp">▲</view>
+      <view
+        wx:for="{{floors}}"
+        wx:key="*this"
+        class="floor-item {{currentFloor === item ? 'active' : ''}}"
+        bindtap="onFloorChange"
+        data-floor="{{item}}"
+      >{{item}}</view>
+      <view class="floor-arrow down" bindtap="onFloorDown">▼</view>
+    </view>
+
+    <!-- 2D/3D 切换 -->
+    <view class="view-toggle" bindtap="toggleViewMode">
+      <view class="toggle-circle">
+        <view class="toggle-icon">⟲</view>
+      </view>
+      <view class="toggle-text">{{viewMode === '3D' ? '3D' : '2D'}}</view>
+    </view>
+  </view>
+
+  <!-- 车位弹窗（地图上方绝对定位） -->
+  <view wx:if="{{mode === 'spot' && selectedSpot}}" class="spot-popup" style="top: {{systemInfo.statusBarHeight + navBarHeight + 16}}px;">
+    <view class="popup-header">
+      <view class="spot-title-wrap">
+        <text class="spot-id">{{selectedSpot.id}}</text>
+        <text class="spot-type">{{selectedSpot.typeText}}</text>
+      </view>
+      <view class="popup-close" bindtap="closeSpot">✕</view>
+    </view>
+    <view class="popup-body">
+      <text class="facility-label">当前设施</text>
+      <view class="popup-actions">
+        <view class="btn-outline primary" bindtap="setAsDestination">设为终点</view>
+        <view class="btn-outline" bindtap="focusSpot">聚焦</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部操作区 -->
+  <view class="bottom-panel {{mode === 'route' ? 'route-panel' : ''}} safe-area-inset-bottom">
+    <block wx:if="{{mode === 'route'}}">
+      <view class="route-card">
+        <view class="route-header">
+          <view class="route-3d">3D</view>
+          <view class="route-points">
+            <view class="point-row">
+              <view class="dot green"></view>
+              <text class="point-label">起点：</text>
+              <text class="point-value">地图选点</text>
+              <view class="edit-icon">✎</view>
+            </view>
+            <view class="point-row">
+              <view class="dot orange"></view>
+              <text class="point-label">终点：</text>
+              <text class="point-value">{{endSpot}}</text>
+              <view class="plate-tag">{{plate}}</view>
+            </view>
+          </view>
+        </view>
+        <view class="route-meta">最优路线：全程{{routeDistance}}米，预计{{routeTime}}s</view>
+        <view class="route-actions">
+          <view class="action-cancel" bindtap="cancelRoute">
+            <view class="cancel-icon">↺</view>
+            <text>取消操作</text>
+          </view>
+          <view class="action-nav" bindtap="startNav">模拟导航</view>
+        </view>
+      </view>
+    </block>
+
+    <block wx:else>
+      <view class="search-btn" bindtap="onSearch">车牌/车位查询</view>
+    </block>
+  </view>
+
+  <!-- 查询弹窗 -->
+  <view wx:if="{{showSearch}}" class="search-modal" bindtap="closeSearch">
+    <view class="search-card" catchtap="noop">
+      <view class="search-title">车牌/车位查询</view>
+      <input
+        class="search-input"
+        placeholder="输入车牌或车位号"
+        value="{{searchValue}}"
+        bindinput="onSearchInput"
+        focus
+      />
+      <view class="search-actions">
+        <view class="btn-cancel" bindtap="closeSearch">取消</view>
+        <view class="btn-confirm" bindtap="confirmSearch">查询</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Toast -->
+  <view wx:if="{{toastText}}" class="toast">{{toastText}}</view>
+</view>

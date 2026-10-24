@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>车记得 Demo v6.2 · UI 复评与改进方案</title>
+<style>
+  :root{
+    --paper:#FBF5EA; --card:#FFFBF3; --line:#E8DCC2;
+    --ink:#2A201A; --ink2:#75655A; --ink3:#7A6A55;
+    --accent:#B84A22; --gold:#8A5E12; --fox:#F5CF3F;
+    --ok:#4A7A3A; --warn:#B85C20; --bad:#B03A1E;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--paper);color:var(--ink);
+    font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;
+    line-height:1.75;padding:32px 20px 60px}
+  .wrap{max-width:980px;margin:0 auto}
+  h1{font-size:26px;letter-spacing:1px;margin-bottom:6px}
+  .sub{color:var(--ink3);font-size:13px;margin-bottom:22px}
+  .card{background:var(--card);border:1.5px solid var(--line);border-radius:18px;
+    padding:20px 22px;margin-bottom:18px;box-shadow:0 3px 12px rgba(42,32,26,.06)}
+  h2{font-size:19px;margin:0 0 12px;letter-spacing:.5px;display:flex;align-items:center;gap:8px}
+  h3{font-size:15px;margin:18px 0 8px}
+  p{font-size:14px;margin-bottom:10px;color:var(--ink2)}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0}
+  th,td{border-bottom:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+  th{background:#F7EFDF;font-weight:600;color:var(--ink)}
+  td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+  .pill{display:inline-block;font-size:11px;padding:1px 8px;border-radius:6px;font-weight:600}
+  .p0{background:#F6E3D8;color:var(--bad)}
+  .p1{background:#F9EBD2;color:var(--warn)}
+  .p2{background:#E9F3E4;color:var(--ok)}
+  .ok{color:var(--ok);font-weight:600}
+  .no{color:var(--bad);font-weight:600}
+  .mid{color:var(--warn);font-weight:600}
+  code{font-family:ui-monospace,Consolas,'Courier New',monospace;font-size:12.5px;
+    background:#F2EFE0;border:1px solid #E0D6BC;border-radius:5px;padding:1px 5px}
+  pre{background:#2A201A;color:#F0E6D2;border-radius:12px;padding:14px 16px;overflow-x:auto;
+    font-family:ui-monospace,Consolas,'Courier New',monospace;font-size:12.5px;line-height:1.7;margin:8px 0 4px}
+  pre .c{color:#B9A88C}
+  .issue{border:1.5px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:14px;background:#FFFDF8}
+  .issue .hd{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600;margin-bottom:6px}
+  .issue .loc{font-size:11px;color:var(--ink3);font-family:ui-monospace;margin-bottom:8px}
+  .kv{font-size:13px;margin:4px 0;color:var(--ink2)}
+  .kv b{color:var(--ink)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:760px){.grid2{grid-template-columns:1fr}}
+  ul{margin:6px 0 6px 20px;font-size:13.5px;color:var(--ink2)}
+  li{margin:3px 0}
+  .foot{font-size:12px;color:var(--ink3);margin-top:26px;text-align:center}
+  .tagline{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .chip{font-size:12px;background:#F7EFDF;border:1px solid var(--line);border-radius:999px;padding:3px 12px;color:var(--ink2)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>车记得 Demo v6.2 · UI 复评与改进方案</h1>
+  <div class="sub">评审对象：车记得_demo_v6-纸感简约版.html（含 v6.1 / v6.1b / v6.1c / v6.2 修改）　·　环境：375×780 手机框，Chromium 实测（布局 / 热区 / 字号 / 对比度全量采样）　·　日期：2026-10-23</div>
+
+  <div class="card">
+    <h2>一句话结论</h2>
+    <p>v6.1 那一轮的 5 个 P0（触屏手势、遮罩锁 tabbar、楼层数据三套、AI 虚构店名、A* 穿墙直线）<b class="ok">已全部修掉且本轮回归有效</b>，定位/导航也已经解耦。剩下的都不是"能不能跑"的问题，而是<b>答辩现场能不能讲清楚</b>的问题：<b>导航指引被切成 13 步还关在 130px 高的框里且不自动滚动</b>、<b>导航时浮层吃掉 55% 的地图</b>、<b>首页仍有 76px 掉到首屏外</b>——这三件事在投屏上最直接。</p>
+    <div class="tagline">
+      <span class="chip">P0 · 3 条（答辩前必改）</span>
+      <span class="chip">P1 · 7 条（建议改）</span>
+      <span class="chip">P2 · 6 条（有余力再改）</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>实测数据（不是目测，是量出来的）</h2>
+    <table>
+      <tr><th>指标</th><th>实测值</th><th>判定</th><th>出处</th></tr>
+      <tr><td>首页内容高 / 可视高</td><td class="num">711 / 635 px</td><td class="no">溢出 76px</td><td>#page-home scrollHeight</td></tr>
+      <tr><td>找车页导航态浮层占地图比</td><td class="num">223 / 404 px = 55%</td><td class="no">可视地图仅 161px</td><td>.float-panel / .map-wrap</td></tr>
+      <tr><td>路线步数</td><td class="num">13 步（内容 351px，框 130px）</td><td class="no">须滚动 2.7 屏</td><td>#guideBox</td></tr>
+      <tr><td>当前步是否自动滚入视野</td><td class="num">curIdx=5/9/12 全部不可见</td><td class="no">不会滚动</td><td>li.cur 矩形检测</td></tr>
+      <tr><td>无目标时浮层 vs 空状态</td><td class="num">z 20 压 z 5，重叠 true</td><td class="no">两套矛盾指令</td><td>.float-panel / #mapEmpty</td></tr>
+      <tr><td>我的页内容高 / 可视高</td><td class="num">1069 / 635 px</td><td class="mid">溢出 434px</td><td>#page-profile</td></tr>
+      <tr><td>热区 &lt; 40px 的点击元素</td><td class="num">17 处</td><td class="mid">最小 16×24</td><td>[onclick] 全量</td></tr>
+      <tr><td>&lt; 11px 的正文</td><td class="num">9 处（最低 10px）</td><td class="mid">v6.1 目标未落地</td><td>.phone 内文本节点</td></tr>
+      <tr><td>平面图页控件重叠</td><td class="num">tip / reset / legend / floors 均无重叠</td><td class="ok">合格</td><td>矩形相交检测</td></tr>
+      <tr><td>缴费弹窗是否溢出屏幕</td><td class="num">底边距 −110px</td><td class="ok">合格</td><td>#payPopup</td></tr>
+    </table>
+    <h3>对比度（WCAG，实测计算）</h3>
+    <table>
+      <tr><th>组合</th><th class="num">比值</th><th>判定</th><th>说明</th></tr>
+      <tr><td>正文 ink3 #7A6A55 / 卡底 #FFFBF3</td><td class="num">5.06</td><td class="ok">AA 通过</td><td>主力文字色合格</td></tr>
+      <tr><td>accent #B84A22 / 卡底</td><td class="num">5.04</td><td class="ok">AA 通过</td><td>强调色合格</td></tr>
+      <tr><td>accent / 纸底 #F4EBDA</td><td class="num">4.39</td><td class="mid">接近 4.5</td><td>地图区文字建议加深到 #A63E1A</td></tr>
+      <tr><td>演示声明 #B5A98F / 卡底</td><td class="num">2.25</td><td class="no">远不达标</td><td>4 处 10px 灰字</td></tr>
+      <tr><td>灰提示 #9A8B78 / 卡底</td><td class="num">3.21</td><td class="no">不达标</td><td>推荐弹窗"步行"标签等</td></tr>
+      <tr><td>空闲 #5C8C46 vs 占用 #8A8172</td><td class="num">1.03</td><td class="no">几乎同亮度</td><td>仅靠颜色不可辨</td></tr>
+      <tr><td>目标 #C0392B vs 当前位置 #B84A22</td><td class="num">1.05</td><td class="no">几乎同亮度</td><td>两个圆点标记难区分</td></tr>
+      <tr><td>fox 黄底 #F5CF3F 上的深色字</td><td class="num">10.51</td><td class="ok">AAA</td><td>主按钮配色优秀</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2><span class="pill p0">P0</span>答辩前必改（3 条）</h2>
+
+    <div class="issue">
+      <div class="hd">P0-1　导航指引 13 步、塞进 130px 框，且不随行走自动滚动</div>
+      <div class="loc">buildInstructions() L2138 · renderGuide() L1764 · updateGuideIdx() L1776 · planRoute() L2156</div>
+      <div class="kv"><b>现象：</b>一条同层直线距离的车位路线被切成 13 步（起点 / 直行 / 左转 / 直行 / 右转 … / 到达），指引内容 351px 装进 130px 的框；实测把当前步设到第 5、9、12 步时，<b>三步全部落在可视区外</b>（liTop 138 / 241 / 319px，框高仅 130px），scrollTop 恒为 0。</div>
+      <div class="kv"><b>根因：</b>A* 在 2m 栅格上只走四邻域，路径呈阶梯状锯齿；buildInstructions 每次"方向改变"就生成一步，锯齿越多步数越多，还保留了 &lt;1m 的"直行 0 米"级碎片。指引框只做了限高，没有跟随滚动。</div>
+      <div class="kv"><b>改法（两步，缺一不可）：</b></div>
+      <ul>
+        <li>路径先简化再生成指令：共线合并 + 丢弃 &lt;3m 的碎片段，13 步 → 4~5 步；</li>
+        <li>渲染后把当前步滚进视野。</li>
+      </ul>
+<pre><span class="c">// ① 共线合并（插在 planRoute 里 cells→meters 之后）</span>
+function simplifyPath(m){
+  if(!m||m.length&lt;3) return m;
+  var out=[m[0]];
+  for(var i=1;i&lt;m.length-1;i++){
+    var a=out[out.length-1], b=m[i], c=m[i+1];
+    var cross=(b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x);
+    if(Math.abs(cross)&gt;1e-6) out.push(b);      <span class="c">// 只保留真正拐点</span>
+  }
+  out.push(m[m.length-1]); return out;
+}
+<span class="c">// planRoute:  var meters = simplifyPath(cells.map(...));</span>
+<span class="c">// buildInstructions:  if (d &gt; 0)  →  if (Math.round(d) &gt;= 3)   // 丢掉 0~2m 的碎片</span>
+
+<span class="c">// ② 当前步滚进视野（renderGuide 末尾）</span>
+var curEl = gb.querySelector('li.cur');
+if (curEl) curEl.scrollIntoView({ block:'nearest' });   <span class="c">// 找车页 overflow:hidden，不会带跑页面</span></pre>
+    </div>
+
+    <div class="issue">
+      <div class="hd">P0-2　导航时底部浮层吃掉 55% 的地图，可视地图只剩 161px</div>
+      <div class="loc">.float-panel L186 · .guide L193 / 补丁 L370 · #page-find L471-477</div>
+      <div class="kv"><b>现象：</b>找车页总高 780，顶部导航 40 + 车牌搜索 56 + 我的车牌 70 + 目标条 97 = <b>263px 固定头部</b>；地图本身 404px，导航时浮层（指引 132 + 按钮 48 + padding 24 = 223px）再压掉 55%，真正能看见路线的区域只剩 <b>161px</b>。观众看到的是"一条被切了一半的地图 + 一坨文字"。</div>
+      <div class="kv"><b>改法：</b>指引默认折叠成"当前一步"单行条，点一下才展开全部（与图例折叠同一套交互，已经在 #mapLegend 上验证过）；浮层高度回到 ~80px，可视地图回到 ~300px。</div>
+<pre><span class="c">// renderGuide：默认只渲染当前步 + "展开全部 n 步"</span>
+if (state.guideOpen) { <span class="c">/* 现有全量渲染 + scrollIntoView */</span> }
+else {
+  var p = state.path[cur] || {};
+  gb.innerHTML = '&lt;div class="guide-now" onclick="toggleGuide()"&gt;' +
+    '&lt;span class="idx"&gt;'+(cur+1)+'&lt;/span&gt;&lt;span class="txt"&gt;'+p.instruction+'&lt;/span&gt;' +
+    '&lt;span class="more"&gt;全部 '+state.path.length+' 步 ▾&lt;/span&gt;&lt;/div&gt;';
+}
+<span class="c">// CSS：.guide-now{display:flex;align-items:center;gap:8px;min-height:40px}</span></pre>
+      <div class="kv"><b>顺带：</b>顶部"我的车牌"（70px，2 行）在导航时可收起为一行，可再省 35px。</div>
+    </div>
+
+    <div class="issue">
+      <div class="hd">P0-3　无目标时，底部按钮浮层压在"空状态"之上，两套指令互相打架</div>
+      <div class="loc">#mapEmpty L466 (z-index:5) · .float-panel L186 (z-index:20) · updateFindHeader() L1786</div>
+      <div class="kv"><b>现象：</b>没有在停记录也没选目标时，地图中央显示"🔍 输入车牌号，或扫码定位开始寻车 + 手动记录车位按钮"，但上层仍悬浮着"📍 我在哪 / 🧭 开始导航（灰）"，两者矩形重叠。且"开始导航"被禁用却<b>没有任何原因说明</b>，评委点一下只会得到一句 toast。</div>
+      <div class="kv"><b>改法：</b>无目标时整个浮层隐藏；有目标但没定位时，把禁用原因写进按钮下方一行小字。</div>
+<pre><span class="c">// updateFindHeader 末尾</span>
+var hasTarget = !!currentTargetSpace();
+var fp = document.querySelector('.float-panel');
+if (fp) fp.style.display = hasTarget ? '' : 'none';
+var hint = $('navHint');
+if (hint) hint.textContent = state.lastPoint ? '' : '先点「📍 我在哪」定位当前位置';</pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="pill p1">P1</span>建议改（7 条）</h2>
+
+    <div class="issue">
+      <div class="hd">P1-1　首页仍有 76px 掉在首屏外，"商场车位概况"被拦腰截断</div>
+      <div class="loc">#page-home L403-433 · .ai-home-entry L271 · .quick-grid L93</div>
+      <div class="kv"><b>实测：</b>在停卡 245 + AI 入口 77 + 快捷入口 128 + 商场概况 183 + 间距 = 711px，可视 635px，概况卡 belowFold = true。v6.1 定的"首屏 0 滚动"目标没达成。</div>
+      <div class="kv"><b>改法：</b>AI 入口并入"快捷入口"卡作为高亮首行（省 77+20），概况卡两行按钮改紧凑排版（行高 8→4px、去掉一行 fine-print，省 ~40）。两项合计省 ~137px，可容纳未来的"5 分钟提醒"提示位。</div>
+    </div>
+
+    <div class="issue">
+      <div class="hd">P1-2　结束停车后定位状态残留（只有这一处漏了清理）</div>
+      <div class="loc">doEndParking() L1107 · 对照：confirmRecord() L1099、findByPlate() L1672 都已清</div>
+      <div class="kv"><b>实测：</b>定位 → 缴费离场后，<code>locName</code> 仍显示"6号电梯"，<code>lastPoint</code> 仍为真，「开始导航」按钮<b>仍可点</b>，点下去弹"暂无目标车位"。属于典型的"状态重置清单漏项"。</div>
+      <div class="kv"><b>改法：</b>把重置抽成一个函数，四处统一调用，避免以后再漏。</div>
+<pre>function resetNavState(){
+  state.current=null; state.path=[]; state.walkCells=null;
+  state.walkAnim=null; state.lastPoint=null; state.guideIdx=0;
+  var gb=$('guideBox'); if(gb) gb.style.display='none';
+  updateLocState();     <span class="c">// 同步按钮 disabled + 位置文案</span>
+}
+<span class="c">// doEndParking / confirmRecord / findByPlate / switchTarget 统一调用</span></pre>
+    </div>
+
+    <div class="issue">
+      <div class="hd">P1-3　颜色令牌漂移：--accent 已改 #B84A22，仍有 9 处在用旧橙 #D0542C</div>
+      <div class="loc">drawMap L2075 · drawLotRoute L2650 · showRecommendation L1494/1499 · .lot-tip b · 图例 L458</div>
+      <div class="kv"><b>具体落差：</b>图例写明"当前位置 #B84A22"，画布实际用 #D0542C 画"我"的标记——<b>图文不一致</b>；推荐弹窗还残留蓝色边框 <code>#B3D4FF</code>（旧蓝主题遗留，与纸感配色冲突）、车位徽标/步行分钟用 #D0542C。</div>
+      <div class="kv"><b>改法：</b>DOM 层统一走 <code>var(--accent)</code>；<b>canvas 里不能用 CSS 变量</b>，需在 JS 顶部定义画布常量，两处同源：</div>
+<pre>var C_ACCENT='#B84A22', C_TARGET='#C0392B', C_FREE='#5C8C46', C_OCC='#8A8172';
+<span class="c">// drawMap / drawMarker / drawLotRoute 全部改读常量</span>
+<span class="c">// showRecommendation: border 1px solid #B3D4FF → var(--line)</span></pre>
+    </div>
+
+    <div class="issue">
+      <div class="hd">P1-4　空/满车位只靠颜色区分，亮度对比仅 1.03:1</div>
+      <div class="loc">drawLotMap L2591（有斜线纹理兜底 ✅）· drawMap L2054（无兜底 ❌）· 双图例 L455/551</div>
+      <div class="kv"><b>实测：</b>#5C8C46 vs #8A8172 亮度比 1.03，几乎同亮度——投影偏色、色弱观众、黑白打印全废。平面图页已用"占用格画斜线"做了形状冗余（这个做得对），但<b>找车页地图和两侧图例只有颜色</b>。</div>
+      <div class="kv"><b>改法（两条任选，建议都做）：</b>① 图例色块也带上斜线/空心，形状与地图一致；② 找车页车位沿用平面图的斜线纹理，或把占用色换成明度更高的 <code>#C9BFAE</code>（与空闲对比 3.1:1）。</div>
+    </div>
+
+    <div class="issue">
+      <div class="hd">P1-5　演示声明类文字仍是 10px + #B5A98F（对比度 2.25）</div>
+      <div class="loc">我的页 L494 · 新能源页 L526 · 实拍页 L569 · AI 半屏 L675 / .ai-disclaimer L267 · .lot-f-title L113</div>
+      <div class="kv"><b>实测：</b>9 处 &lt;11px，最低 10px；其中"演示用"声明 4 处用 #B5A98F，对比度 2.25（要求 4.5）。v6.1 补丁里写的"演示声明最小 11px"<b>没有落地</b>。</div>
+      <div class="kv"><b>改法：</b>全局收口 —— 所有声明文本套 <code>.fine-print</code>（11px + var(--ink3)，对比度 5.06），并删除分散的内联 10px 样式；<code>.ai-disclaimer</code>、<code>.lot-f-title</code> 一并提到 11px。</div>
+    </div>
+
+    <div class="issue">
+      <div class="hd">P1-6　17 处点击热区不足 44×44（最小 16×24）</div>
+      <div class="loc">.mall-btn L99(57×23) · .lot-photo-btn L319(46×23) · .ai-sug-chip L243(85×25) · .sheet-title .close(16×24) · "或手动选择目的地"(104×16) · "拍照存档"(343×15)</div>
+      <div class="kv"><b>改法：</b>统一给可点元素加最小尺寸，不改动视觉重量：</div>
+<pre>.mall-btn,.lot-photo-btn,.ai-sug-chip{min-height:32px;display:inline-flex;align-items:center}
+.sheet-title .close{padding:6px 10px;margin:-6px -10px}   <span class="c">// 视觉不变，热区变大</span>
+.photo-entry,.ai-more{padding:8px 0}                       <span class="c">// 单行文字链接撑到 30px+</span></pre>
+      <div class="kv"><b>答辩场景提示：</b>触屏投屏演示时，23px 高的按钮很容易点空。</div>
+    </div>
+
+    <div class="issue">
+      <div class="hd">P1-7　我的页 1069px 溢出 434px，且两张卡在讲同一件事</div>
+      <div class="loc">#page-profile L482-516 · renderProfile() L2253（#vehicleCard + #plateList）</div>
+      <div class="kv"><b>现象：</b>"车辆管理"（默认车牌/车型）与"我的车辆（车牌绑定）"（车牌列表 + 授权开关 + 说明）语义重复，占 121 + 208 = 329px；真正高频的"停车记录"被压到第 5 张卡，需下滑两屏。</div>
+      <div class="kv"><b>改法：</b>① 两卡合并为"我的车辆"：车牌行带授权开关，说明文字收进一行 fine-print；② 卡片顺序改为 用户 → 我的车辆 → 停车记录 → 我的数据 → 设置（把"记录"提到"数据"前）。可省 ~120px 并少一次下滑。</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="pill p2">P2</span>有余力再改（6 条）</h2>
+    <table>
+      <tr><th style="width:26%">问题</th><th>说明与改法</th></tr>
+      <tr><td>平面图页楼层列语义错</td><td>假日广场只有 UG 一层，楼层列仍显示"总览 + B1(实际改成 UG)"。建议楼层列按商场动态生成按钮，标题写真实层名，避免出现"总览"但只有一层可选。</td></tr>
+      <tr><td>平面图底部提示条常驻</td><td>.lot-tip 占 33px 且常驻（实测 33.6px），与复位按钮、2D 徽标同处底部。建议 3 秒后淡出，或改成右上角"?"图标按需展开。</td></tr>
+      <tr><td>AI 入口三处重复</td><td>首页卡 + 目的地 sheet banner + 独立半屏，示例 chip 写了两遍。建议保留"首页入口 + 独立半屏"，sheet 内 banner 收成一行"🤖 用一句话描述需求 ›"。</td></tr>
+      <tr><td>无键盘可达性</td><td>所有可点元素都是 div + onclick，无 &lt;button&gt; / aria-label / focus 态，无法 Tab 操作。建议关键入口改 &lt;button&gt; 并加 :focus-visible 描边。</td></tr>
+      <tr><td>侧栏说明卡会消失</td><td>@media(max-width:1280px) 直接 display:none —— 答辩投屏常见 1280/1366 宽度，讲解要点会整块消失。建议改为可折叠按钮，或把要点做成手机下方的三行卡片。</td></tr>
+      <tr><td>弹窗定位用魔法数字</td><td>.popup bottom:110px、各 z-index 分散（90/99/110/120/200）。建议统一"bottom 锚点 + 层级表"（mask 90 / sheet 100 / popup 110 / lightbox 120 / toast 200），避免多弹窗叠加时互相遮挡。</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>执行顺序（按答辩倒计时排）</h2>
+    <table>
+      <tr><th style="width:16%">顺序</th><th style="width:30%">动作</th><th>验收标准（可量）</th></tr>
+      <tr><td>1（30 分钟）</td><td>P0-1 路径简化 + 指引自动滚动</td><td>同层路线 ≤6 步；模拟推进到第 8 步时 li.cur 仍在可视区内</td></tr>
+      <tr><td>2（30 分钟）</td><td>P0-2 指引折叠为当前步</td><td>导航态浮层 ≤90px，可视地图 ≥300px</td></tr>
+      <tr><td>3（10 分钟）</td><td>P0-3 无目标隐藏浮层</td><td>无目标时 float-panel display:none，空状态不再被遮挡</td></tr>
+      <tr><td>4（10 分钟）</td><td>P1-2 resetNavState 收口</td><td>结束停车后 locName=未定位、navBtn disabled</td></tr>
+      <tr><td>5（20 分钟）</td><td>P1-3 + P1-5 颜色/字号收口</td><td>grep #D0542C / #B5A98F 结果为 0；无 &lt;11px 正文</td></tr>
+      <tr><td>6（30 分钟）</td><td>P1-1 + P1-7 首页/我的页瘦身</td><td>首页 scrollHeight ≤ clientHeight；我的页两车卡合并</td></tr>
+      <tr><td>7（20 分钟）</td><td>P1-4 图例形状冗余 + P1-6 热区</td><td>图例带斜线；热区 &lt;40px 的元素 ≤5 处</td></tr>
+      <tr><td>8（有余力）</td><td>P2 六条</td><td>—</td></tr>
+    </table>
+    <p style="margin-top:10px">每改完一组，用 <code>shot_tmp/audit_v64.cjs</code> / <code>audit_v64b.cjs</code> 复测一遍（脚本会打印溢出、占比、热区、字号、对比度），数据对得上再进入下一组。</p>
+  </div>
+
+  <div class="card">
+    <h2>回归确认：v6.1 系列修复本轮仍然有效</h2>
+    <ul>
+      <li>✅ 遮罩统一走 setLayer + lockPhone，弹窗打开时 tabbar 变灰不可点；</li>
+      <li>✅ 两块画布（找车 / 平面图）均绑定 touch，支持拖拽 / 双指缩放 / 点击；</li>
+      <li>✅ FLOORS_OF 单一数据源 + floorBtnKey 反查，万象汇 B1/B3/B4/B5 与假日广场 UG 不混用（实测两场起始设施不同：8号电梯 vs 车库出口）；</li>
+      <li>✅ A* 不可达时不再画穿墙直线，改为明确提示；</li>
+      <li>✅ AI 未识别目的地时走"就近推荐 · 未指定目的地"，不再虚构店名；</li>
+      <li>✅ v6.2 定位/导航解耦：点「我在哪」后 path=0、指引隐藏、1.2s 内人物不动；点「开始导航」后 13 步 + 动画启动（步数偏多即 P0-1）。</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>附：逐页信息层级建议（一句话版）</h2>
+    <div class="grid2">
+      <div>
+        <h3>首页</h3>
+        <p>现在：在停卡 → AI 入口 → 快捷入口 → 商场概况。<b>建议</b>：在停卡（最重）保留；AI 入口作为快捷入口卡的<b>高亮首行</b>；概况卡压缩到两行。目标：整页 ≤635px。</p>
+        <h3>找车页</h3>
+        <p>现在：搜索 → 我的车牌 → 目标条 → 地图 → 浮层。<b>建议</b>：导航开始后收起"我的车牌"；指引折叠为单步；顶部只留"目标 + 当前位置 + 平面图"。</p>
+      </div>
+      <div>
+        <h3>平面图页</h3>
+        <p>现在：返回/标题/实拍 → 空位统计 → 地图（楼层列 + 图例 + 提示条 + 复位）。<b>建议</b>：楼层列按商场动态生成、提示条 3 秒淡出；其余已达标。</p>
+        <h3>我的页</h3>
+        <p>现在：用户 → 车辆管理 → 我的车辆 → 我的数据 → 停车记录 → 设置。<b>建议</b>：合并两张车卡；停车记录提到我的数据之前。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">评审脚本：shot_tmp/audit_v64.cjs（布局/热区/字号）、audit_v64b.cjs（激活态测量）、dbg_v64*.cjs（状态残留与滚动行为）<br>所有数值均来自 Chromium 375×780 实测，非目测估算</div>
+
+</div>
+</body>
+</html>

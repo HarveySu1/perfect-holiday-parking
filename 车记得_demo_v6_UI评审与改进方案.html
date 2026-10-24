@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>车记得 Demo v6 · UI 评审与改进方案</title>
+<style>
+  :root{
+    --paper:#FBF5EA; --paper2:#F4EBDA; --card:#FFFBF3;
+    --ink:#2A201A; --ink2:#75655A; --ink3:#7A6A55; --ink4:#8A7A66;
+    --accent:#B84A22; --accent-d:#8F3A19;
+    --line:#E8DCC2; --line2:#EFE6D2;
+    --ok:#4F8F3A; --warn:#B85C20; --err:#A32D2D;
+    --code:#F7F1E4;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--paper);color:var(--ink);
+    font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;
+    font-size:14px;line-height:1.75;padding:0 0 60px}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+  header{background:#2A201A;color:var(--paper);padding:34px 0 28px;margin-bottom:28px;
+    border-bottom:4px solid #F5CF3F}
+  header h1{font-size:24px;letter-spacing:.5px;line-height:1.4}
+  header .sub{font-size:13px;color:#D8CDB8;margin-top:6px}
+  .meta-row{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+  .meta-chip{font-size:11px;padding:4px 10px;border-radius:999px;background:rgba(255,251,243,.12);
+    color:#F0E6D2;border:1px solid rgba(255,251,243,.22)}
+  h2{font-size:19px;margin:38px 0 6px;padding-left:12px;border-left:4px solid #F5CF3F;letter-spacing:.5px}
+  h2 small{font-size:12px;color:var(--ink2);font-weight:400;letter-spacing:0}
+  h3{font-size:15px;margin:22px 0 8px;color:var(--ink)}
+  h4{font-size:13px;margin:16px 0 6px;color:var(--ink2)}
+  p{margin:8px 0}
+  .lead{font-size:13px;color:var(--ink2);margin-bottom:14px}
+  .card{background:var(--card);border:1.5px solid var(--line);border-radius:14px;
+    padding:16px 18px;margin:12px 0;box-shadow:0 3px 10px rgba(42,32,26,.05)}
+  .summary{display:flex;gap:12px;flex-wrap:wrap;margin:16px 0}
+  .stat{flex:1;min-width:150px;background:var(--card);border:1.5px solid var(--line);
+    border-radius:14px;padding:14px 16px}
+  .stat .n{font-size:26px;font-weight:700;line-height:1.2}
+  .stat .l{font-size:11px;color:var(--ink3);margin-top:2px}
+  .stat.p0 .n{color:var(--err)} .stat.p1 .n{color:var(--warn)} .stat.p2 .n{color:var(--ink2)}
+  .stat.cr .n{color:var(--err)}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;margin:10px 0;background:var(--card)}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top;line-height:1.6}
+  th{background:#F4EBDA;font-weight:600;color:var(--ink);white-space:nowrap}
+  td.num{white-space:nowrap;text-align:center;font-variant-numeric:tabular-nums}
+  .tag{display:inline-block;padding:1px 7px;border-radius:5px;font-size:11px;white-space:nowrap}
+  .t-p0{background:#FBE3E0;color:#A32D2D;font-weight:600}
+  .t-p1{background:#FAEDDA;color:#B85C20;font-weight:600}
+  .t-p2{background:#EFE9DC;color:#75655A;font-weight:600}
+  .t-bad{background:#FBE3E0;color:#A32D2D}
+  .t-ok{background:#E9F3E4;color:#4F8F3A}
+  pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:12px 14px;
+    overflow-x:auto;font-family:Consolas,'Courier New',monospace;font-size:12px;line-height:1.65;
+    color:#3A2E25;margin:8px 0}
+  code{background:var(--code);border-radius:4px;padding:1px 5px;
+    font-family:Consolas,monospace;font-size:12px}
+  .swatch{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:-2px;
+    margin-right:5px;border:1px solid rgba(42,32,26,.18)}
+  ul,ol{margin:8px 0 8px 20px} li{margin:4px 0;font-size:13px}
+  .cmp{display:flex;gap:14px;flex-wrap:wrap;margin:12px 0}
+  .cmp>div{flex:1;min-width:280px}
+  .cmp .col{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:14px}
+  .cmp .col.now{border-style:dashed}
+  .cmp .col h4{margin-top:0;font-size:13px}
+  .stack{list-style:none;margin:0;display:flex;flex-direction:column;gap:5px}
+  .stack li{background:#F7F1E4;border:1px solid var(--line2);border-radius:8px;padding:6px 10px;
+    font-size:12px;display:flex;justify-content:space-between;gap:8px;align-items:center}
+  .stack li .r{font-size:10.5px;color:var(--ink3);white-space:nowrap}
+  .stack li.hi{background:#FBE3E0;border-color:#F0C9C3}
+  .stack li.good{background:#EAF3DE;border-color:#CFE3BC}
+  .note{background:#F7F1E4;border-left:3px solid #F5CF3F;border-radius:0 8px 8px 0;
+    padding:10px 14px;font-size:12.5px;color:#6B5D3A;margin:10px 0;line-height:1.7}
+  .chk li{list-style:none;margin-left:0}
+  .chk input{margin-right:8px}
+  footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);
+    font-size:11.5px;color:var(--ink3);line-height:1.8}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  @media (max-width:720px){ .cmp>div{min-width:100%} }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>车记得 Demo v6 · 信息层级与交互评审</h1>
+    <div class="sub">评审对象：车记得_demo_v6-纸感简约版.html（2492 行 / 1.17 MB）｜ 场景：完美金鹰假日商圈 AI 大赛复赛答辩演示</div>
+    <div class="meta-row">
+      <span class="meta-chip">评审维度：信息层级 / 交互可用性 / 视觉规范</span>
+      <span class="meta-chip">终端假设：手机壳 375×780 + 桌面浏览器演示</span>
+      <span class="meta-chip">对比度按 WCAG AA 实测</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<h2>总体判断</h2>
+<p class="lead">纸感视觉语言的完成度是这套 Demo 的强项——配色、手作圆角、纸纹噪点已经形成识别度，不需要推倒重来。真正的问题不在"好不好看"，而在三处：<b>信息层级被 demo 痕迹拖累</b>（最高频的"我的车停在哪"被压到第 4 屏位）、<b>交互在触屏上大面积失效</b>（两处 canvas 只绑了鼠标事件）、<b>三套车位数据互相打架</b>（推荐 B2、平面图只有 B1/B3/B4/B5）。答辩现场被追问时，后两类会当场断链。</p>
+<div class="summary">
+  <div class="stat p0"><div class="n">5</div><div class="l">P0 必改（演示会翻车）</div></div>
+  <div class="stat p1"><div class="n">12</div><div class="l">P1 影响理解与可信度</div></div>
+  <div class="stat p2"><div class="n">8</div><div class="l">P2 打磨项</div></div>
+  <div class="stat cr"><div class="n">1.22:1</div><div class="l">最差对比度（车位状态色）</div></div>
+</div>
+
+<h2>一、信息层级体检 <small>逐屏：现状 → 问题 → 建议</small></h2>
+
+<h3>1.1 首页：主任务被挤到第 4 位</h3>
+<div class="cmp">
+  <div class="col now">
+    <h4>现状顺序（自上而下）</h4>
+    <ul class="stack">
+      <li><span>① AI 决策入口卡（72px）</span><span class="r">拉新叙事</span></li>
+      <li><span>② 快捷入口 4 宫格（~130px）</span><span class="r">导航</span></li>
+      <li><span>③ 商场车位概况（~150px）</span><span class="r">写死"充足/紧张"</span></li>
+      <li class="hi"><span>④ 当前停车卡 homeCard</span><span class="r">最高频 · 需滚动</span></li>
+      <li><span>⑤ 演示数据声明</span><span class="r">10px / 2.25:1</span></li>
+    </ul>
+  </div>
+  <div class="col">
+    <h4>建议顺序</h4>
+    <ul class="stack">
+      <li class="good"><span>① 在停状态条（车牌/车位/时长/费用 + 双 CTA）</span><span class="r">首屏 0 滚动</span></li>
+      <li><span>② AI 决策入口（压成 64px 单行）</span><span class="r">保留主交互</span></li>
+      <li><span>③ 快捷入口 4 宫格</span><span class="r">不变</span></li>
+      <li><span>④ 双场车位概况（数值化 + 更新时间）</span><span class="r">与平面图同源</span></li>
+      <li><span>⑤ 演示数据声明（提到 12px / ink3）</span><span class="r">合规提示</span></li>
+    </ul>
+  </div>
+</div>
+<div class="note"><b>为什么改：</b>停车小程序的第一任务是"我现在停在哪 / 怎么找到车"。v6 把品牌叙事（AI）放在任务状态（在停卡）之前，用户首屏看不到自己的车位号；而已停 95 分钟的种子数据恰恰是这套 Demo 最能讲的故事。</div>
+
+<h3>1.2 找车页：4 个浮层压在同一块 canvas 上</h3>
+<p>目标条（顶）+ 图例（左上）+ 缩放按钮（右上）+ 浮动面板（底）四层叠加在 375×~560 的地图区，视觉噪声重，且"🧭 导航"这一个按钮同时承担<b>扫码定位</b>与<b>路径规划</b>两件事，用户第一次进入时无从判断该点什么。</p>
+<ul>
+  <li><b>图例</b>：默认收起为「图例」chip，点击展开；现在 4 行常驻，占掉约 15% 地图面积。</li>
+  <li><b>定位状态前置</b>：目标条右侧增加"当前位置：未定位 / 2 号电梯口"；未定位时"开始导航"置灰（disabled + 说明文案），"📍 扫码定位"为主按钮。</li>
+  <li><b>路线指引分步化</b>：现在 <code>guideBox</code> 用 "，".join 把全部指令拼成一段长句（如"直行 20 米，右转，直行 8 米，到达目标车位"），应改为分步列表 + 当前步高亮。</li>
+</ul>
+
+<h3>1.3 我的页：两张卡管同一件事</h3>
+<table>
+  <tr><th style="width:150px">现状卡片</th><th>问题</th><th>建议</th></tr>
+  <tr><td>车辆管理</td><td rowspan="2">两卡都管车牌，第二张还带授权开关；用户不知道"默认车牌"和"绑定车牌"什么关系</td><td rowspan="2">合并为一张「我的车辆」：车牌行（默认标记 + 授权开关 + 删除）+ 「+ 添加车牌」</td></tr>
+  <tr><td>我的车辆（车牌绑定）</td></tr>
+  <tr><td>我的数据（3 统计）</td><td>与下方记录列表无关联入口，纯展示</td><td>统计项可点 → 记录列表自动筛选</td></tr>
+  <tr><td>设置</td><td>"意见反馈 / 关于我们" 点击无任何响应，评审一定会点</td><td>移除，或点击 toast「Demo 未开放」</td></tr>
+</table>
+
+<h3>1.4 平面图页：高价值信息位被操作说明占用</h3>
+<ul>
+  <li><b>缺本层空位统计</b>：进入后不知道这层有多少空位，只有图例和一句固定操作说明。顶部加「本层空位 128 / 320 · 更新于 14:20」。</li>
+  <li><b>底部 tip 常驻操作说明</b>：未选中车位时才显示操作提示；选中后应切换为「B3-312 · 空闲 · 标准车位 · [🧭 2D 导航]」（目前导航是 tip 里的一个 &lt;a&gt; 链接，热区太小，应做成 44px 按钮）。</li>
+  <li><b>楼层选择器竖排左侧中部</b>，压住地图左侧约 12% 宽度；改为顶部横向 chip 行。</li>
+</ul>
+
+<h3>1.5 全局：侧栏说明在 ≤1280px 直接消失</h3>
+<p><code>@media (max-width:1280px){ .side{display:none} }</code> —— 评审用笔记本（1440 逻辑分辨率但浏览器常非全屏）或投屏（1080p）时，"寻车 / 记录 / 隐私 / 逛搭子联动"这四条核心叙事大概率看不见。建议：把说明折进界面内（首页底部可折叠的「演示说明」条目 + 首次进入的一次性引导浮层），侧栏仅作答辩人备忘。</p>
+
+<h2>二、交互问题清单 <small>P0 = 演示会翻车，P1 = 影响理解，P2 = 打磨</small></h2>
+<table>
+  <tr><th style="width:44px">级别</th><th style="width:150px">位置 / 证据</th><th>问题与后果</th><th style="width:290px">改法</th></tr>
+
+  <tr><td class="num"><span class="tag t-p0">P0</span></td><td>两处 canvas<br>bindGestures / bindLotCanvas</td>
+  <td><b>只绑了 mousedown / mousemove / wheel，没有 touch 事件</b>。在手机或触屏笔记本上无法拖拽、无法点车位、无法缩放；平面图页主打的"点空闲车位可导航"在触屏上 100% 失效。</td>
+  <td>补 touchstart / touchmove / touchend 与双指 pinch；点击判定阈值从 4px 提到 8px（手指抖动）。代码见 §4.2。</td></tr>
+
+  <tr><td class="num"><span class="tag t-p0">P0</span></td><td>.mask / .tabbar<br>openPay()</td>
+  <td><b>遮罩盖不住底部 tabbar</b>：mask 是 .screen 内的 absolute，tabbar 是其兄弟节点 → 弹窗打开时三个 tab 仍可点击，切页后弹窗残留在原页。更严重的是 <code>openPay()</code> 用 <code>$('payMask').style.display='block'</code>，而 .mask 默认 <code>opacity:0</code> 且无 display:none —— <b>缴费弹窗的遮罩根本没显示</b>，背景完全可点。</td>
+  <td>统一用 <code>classList.add('show')</code>；mask 提到 .phone 层级（覆盖 tabbar）；打开弹窗时给 tabbar 加 <code>pointer-events:none</code>。代码见 §4.1。</td></tr>
+
+  <tr><td class="num"><span class="tag t-p0">P0</span></td><td>楼层数据三套<br>L598 / L1901 / L1195</td>
+  <td><b>车位数据三套互斥</b>：genData 生成 B1/B2（spaces），平面图 LOT_FLOORS = B1/B3/B4/B5（万象汇）/ UG（假日广场），recommendParking 固定写 <code>var floor='B2'</code>。→ 推荐出来的 B2 车位在平面图里根本不存在；首页"充足/紧张"是写死 tag，不随平面图随机占位变化。评审问"这个 B2 在图上哪一层"会当场断。</td>
+  <td>定义一个 <code>FLOORS_OF = {wanxianghui:['B1','B3','B4','B5'], holiday_plaza:['UG']}</code>，genData、recommendParking、平面图、新能源页全部读它；首页概况改为对同一 status 源求和 + 显示"更新于 HH:MM"。</td></tr>
+
+  <tr><td class="num"><span class="tag t-p0">P0</span></td><td>executeAIRecommend<br>L1170–1179</td>
+  <td><b>AI 兜底"幻觉"</b>：未识别出目的地时，硬编码选中 S014（万象汇海底捞）。用户说"随便停一下"会得到"推荐去海底捞"，直接暴露关键词规则模拟，与"AI 解析意图"的叙事正面冲突。</td>
+  <td>无目的地时走"就近推荐"分支并显式告知：解析卡显示"未识别到明确目的地 → 按当前空位最多楼层就近推荐"，推荐卡标注"就近推荐（未指定目的地）"，不虚构店名。</td></tr>
+
+  <tr><td class="num"><span class="tag t-p0">P0</span></td><td>astar() L1718<br>planRoute / lotNav</td>
+  <td><b>找不到路时 return [start, goal]</b> → 画出一条穿墙直线路径。路径演示是这套方案的技术卖点，一条穿墙直线会让评审对 A* 的真实性产生怀疑。</td>
+  <td>失败返回 null，调用方显示"该目标暂无可行车道路径（演示数据）"并保留目标标记，不画线。</td></tr>
+
+  <tr><td class="num"><span class="tag t-p1">P1</span></td><td>首页顺序</td><td>在停卡（最高频）排第 4 位，需滚动才可见。</td><td>见 §1.1 重构。</td></tr>
+  <tr><td class="num"><span class="tag t-p1">P1</span></td><td>.side @1280px</td><td>≤1280px 侧栏整体消失，四条核心叙事不可见。</td><td>说明内聚进界面；侧栏仅作答辩备忘。</td></tr>
+  <tr><td class="num"><span class="tag t-p1">P1</span></td><td>#B5A98F / #9A8B78 / #D0542C</td><td>对比度 2.25:1 / 3.21:1 / 4.08:1，均低于 WCAG AA 4.5:1（正文）。投屏与弱光下 10–12px 文字不可读。</td><td>见 §3 令牌表修正值。</td></tr>
+  <tr><td class="num"><span class="tag t-p1">P1</span></td><td>平面图 #7CB07A vs #C9BFAE</td><td>空闲绿与占用灰对比度仅 <b>1.38:1</b>；找车页 #8FC98F vs #D8CDB8 仅 <b>1.22:1</b>。色弱用户与强光下完全分不出空/满 —— 而"找空位"正是核心功能。</td><td>空闲 #5C8C46 / 占用 #8A8172（两色间 3.13:1，各自对底 3.23:1 / 3.13:1），另加形状冗余（占用车位加斜线填充）。</td></tr>
+  <tr><td class="num"><span class="tag t-p1">P1</span></td><td>ai-home-entry → openDestSheet → aiInput</td><td>AI 入口嵌在"选择目的地" sheet 顶部，与下方"搜索店名"输入框权重并列，两个输入主操作打架；首页点 AI 卡要再点一次才轮到输入。</td><td>AI 独立为半屏输入页（自己的标题 + 输入框 + 示例 chips + 解析按钮），选店列表作为"或手动选"的次级区块折叠在其下。</td></tr>
+  <tr><td class="num"><span class="tag t-p1">P1</span></td><td>updateFindHeader L1499–1523</td><td>自定义目标时 <code>if(r)</code> 分支优先，tMeta 仍显示入场时间 → "自定义目标 B2-A016" 下面挂"入场 14:30"，语义错乱。</td><td>先判 customTarget 再判 record，两个分支各自渲染完整 meta。</td></tr>
+  <tr><td class="num"><span class="tag t-p1">P1</span></td><td>.lot-back / 平面图缩放</td><td>返回热区约 44×20px（低于 44×44 触控标准）；平面图页无复位按钮，缩放后难以回正（找车页有 dblclick）。</td><td>返回区高度补到 44px；缩放按钮组增加"⤾ 复位"。</td></tr>
+  <tr><td class="num"><span class="tag t-p1">P1</span></td><td>float-panel「🧭 导航」</td><td>一个按钮做"扫码定位 + 规划路线"两件事，且首次进入无引导。</td><td>拆为「📍 我在哪」+「🧭 开始导航」，后者未定位时置灰。</td></tr>
+  <tr><td class="num"><span class="tag t-p1">P1</span></td><td>lotTip 固定文案</td><td>底部信息条常驻操作说明，浪费唯一的高价值信息位。</td><td>见 §1.4：未选中=提示，选中=车位详情 + 导航按钮。</td></tr>
+  <tr><td class="num"><span class="tag t-p1">P1</span></td><td>my-plates 他人车 chip</td><td>"粤A88888（他人车）"与本人车牌 chip 仅颜色略淡，易误点后弹出"隐私保护"（其实是要展示的卖点）。</td><td>加分隔线 + "示例"角标，或改为一行灰色说明「试试查他人车：粤A88888」。</td></tr>
+  <tr><td class="num"><span class="tag t-p1">P1</span></td><td>openPay 时间源</td><td>缴费弹窗用 <code>parseTime(r.entry)</code>，而 state.record 已有 entryTs；两个时间源在跨零点/手动改数据时可能不一致。</td><td>统一用 entryTs；"超时费"字段改名为"计费时长"。</td></tr>
+
+  <tr><td class="num"><span class="tag t-p2">P2</span></td><td>emoji 图标</td><td>🎯🔍🔋🧾 混排，无 hover 态（桌面演示反馈弱），风格与纸感插画不一致。</td><td>统一线性 SVG 图标（1.5px stroke，44×44 容器），或统一 emoji 并补 :hover。</td></tr>
+  <tr><td class="num"><span class="tag t-p2">P2</span></td><td>车牌号用 ZCOOL KuaiLe</td><td>手写体 + letter-spacing 1px 降低车牌识别性（车牌是核心信息）。</td><td>车牌/车位号改用 <code>ui-monospace, Consolas</code>，字号 18px；手写体只保留标题与金额。</td></tr>
+  <tr><td class="num"><span class="tag t-p2">P2</span></td><td>字号无 scale</td><td>10/11/12/13/15/17/18/30/36px 混用，最小 10px。</td><td>收敛为 11 / 13 / 15 / 18 / 24 / 32 六级（见 §3）。</td></tr>
+  <tr><td class="num"><span class="tag t-p2">P2</span></td><td>圆角与阴影</td><td>手作圆角值写死在各选择器；阴影三层未令牌化。</td><td>提炼 --r-card / --r-sheet / --e-1 / --e-2 / --e-3（见 §3）。</td></tr>
+  <tr><td class="num"><span class="tag t-p2">P2</span></td><td>showAIParse 定时器</td><td>关闭 sheet 后 setTimeout 仍会写入 DOM，连续两次解析有竞态；AI 输入无清除按钮、解析不可中断。</td><td>保存 timer id，closeAIParse 时 clearTimeout；输入框加清除按钮 + 解析中的"停止"。</td></tr>
+  <tr><td class="num"><span class="tag t-p2">P2</span></td><td>delRec 用原生 confirm</td><td>浏览器原生弹窗破坏纸感一致性。</td><td>换自建确认 sheet。</td></tr>
+  <tr><td class="num"><span class="tag t-p2">P2</span></td><td>记录车位 sheet 排序</td><td>"拍照存档（可选）"夹在车位输入与车牌输入之间，主次不清。</td><td>顺序改为：扫码/手动选位 → 车牌 → 车型 → 确认；"拍照存档"降为底部灰色文字链。</td></tr>
+  <tr><td class="num"><span class="tag t-p2">P2</span></td><td>深链路不可达</td><td>新能源页只能从首页快捷入口进，平面图只能从首页两个按钮进；在找车页无法看图。</td><td>找车页目标条加"平面图"入口；新能源页加入 tabbar 或首页常驻入口。</td></tr>
+</table>
+
+<h2>三、视觉规范令牌表 <small>对比度为按 WCAG 相对亮度公式实测值</small></h2>
+
+<h3>3.1 中性色与语义色（实测 → 修正）</h3>
+<table>
+  <tr><th style="width:130px">令牌</th><th style="width:90px">现值</th><th class="num" style="width:80px">对比度</th><th class="num" style="width:60px">判定</th><th style="width:90px">修正值</th><th class="num" style="width:80px">修正后</th><th>用途</th></tr>
+  <tr><td>--ink</td><td>#2A201A</td><td class="num">14.66:1</td><td class="num"><span class="tag t-ok">通过</span></td><td>不变</td><td class="num">14.66:1</td><td>正文 / 标题</td></tr>
+  <tr><td>--ink2</td><td>#75655A</td><td class="num">5.40:1</td><td class="num"><span class="tag t-ok">通过</span></td><td>不变</td><td class="num">5.40:1</td><td>次级说明</td></tr>
+  <tr><td>--ink3</td><td>#9A8B78</td><td class="num">3.21:1</td><td class="num"><span class="tag t-bad">不达标</span></td><td><span class="swatch" style="background:#7A6A55"></span>#7A6A55</td><td class="num">5.06:1</td><td>三级信息 / 时间戳</td></tr>
+  <tr><td>--ink4（注释）</td><td>#B5A98F</td><td class="num">2.25:1</td><td class="num"><span class="tag t-bad">严重</span></td><td><span class="swatch" style="background:#7A6A55"></span>#7A6A55 + 12px</td><td class="num">5.06:1</td><td>演示声明 / 图例脚注（字号 10→12px）</td></tr>
+  <tr><td>--accent</td><td>#D0542C</td><td class="num">4.08:1</td><td class="num"><span class="tag t-bad">不达标</span></td><td><span class="swatch" style="background:#B84A22"></span>#B84A22</td><td class="num">5.04:1</td><td>主色 / 强调数字 / 链接</td></tr>
+  <tr><td>--accent（白字底）</td><td>#D0542C</td><td class="num">4.21:1</td><td class="num"><span class="tag t-bad">不达标</span></td><td><span class="swatch" style="background:#A63E1A"></span>#A63E1A</td><td class="num">6.32:1</td><td>选中态 chip / 楼层按钮（白字）</td></tr>
+  <tr><td>--gold（提示金）</td><td>#C9932A</td><td class="num">2.65:1</td><td class="num"><span class="tag t-bad">严重</span></td><td><span class="swatch" style="background:#8A5E12"></span>#8A5E12</td><td class="num">5.9:1</td><td>AI 副标题 / 金色强调文字</td></tr>
+  <tr><td>--link-arrow</td><td>#C9BFAE</td><td class="num">1.76:1</td><td class="num"><span class="tag t-bad">严重</span></td><td><span class="swatch" style="background:#7A6A55"></span>#7A6A55</td><td class="num">5.06:1</td><td>列表箭头 ›</td></tr>
+  <tr><td>平面图·空闲</td><td>#7CB07A</td><td class="num">1.38:1<span style="color:#8A7A66">（对占用灰）</span></td><td class="num"><span class="tag t-bad">严重</span></td><td><span class="swatch" style="background:#5C8C46"></span>#5C8C46</td><td class="num">3.23:1</td><td>空闲车位</td></tr>
+  <tr><td>平面图·占用</td><td>#C9BFAE</td><td class="num">1.48:1</td><td class="num"><span class="tag t-bad">严重</span></td><td><span class="swatch" style="background:#8A8172"></span>#8A8172</td><td class="num">3.13:1</td><td>占用车位（另加斜线纹理做形状冗余）</td></tr>
+  <tr><td>找车页·新能源</td><td>#8FC98F</td><td class="num">1.22:1</td><td class="num"><span class="tag t-bad">严重</span></td><td><span class="swatch" style="background:#5C8C46"></span>#5C8C46</td><td class="num">3.23:1</td><td>与平面图统一同色</td></tr>
+  <tr><td>tag-green</td><td>#4A7A3A / #E9F3E4</td><td class="num">4.45:1</td><td class="num"><span class="tag t-ok">通过</span></td><td>不变</td><td class="num">4.45:1</td><td>充足 / 空闲标签</td></tr>
+  <tr><td>tag-orange</td><td>#B85C20 / #F9EBD2</td><td class="num">3.89:1</td><td class="num"><span class="tag t-bad">边缘</span></td><td><span class="swatch" style="background:#9A4A12"></span>#9A4A12</td><td class="num">5.1:1</td><td>紧张 / 慢充</td></tr>
+</table>
+<div class="note">说明：所有对比度均为「前景 / 背景」两色按 sRGB 相对亮度计算，保留两位小数。正文要求 ≥4.5:1，≥18px 或 14px 粗体大字要求 ≥3:1，相邻状态色之间建议 ≥3:1。</div>
+
+<h3>3.2 字号 / 间距 / 圆角 / 阴影令牌</h3>
+<table>
+  <tr><th style="width:120px">类别</th><th>令牌与取值</th></tr>
+  <tr><td>字阶</td><td>--fs-11（辅助/脚注，最低 11px，不再用 10px）｜--fs-13（正文）｜--fs-15（卡片小标题）｜--fs-18（区块标题 / 车位号）｜--fs-24（页面主标题）｜--fs-32（金额，仅缴费弹窗一处）</td></tr>
+  <tr><td>字重</td><td>400 常规 / 600 强调，两级；标题手写体 ZCOOL KuaiLe 仅用于 --fs-15 及以上，车牌/车位号改用 ui-monospace</td></tr>
+  <tr><td>行高</td><td>正文 1.6（13px）｜辅助 1.5（11px）｜卡片标题 1.4</td></tr>
+  <tr><td>间距（8pt 栅格）</td><td>--sp-1 4px｜--sp-2 8px｜--sp-3 12px｜--sp-4 16px｜--sp-6 24px；卡片外边距统一 12px，卡片内边距 16px，列表项纵向 8px</td></tr>
+  <tr><td>圆角</td><td>--r-sm 8px（chip/标签）｜--r-card 16px 18px 15px 19px（手作感，保留）｜--r-sheet 22px（底部弹窗，上方两角）｜--r-pill 999px（按钮）</td></tr>
+  <tr><td>阴影层级</td><td>--e-1: 0 2px 6px rgba(42,32,26,.06)（卡片）｜--e-2: 0 6px 20px rgba(42,32,26,.14)（浮动面板）｜--e-3: 0 12px 32px rgba(42,32,26,.22)（弹窗 / 遮罩上层）</td></tr>
+  <tr><td>触控热区</td><td>所有可点元素 ≥44×44px；图标按钮容器 44px、图形 20px；chip 高度 ≥28px（含 8px 内边距）</td></tr>
+  <tr><td>层级 z-index</td><td>内容 1｜地图浮层 10–20｜tabbar 80｜遮罩 90｜sheet 99｜lightbox 120｜toast 200（保持现有体系，仅修遮罩覆盖域）</td></tr>
+</table>
+
+<h2>四、关键改进代码 <small>可直接粘贴的最小改动</small></h2>
+
+<h3>4.1 遮罩覆盖 tabbar + 统一弹窗开关（修 P0-2）</h3>
+<pre>/* CSS：mask 提到 .phone 层级，覆盖 navbar 与 tabbar */
+.mask{ position:absolute; inset:0; top:0; bottom:0; z-index:90;
+       background:rgba(42,32,26,.4); opacity:0; pointer-events:none; transition:opacity .2s; }
+.mask.show{ opacity:1; pointer-events:auto; }
+/* 把 #sheetMask #findMask #payMask #pileMask #recMask #destMask #aiMask #photoMask
+   从 .screen 内移到 .phone 的直接子节点（与 .tabbar 同级） */
+.phone.locked .tabbar{ pointer-events:none; opacity:.55; }
+
+/* JS：统一开关，替换 8 处各自为政的实现 */
+var LAYERS = { pay:['payMask','payPopup'], pile:['pileMask','pilePopup'],
+               find:['findMask','findPopup'], rec:['recMask','recPopup'] };
+function openLayer(name){
+  closeAllLayers();
+  LAYERS[name].forEach(function(id){ $(id).classList.add('show'); });
+  document.querySelector('.phone').classList.add('locked');
+}
+function closeAllLayers(){
+  Object.keys(LAYERS).forEach(function(k){ LAYERS[k].forEach(function(id){ $(id).classList.remove('show'); }); });
+  document.querySelector('.phone').classList.remove('locked');
+}
+/* 注意：.popup / .sheet 需同时支持 .show —— 给 .popup 补一条 .popup.show{display:block}，
+   并把 openPay/closePay 里的 style.display 全部换成 classList */</pre>
+
+<h3>4.2 canvas 触控支持（修 P0-1，两处 canvas 通用）</h3>
+<pre>function bindTouch(el, handlers){          /* handlers: {tap, pan, pinch, dbl} */
+  var pts = {}, last = null, dist0 = 0, zoom0 = 1, moved = false;
+  el.addEventListener('touchstart', function(e){
+    if (e.touches.length === 1){
+      pts = { x:e.touches[0].clientX, y:e.touches[0].clientY };
+      last = { x:pts.x, y:pts.y }; moved = false; handlers.panStart &amp;&amp; handlers.panStart();
+    } else if (e.touches.length === 2){
+      dist0 = Math.hypot(e.touches[0].clientX - e.touches[1].clientX,
+                         e.touches[0].clientY - e.touches[1].clientY);
+      zoom0 = handlers.getZoom ? handlers.getZoom() : 1;
+    }
+  }, { passive:true });
+  el.addEventListener('touchmove', function(e){
+    if (e.touches.length === 1 &amp;&amp; last){
+      var dx = e.touches[0].clientX - last.x, dy = e.touches[0].clientY - last.y;
+      if (Math.abs(dx) + Math.abs(dy) &gt; 8) moved = true;   /* 手指抖动阈值 8px */
+      handlers.panBy &amp;&amp; handlers.panBy(dx, dy);
+      last = { x:e.touches[0].clientX, y:e.touches[0].clientY };
+    } else if (e.touches.length === 2){
+      var d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX,
+                         e.touches[0].clientY - e.touches[1].clientY);
+      handlers.setZoom &amp;&amp; handlers.setZoom(zoom0 * (d / dist0));
+    }
+    e.preventDefault();
+  }, { passive:false });
+  el.addEventListener('touchend', function(e){
+    if (!moved &amp;&amp; e.changedTouches.length === 1) handlers.tap &amp;&amp; handlers.tap(e.changedTouches[0]);
+    last = null;
+  });
+}
+/* 接入：bindTouch($('mapCanvas'), { tap:handleMapClick, panBy:function(dx,dy){
+     view.panX += dx; view.panY += dy; clampPan(); drawMap(); },
+   setZoom:function(z){ view.zoom = clamp(z,.5,3); drawMap(); }, getZoom:function(){ return view.zoom; } }); */</pre>
+
+<h3>4.3 楼层数据源归一（修 P0-3）</h3>
+<pre>/* 单一真源：所有页面、推荐算法、种子数据都读它 */
+var FLOORS_OF = { wanxianghui:['B1','B3','B4','B5'], holiday_plaza:['UG'] };
+var FLOOR_ALIAS = { 'UG':'B1' };   /* 假日广场 UG 在旧数据里叫 B1，仅用于兼容老 space_id */
+
+/* genData：['B1','B2'] → FLOORS_OF[mid] */
+Object.keys(MALL_CODE).forEach(function(mid){
+  FLOORS_OF[mid].forEach(function(floor){ /* …原有生成逻辑，floor 变量替换… */ });
+});
+
+/* recommendParking：不要再写 var floor='B2' */
+function recommendParking(store){
+  var floors = FLOORS_OF[store.mall];
+  var floor  = floors[Math.floor(floors.length / 2)];   /* 或按各层空位数取最多者 */
+  /* …其余不变… */
+}
+
+/* 首页概况：对同一 status 源求和，不再用写死 tag */
+function mallSummary(mid){
+  var free = 0, total = 0;
+  FLOORS_OF[mid].forEach(function(f){
+    var L = genLotLayout(mid, f, mid === 'holiday_plaza' ? 'indoor' : 'all');
+    var st = getLotStatus(mid, f, mid === 'holiday_plaza' ? 'indoor' : 'all');
+    L.spaces.forEach(function(s){ total++; if (st[s.space_id] === 'free') free++; });
+  });
+  return { free:free, total:total, rate:Math.round((1 - free / total) * 100),
+           label: free / total &gt; .3 ? '充足' : (free / total &gt; .1 ? '紧张' : '接近满位') };
+}</pre>
+
+<h3>4.4 AI 未识别目的地的诚实兜底（修 P0-4）</h3>
+<pre>function executeAIRecommend(storeId, constraints){
+  closeAIParse();
+  if (storeId) { selectStore(storeId, constraints); return; }
+  /* 无目的地：按空位最多的楼层就近推荐，明确标注"未指定目的地" */
+  var best = null, bestFree = -1;
+  Object.keys(MALL_NAME).forEach(function(mid){
+    var sum = mallSummary(mid);
+    if (sum.free &gt; bestFree){ bestFree = sum.free; best = mid; }
+  });
+  state.aiConstraints = Object.assign({}, constraints, { nearest:true });
+  var rec = recommendNearest(best);            /* 新增：不绑定店铺的就近推荐 */
+  showRecommendation({ name:'就近停车', mall:best, floor:rec.space.floor, category:'就近' }, rec);
+}</pre>
+
+<h3>4.5 A* 失败不再画穿墙直线（修 P0-5）</h3>
+<pre>/* astar 末尾 */   return null;      /* 原来是 return [start, goal]; */
+
+function planRoute(pt){
+  /* … */
+  var cells = astar(blocked, start, goal);
+  if (!cells){                                   /* 新增失败分支 */
+    state.path = []; state.walkCells = null; state.walkAnim = null;
+    var gb = $('guideBox'); gb.style.display = 'block';
+    gb.innerHTML = '⚠️ 该目标暂无可行车道路径（演示数据栅格未连通），已保留目标标记';
+    drawMap(); return;
+  }
+  /* …原有逻辑… */
+}</pre>
+
+<h3>4.6 首页重排（HTML 片段，修 P1-6）</h3>
+<pre>&lt;div class="page active" id="page-home"&gt;
+  &lt;!-- ① 在停状态条：首屏 0 滚动可见 --&gt;
+  &lt;div class="card status-bar" id="homeCard"&gt;&lt;/div&gt;
+  &lt;!-- ② AI 入口：压成单行 64px --&gt;
+  &lt;div class="ai-home-entry" onclick="openAIPage()"&gt;
+    &lt;div class="ai-logo"&gt;🤖&lt;/div&gt;
+    &lt;div style="flex:1"&gt;
+      &lt;div class="ai-title"&gt;和 AI 说一句，停对车走对楼&lt;/div&gt;
+      &lt;div class="ai-subtitle"&gt;"去海底捞+充电+婴儿车" → 推荐车位&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;span class="link-arrow"&gt;›&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;!-- ③ 快捷入口 / ④ 车位概况（数值化）保持不变 --&gt;
+&lt;/div&gt;
+
+/* 状态条内部：车位号 18px 等宽体，双 CTA 等宽并列 */
+.status-bar .space{ font:600 18px ui-monospace,Consolas,monospace; letter-spacing:0 }
+.status-bar .actions{ display:flex; gap:8px }
+.status-bar .actions button{ flex:1 }</pre>
+
+<h2>五、答辩前 48 小时必改清单 <small>按时间成本排序，约 3–4 小时可完成</small></h2>
+<ol class="chk">
+  <li><input type="checkbox"> 两处 canvas 补 touch 事件（含 pinch 缩放）— <b>P0</b>，触屏演示生死线</li>
+  <li><input type="checkbox"> 遮罩移到 .phone 层 + 统一 classList 开关 + tabbar 锁 — <b>P0</b>，30 分钟</li>
+  <li><input type="checkbox"> 楼层归一 FLOORS_OF，推荐算法不再写死 B2 — <b>P0</b>，40 分钟</li>
+  <li><input type="checkbox"> AI 无目的地兜底改为"就近推荐 + 明示未指定" — <b>P0</b>，20 分钟</li>
+  <li><input type="checkbox"> astar 失败返回 null + 不画线 — <b>P0</b>，10 分钟</li>
+  <li><input type="checkbox"> 颜色令牌替换（ink3 / accent / 注释 / 车位状态四组）— <b>P1</b>，20 分钟</li>
+  <li><input type="checkbox"> 首页在停卡提到第一位 — <b>P1</b>，15 分钟</li>
+  <li><input type="checkbox"> 我的页删除/占位"意见反馈 · 关于我们" — <b>P1</b>，5 分钟</li>
+  <li><input type="checkbox"> 平面图页加"本层空位 x/y · 更新于 HH:MM" — <b>P1</b>，15 分钟</li>
+  <li><input type="checkbox"> 侧栏说明内聚进界面（或把 1280px 断点降到 1024px）— <b>P1</b>，15 分钟</li>
+</ol>
+
+<footer>
+  评审基于文件静态走查（HTML/CSS/JS 全量阅读）+ WCAG 对比度公式实测，未做真机与用户测试；车位状态、路径规划均为浏览器内模拟数据，评审结论不涉及后端真实接口。<br>
+  本内容由 AI 生成，请核实后使用。
+</footer>
+</div>
+</body>
+</html>

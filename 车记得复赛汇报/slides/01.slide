@@ -1,0 +1,30 @@
+<Slide style={{ width: '1280px', height: '720px', padding: 0, position: 'relative', overflow: 'hidden', background: '#16181D' }}>
+    {/* 全幅底图 + 渐变蒙版：白字骑左 */}
+    <Image src="assets/cover_garage.png" style={{ position: 'absolute', top: 0, left: 0, width: '1280px', height: '720px', objectFit: 'cover' }} />
+    <Box style={{ position: 'absolute', top: 0, left: 0, width: '1280px', height: '720px', background: 'linear-gradient(105deg, rgba(8,12,24,0.82) 0%, rgba(8,12,24,0.48) 55%, rgba(8,12,24,0.12) 100%)' }} />
+
+    <Box style={{ position: 'relative', zIndex: 1, height: '720px', padding: '76px 64px 56px', flexDirection: 'column' }}>
+        {/* 赛事标识 */}
+        <Box style={{ flexDirection: 'row', alignItems: 'center', gap: '12px' }}>
+            <Box style={{ background: 'rgba(245,166,35,0.16)', border: '1px solid rgba(245,166,35,0.55)', borderRadius: '999px', padding: '7px 16px' }}>
+                <Text style={{ fontSize: 14, color: '#F5A623', fontWeight: 600, letterSpacing: 1 }}>完美金鹰 · 假日商圈 AI 大赛</Text>
+            </Box>
+            <Box style={{ background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.32)', borderRadius: '999px', padding: '7px 16px' }}>
+                <Text style={{ fontSize: 14, color: '#FFFFFF', fontWeight: 500 }}>赛道二 · 商圈服务与用户体验</Text>
+            </Box>
+        </Box>
+
+        {/* 主标题区 */}
+        <Text style={{ fontSize: 76, fontWeight: 'bold', color: '#FFFFFF', lineHeight: 1.1, marginTop: '44px', fontFamily: '"Inter", "Noto Sans SC", sans-serif', letterSpacing: 4 }}>车记得</Text>
+        <Text style={{ fontSize: 26, fontWeight: 600, color: 'rgba(255,255,255,0.94)', lineHeight: 1.45, marginTop: '16px' }}>给完美金鹰·假日商圈的停车系统，补一层「决策服务」</Text>
+
+        <Box style={{ width: '56px', height: '4px', background: '#F5A623', borderRadius: '2px', marginTop: '30px' }} />
+        <Text style={{ fontSize: 20, color: 'rgba(255,255,255,0.88)', lineHeight: 1.55, marginTop: '18px' }}>让已有的能力真正被用起来，而不是再盖一栋楼。</Text>
+
+        {/* 底部信息行 */}
+        <Box style={{ marginTop: 'auto', flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+            <Text style={{ fontSize: 14, color: 'rgba(255,255,255,0.62)', lineHeight: 1.6 }}>不另起炉灶做第 4 个停车 App，只在「设为终点」前插一步决策</Text>
+            <Text style={{ fontSize: 14, color: 'rgba(255,255,255,0.62)' }}>复赛提交 · 2026-10-15</Text>
+        </Box>
+    </Box>
+</Slide>

@@ -1,0 +1,92 @@
+<Slide style={{ width: '1280px', height: '720px', padding: '20px 64px', flexDirection: 'column', background: '#FFFFFF' }}>
+    {/* A 标题块 */}
+    <Box style={{ height: '100px', flexDirection: 'column', justifyContent: 'center', gap: '6px' }}>
+        <Text style={{ fontSize: 13, fontWeight: 600, color: '#2456E6', letterSpacing: 2 }}>真实问题 + 创新空间 · 有人做过吗</Text>
+        <Text style={{ fontSize: 30, fontWeight: 'bold', color: '#16181D', lineHeight: 1.25 }}>连行业标杆也没做这件事</Text>
+    </Box>
+
+    {/* B 内容区 */}
+    <Box style={{ height: '540px', flexDirection: 'column', gap: '14px' }}>
+        {/* 上：三截图证据带 */}
+        <Box style={{ flexDirection: 'row', gap: '20px' }}>
+            <Box style={{ flex: 1, background: '#FFFFFF', border: '1px solid #E5E8EF', borderRadius: '14px', overflow: 'hidden', flexDirection: 'column' }}>
+                <Image src="assets/research_wxh_ar.jpg" style={{ width: '100%', height: '236px', objectFit: 'cover' }} />
+                <Box style={{ padding: '12px 16px', flexDirection: 'column', gap: '7px' }}>
+                    <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#16181D' }}>前海万象汇（华润）</Text>
+                    <Box style={{ flexDirection: 'row', alignItems: 'center', gap: '7px' }}>
+                        <FAIcon name='check' style={{ fill: '#0FA958', width: '14px', height: '14px' }} />
+                        <Text style={{ fontSize: 13, color: '#5C6470' }}>AR 寻车导航 · 楼层平面 · 扶梯距离</Text>
+                    </Box>
+                    <Box style={{ flexDirection: 'row', alignItems: 'center', gap: '7px' }}>
+                        <FAIcon name='times' style={{ fill: '#F5A623', width: '14px', height: '14px' }} />
+                        <Text style={{ fontSize: 13, fontWeight: 600, color: '#16181D' }}>按目的地选车位</Text>
+                    </Box>
+                </Box>
+            </Box>
+
+            <Box style={{ flex: 1, background: '#FFFFFF', border: '1px solid #E5E8EF', borderRadius: '14px', overflow: 'hidden', flexDirection: 'column' }}>
+                <Image src="assets/research_zy_pay.jpg" style={{ width: '100%', height: '236px', objectFit: 'cover' }} />
+                <Box style={{ padding: '12px 16px', flexDirection: 'column', gap: '7px' }}>
+                    <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#16181D' }}>前海卓越中心</Text>
+                    <Box style={{ flexDirection: 'row', alignItems: 'center', gap: '7px' }}>
+                        <FAIcon name='check' style={{ fill: '#0FA958', width: '14px', height: '14px' }} />
+                        <Text style={{ fontSize: 13, color: '#5C6470' }}>输入车牌缴费——仅此而已</Text>
+                    </Box>
+                    <Box style={{ flexDirection: 'row', alignItems: 'center', gap: '7px' }}>
+                        <FAIcon name='times' style={{ fill: '#F5A623', width: '14px', height: '14px' }} />
+                        <Text style={{ fontSize: 13, fontWeight: 600, color: '#16181D' }}>车位地图 · 导航 · 找店 · 充电</Text>
+                    </Box>
+                </Box>
+            </Box>
+
+            <Box style={{ flex: 1, background: '#FFFFFF', border: '1px solid #E5E8EF', borderRadius: '14px', overflow: 'hidden', flexDirection: 'column' }}>
+                <Image src="assets/research_wxtd_sim.jpg" style={{ width: '100%', height: '236px', objectFit: 'cover' }} />
+                <Box style={{ padding: '12px 16px', flexDirection: 'column', gap: '7px' }}>
+                    <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#16181D' }}>万象天地（华润 · 标杆）</Text>
+                    <Box style={{ flexDirection: 'row', alignItems: 'center', gap: '7px' }}>
+                        <FAIcon name='check' style={{ fill: '#0FA958', width: '14px', height: '14px' }} />
+                        <Text style={{ fontSize: 13, color: '#5C6470' }}>实时余位 · 车牌识别 · 店铺/电梯/设施 · 2D 导航</Text>
+                    </Box>
+                    <Box style={{ flexDirection: 'row', alignItems: 'center', gap: '7px' }}>
+                        <FAIcon name='times' style={{ fill: '#F5A623', width: '14px', height: '14px' }} />
+                        <Text style={{ fontSize: 13, fontWeight: 600, color: '#16181D' }}>「去目的地，该停哪个车位」</Text>
+                    </Box>
+                </Box>
+            </Box>
+        </Box>
+
+        {/* 中：结论条 */}
+        <Box style={{ height: '96px', flexDirection: 'row', background: 'rgba(245,166,35,0.10)', borderRadius: '12px' }}>
+            <Box style={{ width: '4px', height: '100%', background: '#F5A623', borderRadius: '12px 0 0 12px' }} />
+            <Box style={{ flex: 1, padding: '14px 20px', flexDirection: 'column', justifyContent: 'center', gap: '5px' }}>
+                <Text style={{ fontSize: 18, fontWeight: 600, color: '#16181D', lineHeight: 1.45 }}>全行业把智能都花在「找回车」，没人做「停车前选车位」——包括数据完备度最高的万象天地。</Text>
+                <Text style={{ fontSize: 12, color: '#5C6470' }}>基于深圳三场实地调研 · 2026-10-14 · 观察口径</Text>
+            </Box>
+        </Box>
+
+        {/* 下：两维判断 */}
+        <Box style={{ flexDirection: 'row', gap: '20px', flex: 1 }}>
+            <Box style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: '14px', background: '#F5F7FB', border: '1px solid #E5E8EF', borderRadius: '12px', padding: '12px 18px' }}>
+                <Box style={{ background: '#2456E6', borderRadius: '6px', padding: '4px 10px' }}>
+                    <Text style={{ fontSize: 12, fontWeight: 600, color: '#FFFFFF' }}>真实问题</Text>
+                </Box>
+                <Text style={{ fontSize: 14, color: '#16181D', lineHeight: 1.5 }}>三场实地验证：停车前的决策无解，是普遍体验而非个案</Text>
+            </Box>
+            <Box style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: '14px', background: '#F5F7FB', border: '1px solid #E5E8EF', borderRadius: '12px', padding: '12px 18px' }}>
+                <Box style={{ background: '#F5A623', borderRadius: '6px', padding: '4px 10px' }}>
+                    <Text style={{ fontSize: 12, fontWeight: 600, color: '#FFFFFF' }}>创新空间</Text>
+                </Box>
+                <Text style={{ fontSize: 14, color: '#16181D', lineHeight: 1.5 }}>数据最齐的标杆也未做——无先行者，空白即机会</Text>
+            </Box>
+        </Box>
+    </Box>
+
+    {/* C 页脚条 */}
+    <Box style={{ height: '40px', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'row', alignItems: 'center', gap: '8px' }}>
+            <FAIcon name='car' style={{ fill: '#2456E6', width: '18px', height: '18px' }} />
+            <Text style={{ fontSize: 13, color: '#5C6470' }}>车记得 · 完美金鹰假日商圈 AI 大赛</Text>
+        </Box>
+        <Text style={{ fontSize: 13, color: '#5C6470' }}><span style={{ fontWeight: 'bold', color: '#2456E6' }}>03</span> / 12</Text>
+    </Box>
+</Slide>

@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>停车场室内导航 · 静态交互 Demo</title>
+<style>
+  :root{
+    --primary:#4A90E2; --primary-dark:#3A7BC8; --accent:#F5A623; --danger:#E24B4B;
+    --success:#4CAF50; --bg:#F7F8FA; --panel:#FFFFFF; --text:#333; --text2:#666; --text3:#999;
+    --border:#E8E8E8; --map-bg:#D6E4F0; --road:#4A5568; --park:#5A8F6A; --park-light:#6BA37C;
+  }
+  *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    background:linear-gradient(135deg,#2b3a4a 0%,#1c2733 100%);
+    display:flex; align-items:center; justify-content:center; min-height:100vh; padding:20px;
+  }
+  /* ===== 手机外壳 ===== */
+  .phone{
+    width:390px; height:812px; background:#000; border-radius:48px; padding:12px;
+    box-shadow:0 24px 80px rgba(0,0,0,.55), inset 0 0 0 2px #3a3a3c;
+    position:relative; flex-shrink:0;
+  }
+  .notch{
+    position:absolute; top:24px; left:50%; transform:translateX(-50%);
+    width:150px; height:28px; background:#000; border-radius:0 0 20px 20px; z-index:400;
+  }
+  .screen{
+    width:100%; height:100%; background:var(--bg); border-radius:38px; overflow:hidden;
+    display:flex; flex-direction:column; position:relative;
+  }
+  /* ===== 状态栏 ===== */
+  .status-bar{
+    height:48px; background:#F7F8FA; display:flex; align-items:flex-end; justify-content:space-between;
+    padding:0 28px 6px; font-size:14px; font-weight:600; color:#1a1a1a; flex-shrink:0; z-index:200;
+  }
+  .status-icons{display:flex; gap:6px; align-items:center; font-size:12px;}
+  .battery{width:24px; height:12px; border:1.5px solid #1a1a1a; border-radius:3px; position:relative; display:inline-block;}
+  .battery::after{content:""; position:absolute; right:-4px; top:3px; width:2px; height:4px; background:#1a1a1a; border-radius:0 1px 1px 0;}
+  .battery::before{content:""; position:absolute; left:1.5px; top:1.5px; bottom:1.5px; width:78%; background:#1a1a1a; border-radius:1px;}
+  /* ===== 导航栏 ===== */
+  .nav-bar{
+    height:44px; background:#F7F8FA; display:flex; align-items:center; justify-content:space-between;
+    padding:0 12px; flex-shrink:0; z-index:200; border-bottom:1px solid rgba(0,0,0,.04);
+  }
+  .nav-side{width:88px; display:flex; align-items:center; gap:12px;}
+  .nav-side.right{justify-content:flex-end;}
+  .nav-home{font-size:22px; color:#333; cursor:pointer; line-height:1;}
+  .nav-title{flex:1; text-align:center; font-size:17px; font-weight:500; color:#1a1a1a; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .nav-more{font-size:16px; color:#333; font-weight:700; letter-spacing:1px; cursor:pointer;}
+  .nav-eye{width:22px; height:22px; border:2px solid #333; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; color:#333; font-weight:700; cursor:pointer;}
+  /* ===== 地图区 ===== */
+  .map-wrap{
+    flex:1; position:relative; overflow:hidden; background:var(--map-bg);
+    transition:background .3s;
+  }
+  .map-svg{
+    position:absolute; left:0; top:0; transform-origin:0 0; cursor:grab; touch-action:none;
+    transition:filter .35s;
+  }
+  .map-svg.dragging{cursor:grabbing;}
+  body.view3d .map-svg{filter:saturate(1.05);}
+  body.view3d .map-inner{transform:perspective(1100px) rotateX(42deg) scale(1.28); transform-origin:50% 30%;}
+  .map-inner{transition:transform .5s ease;}
+  /* ===== 覆盖层通用 ===== */
+  .overlay{position:absolute; z-index:100; user-select:none;}
+  /* 指南针 */
+  .compass{left:12px; top:12px;}
+  .compass-box{
+    width:38px; height:38px; background:rgba(255,255,255,.92); border-radius:50%;
+    display:flex; align-items:center; justify-content:center; box-shadow:0 2px 10px rgba(0,0,0,.12); position:relative;
+    transition:transform .4s;
+  }
+  body.view3d .compass-box{transform:rotate(0deg);}
+  .compass-box .n{position:absolute; top:1px; font-size:9px; color:var(--danger); font-weight:800;}
+  .compass-box .needle{width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-bottom:18px solid var(--primary); transform:rotate(-25deg); margin-top:6px;}
+  /* 楼层选择器 */
+  .floors{
+    left:10px; top:50%; transform:translateY(-50%);
+    background:rgba(255,255,255,.95); border-radius:14px; box-shadow:0 2px 14px rgba(0,0,0,.12);
+    display:flex; flex-direction:column; align-items:center; padding:8px 5px; min-width:52px;
+  }
+  .floors .label{font-size:11px; color:var(--text2); margin-bottom:2px;}
+  .floors .arrow{font-size:9px; color:var(--primary); padding:5px 12px; cursor:pointer;}
+  .floors .arrow:hover{opacity:.7;}
+  .floor-btn{
+    width:38px; height:38px; display:flex; align-items:center; justify-content:center;
+    border-radius:9px; font-size:14px; color:var(--text2); margin:2px 0; cursor:pointer;
+    font-weight:500; transition:all .18s;
+  }
+  .floor-btn:hover{background:rgba(74,144,226,.12);}
+  .floor-btn.active{background:var(--primary); color:#fff; font-weight:600; box-shadow:0 3px 8px rgba(74,144,226,.4);}
+  /* 2D/3D 切换 */
+  .view-toggle{left:12px; bottom:16px; display:flex; flex-direction:column; align-items:center; cursor:pointer;}
+  .vt-circle{
+    width:38px; height:38px; background:rgba(255,255,255,.95); border-radius:50%;
+    display:flex; align-items:center; justify-content:center; box-shadow:0 2px 10px rgba(0,0,0,.14);
+    transition:all .2s;
+  }
+  .view-toggle:hover .vt-circle{transform:scale(1.08);}
+  .vt-circle svg{width:20px; height:20px;}
+  .vt-text{margin-top:4px; font-size:11px; color:#333; background:rgba(255,255,255,.92); padding:1px 8px; border-radius:7px; font-weight:600;}
+  /* 缩放按钮 */
+  .zoom-ctrl{right:12px; bottom:16px; display:flex; flex-direction:column; gap:8px;}
+  .zoom-btn{
+    width:34px; height:34px; background:rgba(255,255,255,.95); border-radius:10px;
+    display:flex; align-items:center; justify-content:center; font-size:18px; color:#333;
+    box-shadow:0 2px 10px rgba(0,0,0,.12); cursor:pointer; font-weight:600;
+  }
+  .zoom-btn:hover{background:#fff;}
+  /* ===== 车位弹窗 ===== */
+  .spot-popup{
+    position:absolute; left:20px; right:20px; top:14px; background:#fff; border-radius:14px;
+    padding:16px 18px; box-shadow:0 8px 30px rgba(0,0,0,.18); z-index:150;
+    animation:dropIn .28s ease;
+  }
+  @keyframes dropIn{from{opacity:0; transform:translateY(-14px);} to{opacity:1; transform:none;}}
+  .spot-popup .head{display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px;}
+  .spot-popup .sid{font-size:22px; font-weight:700; color:#1a1a1a; margin-right:10px;}
+  .spot-popup .stype{font-size:12px; color:var(--text3);}
+  .spot-popup .close{font-size:18px; color:var(--text3); cursor:pointer; padding:0 4px; line-height:1;}
+  .spot-popup .close:hover{color:#333;}
+  .spot-popup .body-row{display:flex; align-items:center; justify-content:space-between;}
+  .spot-popup .facility{font-size:15px; color:var(--text); font-weight:500;}
+  .spot-popup .ops{display:flex; gap:10px;}
+  .btn-outline{padding:7px 16px; border:1.5px solid var(--primary); border-radius:8px; color:var(--primary); font-size:13px; font-weight:500; cursor:pointer; background:transparent; transition:all .15s;}
+  .btn-outline:hover{background:rgba(74,144,226,.08);}
+  .btn-outline.primary{background:var(--primary); color:#fff;}
+  .btn-outline.primary:hover{background:var(--primary-dark);}
+  /* ===== 底部面板 ===== */
+  .bottom-panel{
+    background:#fff; border-radius:18px 18px 0 0; box-shadow:0 -4px 24px rgba(0,0,0,.09);
+    padding:16px 18px 22px; flex-shrink:0; z-index:180; position:relative;
+  }
+  .search-btn{
+    width:100%; height:48px; background:var(--primary); color:#fff; border-radius:10px;
+    display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:500;
+    cursor:pointer; transition:background .15s; gap:8px;
+  }
+  .search-btn:hover{background:var(--primary-dark);}
+  .search-btn .mag{font-size:15px;}
+  /* 路线卡片 */
+  .route-card{animation:slideUp .3s ease;}
+  @keyframes slideUp{from{opacity:0; transform:translateY(16px);} to{opacity:1; transform:none;}}
+  .route-head{display:flex; align-items:flex-start; margin-bottom:10px;}
+  .route-3d{
+    width:40px; height:40px; border:1.5px solid var(--border); border-radius:50%;
+    display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--text2);
+    font-weight:700; margin-right:14px; flex-shrink:0; cursor:pointer;
+  }
+  .route-3d:hover{border-color:var(--primary); color:var(--primary);}
+  .route-points{flex:1;}
+  .point-row{display:flex; align-items:center; margin-bottom:7px;}
+  .dot{width:7px; height:7px; border-radius:50%; margin-right:8px; flex-shrink:0;}
+  .dot.green{background:var(--success);}
+  .dot.orange{background:var(--accent);}
+  .point-row .k{font-size:14px; color:var(--text2);}
+  .point-row .v{font-size:14px; color:#1a1a1a; font-weight:500; flex:1;}
+  .point-row .edit{font-size:14px; color:var(--text3); cursor:pointer; padding:0 4px;}
+  .plate-tag{padding:2px 9px; border:1.5px solid var(--primary); border-radius:6px; color:var(--primary); font-size:11.5px; font-weight:500;}
+  .route-meta{font-size:12.5px; color:var(--text3); margin:0 0 14px 54px;}
+  .route-actions{display:flex; align-items:center; gap:16px;}
+  .act-cancel{display:flex; flex-direction:column; align-items:center; justify-content:center; width:64px; color:var(--text2); font-size:11px; cursor:pointer; gap:3px;}
+  .act-cancel .ico{font-size:22px; color:var(--text2);}
+  .act-cancel:hover{color:#333;}
+  .act-nav{
+    flex:1; height:48px; background:var(--primary); color:#fff; border-radius:10px;
+    display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:500; cursor:pointer;
+    transition:background .15s; gap:8px;
+  }
+  .act-nav:hover{background:var(--primary-dark);}
+  .act-nav.navigating{background:var(--success);}
+  /* ===== 查询弹窗 ===== */
+  .modal-mask{
+    position:absolute; inset:0; background:rgba(0,0,0,.5); z-index:300;
+    display:flex; align-items:center; justify-content:center; animation:fadeIn .2s;
+  }
+  @keyframes fadeIn{from{opacity:0;} to{opacity:1;}}
+  .search-card{
+    width:78%; background:#fff; border-radius:14px; padding:22px; animation:dropIn .25s ease;
+  }
+  .search-card .ttl{font-size:16px; font-weight:600; color:#1a1a1a; margin-bottom:16px; text-align:center;}
+  .search-card input{
+    width:100%; height:44px; border:1.5px solid var(--border); border-radius:9px;
+    padding:0 14px; font-size:14px; outline:none; margin-bottom:16px;
+  }
+  .search-card input:focus{border-color:var(--primary);}
+  .search-card .ops{display:flex; gap:12px;}
+  .search-card .ops button{
+    flex:1; height:42px; border:none; border-radius:9px; font-size:14px; font-weight:500; cursor:pointer;
+  }
+  .search-card .cancel{background:#F2F2F2; color:var(--text2);}
+  .search-card .confirm{background:var(--primary); color:#fff;}
+  .search-card .confirm:hover{background:var(--primary-dark);}
+  /* Toast */
+  .toast{
+    position:absolute; left:50%; top:46%; transform:translate(-50%,-50%);
+    background:rgba(0,0,0,.78); color:#fff; padding:10px 22px; border-radius:9px;
+    font-size:14px; z-index:400; pointer-events:none; animation:dropIn .2s; white-space:nowrap;
+  }
+  /* 场景切换提示条 */
+  .scene-bar{
+    position:absolute; right:12px; top:12px; z-index:110; display:flex; gap:6px; flex-direction:column;
+  }
+  .scene-chip{
+    padding:5px 10px; background:rgba(255,255,255,.92); border-radius:8px; font-size:11px;
+    color:var(--text2); cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.1); font-weight:500;
+    transition:all .15s; text-align:center;
+  }
+  .scene-chip:hover{color:var(--primary);}
+  .scene-chip.on{background:var(--primary); color:#fff;}
+  /* 说明卡片 */
+  .hint{
+    position:fixed; left:24px; top:24px; z-index:10; color:rgba(255,255,255,.85);
+    font-size:13px; line-height:1.9; max-width:280px;
+  }
+  .hint h1{font-size:16px; font-weight:600; margin-bottom:6px; color:#fff;}
+  .hint .tag{display:inline-block; background:rgba(255,255,255,.14); padding:1px 8px; border-radius:6px; font-size:11px; margin-right:4px;}
+  @media (max-width:1020px){.hint{display:none;}}
+</style>
+</head>
+<body>
+
+<div class="hint">
+  <h1>停车场室内导航 · 交互 Demo</h1>
+  <div>
+    <span class="tag">拖动</span>平移地图　<span class="tag">滚轮</span>缩放<br>
+    <span class="tag">楼层</span>左侧切换 B1–B5<br>
+    <span class="tag">车位图钉</span>点击弹出选点卡片<br>
+    <span class="tag">查询</span>输入 162 / 036 联动场景<br>
+    <span class="tag">模拟导航</span>蓝点沿路线行进<br>
+    <span class="tag">2D/3D</span>左下角切换视角
+  </div>
+</div>
+
+<div class="phone">
+  <div class="notch"></div>
+  <div class="screen">
+
+    <!-- 状态栏 -->
+    <div class="status-bar">
+      <span class="time">15:50</span>
+      <span class="status-icons">
+        <span>●●●●</span><span>ᯤ</span><span class="battery"></span>
+      </span>
+    </div>
+
+    <!-- 导航栏 -->
+    <div class="nav-bar">
+      <div class="nav-side">
+        <span class="nav-home" id="btnHome">⌂</span>
+      </div>
+      <div class="nav-title">石岐万象汇（Demo）</div>
+      <div class="nav-side right">
+        <span class="nav-more">•••</span>
+        <span class="nav-eye">◎</span>
+      </div>
+    </div>
+
+    <!-- 地图区 -->
+    <div class="map-wrap" id="mapWrap">
+      <svg class="map-svg" id="mapSvg" xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000">
+        <g class="map-inner" id="mapInner"></g>
+      </svg>
+
+      <!-- 指南针 -->
+      <div class="overlay compass">
+        <div class="compass-box"><span class="n">N</span><div class="needle"></div></div>
+      </div>
+
+      <!-- 楼层选择器 -->
+      <div class="overlay floors">
+        <div class="label">总览</div>
+        <div class="arrow" id="floorUp">▲</div>
+        <div id="floorBtns"></div>
+        <div class="arrow" id="floorDown">▼</div>
+      </div>
+
+      <!-- 2D/3D -->
+      <div class="overlay view-toggle" id="btnView">
+        <div class="vt-circle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round">
+            <path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/>
+          </svg>
+        </div>
+        <div class="vt-text" id="vtText">2D</div>
+      </div>
+
+      <!-- 缩放 -->
+      <div class="overlay zoom-ctrl">
+        <div class="zoom-btn" id="zoomIn">＋</div>
+        <div class="zoom-btn" id="zoomOut">－</div>
+      </div>
+
+      <!-- 场景快捷切换 -->
+      <div class="overlay scene-bar">
+        <div class="scene-chip on" data-scene="route">导航路线</div>
+        <div class="scene-chip" data-scene="spot">车位选点</div>
+        <div class="scene-chip" data-scene="overview">总览</div>
+      </div>
+
+      <!-- 车位弹窗 -->
+      <div class="spot-popup" id="spotPopup" style="display:none">
+        <div class="head">
+          <div><span class="sid" id="popId">B1-036</span><span class="stype" id="popType">B1 普通车位</span></div>
+          <span class="close" id="popClose">✕</span>
+        </div>
+        <div class="body-row">
+          <span class="facility">当前设施</span>
+          <div class="ops">
+            <button class="btn-outline primary" id="popSetDest">设为终点</button>
+            <button class="btn-outline" id="popFocus">聚焦</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 底部面板 -->
+    <div class="bottom-panel" id="bottomPanel">
+      <!-- 路线模式 -->
+      <div class="route-card" id="routeCard" style="display:none">
+        <div class="route-head">
+          <div class="route-3d" id="route3dBtn">3D</div>
+          <div class="route-points">
+            <div class="point-row">
+              <span class="dot green"></span>
+              <span class="k">起点：</span><span class="v">地图选点</span>
+              <span class="edit">✎</span>
+            </div>
+            <div class="point-row">
+              <span class="dot orange"></span>
+              <span class="k">终点：</span><span class="v" id="endSpot">B4-B4-162</span>
+              <span class="plate-tag" id="plateTag">粤T997LF</span>
+            </div>
+          </div>
+        </div>
+        <div class="route-meta" id="routeMeta">最优路线：全程7米，预计2s</div>
+        <div class="route-actions">
+          <div class="act-cancel" id="btnCancel">
+            <span class="ico">↺</span><span>取消操作</span>
+          </div>
+          <div class="act-nav" id="btnNav">
+            <span id="navIcon">▶</span><span id="navText">模拟导航</span>
+          </div>
+        </div>
+      </div>
+      <!-- 总览/选点模式 -->
+      <div class="search-btn" id="btnSearch"><span class="mag">🔍</span>车牌/车位查询</div>
+    </div>
+
+    <!-- 查询弹窗 -->
+    <div class="modal-mask" id="searchModal" style="display:none">
+      <div class="search-card">
+        <div class="ttl">车牌/车位查询</div>
+        <input id="searchInput" placeholder="输入车牌或车位号，如 B4-162" autocomplete="off">
+        <div class="ops">
+          <button class="cancel" id="searchCancel">取消</button>
+          <button class="confirm" id="searchConfirm">查询</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast" style="display:none"></div>
+
+  </div>
+</div>
+
+<script>
+/* =========================================================
+ * 数据与状态
+ * =======================================================*/
+const FLOORS = ['B1','B3','B4','B5'];
+const state = {
+  floor: 'B4',
+  mode: 'route',          // overview | spot | route
+  view: '2D',
+  selectedSpot: null,
+  endSpot: 'B4-B4-162',
+  plate: '粤T997LF',
+  scale: 0.62,
+  tx: 0, ty: -60,
+  navigating: false,
+};
+
+const MARKERS = {
+  B1: [
+    {id:'B1-036', type:'pin', x:318, y:150, label:'B1-036', typeText:'B1 普通车位'},
+    {id:'E2', type:'elev', x:176, y:236, label:'2号电梯厅'},
+    {id:'E4', type:'elev', x:596, y:236, label:'4号电梯厅'},
+    {id:'E6', type:'elev', x:176, y:792, label:'6号电梯厅'},
+    {id:'E5', type:'elev', x:436, y:556, label:'5号电梯厅'},
+  ],
+  B3: [
+    {id:'E3', type:'elev', x:256, y:256, label:'3号电梯厅'},
+    {id:'E7', type:'elev', x:536, y:696, label:'7号电梯厅'},
+  ],
+  B4: [
+    {id:'B4-162', type:'pin', x:98, y:300, label:'B4-162', typeText:'B4 普通车位'},
+    {id:'E1', type:'elev', x:576, y:476, label:'1号电梯厅'},
+  ],
+  B5: [
+    {id:'E1', type:'elev', x:216, y:216, label:'1号电梯厅'},
+    {id:'E8', type:'elev', x:576, y:216, label:'8号电梯厅'},
+    {id:'E9', type:'elev', x:216, y:776, label:'9号电梯厅'},
+  ],
+};
+
+const ROUTE = { d:'M 576 492 L 576 380 L 300 380 L 300 260 L 170 260', endX:170, endY:240, startX:576, startY:492 };
+
+/* =========================================================
+ * SVG 构建工具
+ * =======================================================*/
+const NS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs, parent){
+  const n = document.createElementNS(NS, tag);
+  for(const k in attrs) n.setAttribute(k, attrs[k]);
+  if(parent) parent.appendChild(n);
+  return n;
+}
+function txt(x, y, s, fill, size, weight, parent){
+  const t = el('text', {x, y, fill, 'font-size':size, 'font-weight':weight||'normal',
+    'text-anchor':'middle', 'font-family':'PingFang SC, Microsoft YaHei, sans-serif'}, parent);
+  t.textContent = s; return t;
+}
+function spotRow(g, x, y, count, step, w, h, prefix, start, hl){
+  for(let i=0;i<count;i++){
+    const num = start+i, id = prefix+String(num).padStart(3,'0');
+    const fill = (hl===id) ? '#E8913A' : '#5A8F6A';
+    el('rect',{x, y:y+i*step, width:w, height:h, fill, stroke:'#FFFFFF','stroke-width':.5, rx:2}, g);
+    txt(x+w/2, y+i*step+h/2+3.5, id, '#fff', 8.5, '600', g);
+  }
+}
+function elevator(g, x, y, label, kind){
+  const grp = el('g',{},g);
+  el('rect',{x, y, width:30, height:30, fill:'#F5A623', rx:5}, grp);
+  if(kind==='elev'){
+    el('rect',{x:x+6.5, y:y+4.5, width:17, height:21, fill:'none', stroke:'#fff','stroke-width':2, rx:1.5}, grp);
+    el('line',{x1:x+15, y1:y+4.5, x2:x+15, y2:y+25.5, stroke:'#fff','stroke-width':2}, grp);
+  }else{
+    el('line',{x1:x+7, y1:y+23, x2:x+23, y2:y+7, stroke:'#fff','stroke-width':3,'stroke-linecap':'round'}, grp);
+  }
+  txt(x+15, y+42, label, 'rgba(255,255,255,.95)', 10, '600', grp);
+}
+function compassRose(g){
+  txt(60, 58, 'N', '#E24B4B', 13, '800', g);
+  el('path',{d:'M60 62 L54 88 L60 82 L66 88 Z', fill:'#4A90E2'}, g);
+}
+
+/* =========================================================
+ * 楼层地图绘制
+ * =======================================================*/
+function drawB4(g, withRoute){
+  el('rect',{x:0,y:0,width:800,height:1000,fill:'#4A5568'}, g);
+  el('polygon',{points:'260,420 520,420 580,680 460,760 260,760', fill:'#D8DDE5', stroke:'#fff','stroke-width':1}, g);
+  // 道路线
+  el('path',{d:'M 0 440 H 800', stroke:'#5B6678','stroke-width':10, fill:'none'}, g);
+  el('path',{d:'M 0 800 H 800', stroke:'#5B6678','stroke-width':10, fill:'none'}, g);
+  spotRow(g, 80, 120, 6, 52, 36, 48, 'B4-', 159, withRoute?'B4-162':null);
+  spotRow(g, 680, 120, 2, 52, 36, 48, 'B4-', 248, null);
+  spotRow(g, 80, 500, 4, 52, 36, 48, 'B4-', 168, null);
+  spotRow(g, 320, 860, 2, 62, 48, 30, 'B4-', 239, null);
+  spotRow(g, 560, 560, 3, 52, 36, 48, 'B4-', 175, null);
+  elevator(g, 560, 460, '1号电梯厅', 'elev');
+  if(withRoute){
+    el('path',{d:ROUTE.d, stroke:'#4A90E2','stroke-width':16, fill:'none','stroke-linecap':'round','stroke-linejoin':'round', opacity:.92}, g);
+    // 白色导向箭头
+    [[340,380],[420,380],[500,380]].forEach(p=>{
+      el('path',{d:`M ${p[0]-8} ${p[1]-9} L ${p[0]+8} ${p[1]} L ${p[0]-8} ${p[1]+9}`, stroke:'#fff','stroke-width':2.5, fill:'none','stroke-linecap':'round'}, g);
+    });
+    el('path',{d:'M 300 282 L 290 262 L 310 262', stroke:'#fff','stroke-width':2.5, fill:'none','stroke-linecap':'round'}, g);
+    el('path',{d:'M 576 462 L 566 472 L 586 472', stroke:'#fff','stroke-width':2.5, fill:'none','stroke-linecap':'round'}, g);
+    // 起点绿标
+    el('circle',{cx:576, cy:492, r:15, fill:'#4CAF50', stroke:'#fff','stroke-width':2.5}, g);
+    txt(576, 497, '起', '#fff', 11, '800', g);
+    // 终点红标
+    el('path',{d:'M170,246 C154,226 154,204 170,204 C186,204 186,226 170,246 Z', fill:'#E24B4B', stroke:'#fff','stroke-width':2}, g);
+    el('circle',{cx:170, cy:217, r:7.5, fill:'#fff'}, g);
+    txt(170, 221, '终', '#E24B4B', 8.5, '800', g);
+  }
+  compassRose(g);
+}
+function drawB1(g){
+  el('rect',{x:0,y:0,width:800,height:1000,fill:'#4A5568'}, g);
+  el('circle',{cx:400, cy:450, r:92, fill:'#D8DDE5', stroke:'#fff','stroke-width':1.5}, g);
+  txt(400, 446, '中央', '#8a93a3', 13, '600', g);
+  txt(400, 466, '大厅', '#8a93a3', 13, '600', g);
+  // 停车区块
+  const blocks = [
+    [60,120,180,64],[300,120,180,64],[540,120,200,64],
+    [60,270,120,86],[620,270,120,86],
+    [60,460,110,130],[640,460,110,130],
+    [60,660,120,86],[620,660,120,86],
+    [120,830,200,64],[480,830,200,64],
+  ];
+  blocks.forEach(([bx,by,bw,bh])=>{
+    el('rect',{x:bx,y:by,width:bw,height:bh, fill:'#5A8F6A', stroke:'#fff','stroke-width':1, rx:3}, g);
+    const cols = Math.floor(bw/36), rows = Math.floor(bh/50);
+    for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){
+      el('rect',{x:bx+c*36+2, y:by+r*50+2, width:32, height:46, fill:'#6BA37C', stroke:'#fff','stroke-width':.5}, g);
+    }
+  });
+  // B1-036 高亮
+  el('rect',{x:300, y:120, width:36, height:48, fill:'#E8913A', stroke:'#fff','stroke-width':1.2, rx:2}, g);
+  txt(318, 149, 'B1-036', '#fff', 8.5, '700', g);
+  // 蓝色三角标记
+  el('path',{d:'M318 168 L306 190 L330 190 Z', fill:'#4A90E2', stroke:'#fff','stroke-width':1.5}, g);
+  elevator(g, 160, 220, '2号电梯厅', 'elev');
+  elevator(g, 580, 220, '4号电梯厅', 'esc');
+  elevator(g, 160, 760, '6号电梯厅', 'elev');
+  elevator(g, 420, 540, '5号电梯厅', 'esc');
+  compassRose(g);
+}
+function drawB3(g){
+  el('rect',{x:0,y:0,width:800,height:1000,fill:'#4A5568'}, g);
+  el('polygon',{points:'80,80 720,80 760,200 720,400 760,600 720,800 680,920 120,920 80,800 120,600 80,400 120,200', fill:'#5A8F6A', stroke:'#fff','stroke-width':1}, g);
+  el('polygon',{points:'200,200 600,200 640,320 600,500 640,680 600,800 200,800 160,680 200,500 160,320', fill:'#4A5568'}, g);
+  spotRow(g, 130, 100, 8, 60, 48, 36, 'B3-', 101, null);
+  spotRow(g, 130, 860, 8, 60, 48, 36, 'B3-', 201, null);
+  spotRow(g, 660, 300, 2, 52, 36, 48, 'B3-', 301, null);
+  elevator(g, 240, 240, '3号电梯厅', 'elev');
+  elevator(g, 520, 680, '7号电梯厅', 'esc');
+  compassRose(g);
+}
+function drawB5(g){
+  el('rect',{x:0,y:0,width:800,height:1000,fill:'#4A5568'}, g);
+  el('polygon',{points:'60,60 740,60 740,420 420,420 420,940 60,940', fill:'#5A8F6A', stroke:'#fff','stroke-width':1}, g);
+  el('polygon',{points:'120,120 680,120 680,360 360,360 360,880 120,880', fill:'#4A5568'}, g);
+  spotRow(g, 130, 70, 10, 62, 48, 36, 'B5-', 1, null);
+  spotRow(g, 70, 480, 7, 56, 36, 48, 'B5-', 101, null);
+  spotRow(g, 440, 480, 5, 56, 48, 36, 'B5-', 201, null);
+  elevator(g, 200, 200, '1号电梯厅', 'elev');
+  elevator(g, 560, 200, '8号电梯厅', 'esc');
+  elevator(g, 200, 760, '9号电梯厅', 'elev');
+  compassRose(g);
+}
+
+/* =========================================================
+ * 渲染与交互
+ * =======================================================*/
+const $ = id => document.getElementById(id);
+const mapWrap = $('mapWrap'), mapSvg = $('mapSvg'), mapInner = $('mapInner');
+let navAnim = null, navDot = null;
+
+function renderMap(){
+  mapInner.innerHTML = '';
+  const g = el('g', {}, mapInner);
+  if(state.floor==='B4') drawB4(g, state.mode==='route');
+  else if(state.floor==='B1') drawB1(g);
+  else if(state.floor==='B3') drawB3(g);
+  else drawB5(g);
+  renderMarkers(g);
+  applyTransform();
+}
+function renderMarkers(g){
+  (MARKERS[state.floor]||[]).forEach(m=>{
+    const grp = el('g',{transform:`translate(${m.x},${m.y})`, style:'cursor:pointer'}, g);
+    if(m.type==='pin'){
+      const hl = state.mode==='spot' && state.selectedSpot && state.selectedSpot.id===m.id;
+      el('path',{d:'M0 6 L-24 -30 L24 -30 Z', fill: hl?'#E8913A':'#4A90E2', stroke:'#fff','stroke-width':2.5,
+        filter:'drop-shadow(0 2px 5px rgba(0,0,0,.3))'}, grp);
+      txt(0, -14, m.label, '#fff', 9.5, '700', grp);
+    }
+    grp.addEventListener('click', e=>{ e.stopPropagation(); onMarkerTap(m); });
+  });
+}
+function onMarkerTap(m){
+  if(m.type!=='pin') return;
+  state.mode = 'spot';
+  state.selectedSpot = m;
+  if(state.floor!=='B4'){ /* keep floor */ }
+  renderMap(); renderUI();
+}
+function applyTransform(){
+  const s = state.scale, w = mapWrap.clientWidth, h = mapWrap.clientHeight;
+  let tx = state.tx, ty = state.ty;
+  if(state.mode==='route' && state.floor==='B4'){
+    tx = w/2 - 400*s; ty = h*0.30 - 380*s;
+  }else{
+    tx = (w - 800*s)/2; ty = (h - 1000*s)/2;
+  }
+  state.tx = tx; state.ty = ty;
+  mapSvg.setAttribute('transform', `translate(${tx},${ty}) scale(${s})`);
+}
+
+/* ---------- 拖动 / 缩放 ---------- */
+let drag = null;
+mapSvg.addEventListener('pointerdown', e=>{
+  drag = {x:e.clientX, y:e.clientY, tx:state.tx, ty:state.ty};
+  mapSvg.classList.add('dragging');
+  mapSvg.setPointerCapture(e.pointerId);
+});
+mapSvg.addEventListener('pointermove', e=>{
+  if(!drag) return;
+  state.tx = drag.tx + (e.clientX - drag.x);
+  state.ty = drag.ty + (e.clientY - drag.y);
+  mapSvg.setAttribute('transform', `translate(${state.tx},${state.ty}) scale(${state.scale})`);
+});
+mapSvg.addEventListener('pointerup', ()=>{ drag=null; mapSvg.classList.remove('dragging'); });
+mapSvg.addEventListener('pointercancel', ()=>{ drag=null; mapSvg.classList.remove('dragging'); });
+mapWrap.addEventListener('wheel', e=>{
+  e.preventDefault();
+  zoomAt(e.deltaY < 0 ? 1.12 : 0.9, e.clientX - mapWrap.getBoundingClientRect().left, e.clientY - mapWrap.getBoundingClientRect().top);
+},{passive:false});
+function zoomAt(f, cx, cy){
+  const ns = Math.min(3, Math.max(0.35, state.scale*f));
+  const k = ns/state.scale;
+  state.tx = cx - (cx - state.tx)*k;
+  state.ty = cy - (cy - state.ty)*k;
+  state.scale = ns;
+  mapSvg.setAttribute('transform', `translate(${state.tx},${state.ty}) scale(${state.scale})`);
+}
+$('zoomIn').onclick = ()=> zoomAt(1.25, mapWrap.clientWidth/2, mapWrap.clientHeight/2);
+$('zoomOut').onclick = ()=> zoomAt(0.8, mapWrap.clientWidth/2, mapWrap.clientHeight/2);
+
+/* ---------- UI 渲染 ---------- */
+function renderUI(){
+  // 楼层按钮
+  const fb = $('floorBtns'); fb.innerHTML = '';
+  FLOORS.forEach(f=>{
+    const d = document.createElement('div');
+    d.className = 'floor-btn' + (state.floor===f?' active':'');
+    d.textContent = f;
+    d.onclick = ()=> switchFloor(f);
+    fb.appendChild(d);
+  });
+  // 底部面板
+  const isRoute = state.mode==='route';
+  $('routeCard').style.display = isRoute ? '' : 'none';
+  $('btnSearch').style.display = isRoute ? 'none' : 'flex';
+  // 弹窗
+  const sp = state.mode==='spot' && state.selectedSpot;
+  $('spotPopup').style.display = sp ? '' : 'none';
+  if(sp){
+    $('popId').textContent = state.selectedSpot.id;
+    $('popType').textContent = state.selectedSpot.typeText || '';
+  }
+  // 路线信息
+  $('endSpot').textContent = state.endSpot;
+  $('plateTag').textContent = state.plate;
+  // 场景 chips
+  document.querySelectorAll('.scene-chip').forEach(c=>c.classList.toggle('on', c.dataset.scene===state.mode));
+  // 视图
+  $('vtText').textContent = state.view;
+  document.body.classList.toggle('view3d', state.view==='3D');
+  // 导航按钮还原
+  if(!state.navigating){
+    $('btnNav').classList.remove('navigating');
+    $('navText').textContent = '模拟导航';
+    $('navIcon').textContent = '▶';
+  }
+}
+function switchFloor(f){
+  state.floor = f;
+  if(state.mode==='route' && f!=='B4') state.mode='overview';
+  if(state.mode==='spot' && f!==state.selectedSpot?.floorHint){
+    // 切楼层时若当前选中车位不在该层，退回总览
+    const inFloor = (MARKERS[f]||[]).some(m=>m.type==='pin');
+    if(!inFloor){ state.mode='overview'; state.selectedSpot=null; }
+  }
+  state.scale = f==='B4' && state.mode==='route' ? 1.1 : 0.62;
+  stopNav();
+  renderMap(); renderUI();
+}
+
+/* ---------- 场景切换 ---------- */
+document.querySelectorAll('.scene-chip').forEach(c=>{
+  c.onclick = ()=> gotoScene(c.dataset.scene);
+});
+function gotoScene(scene){
+  stopNav();
+  if(scene==='route'){
+    state.floor='B4'; state.mode='route';
+    state.endSpot='B4-B4-162'; state.plate='粤T997LF';
+    state.scale=1.1; state.selectedSpot=null;
+  }else if(scene==='spot'){
+    state.floor='B1'; state.mode='spot';
+    state.selectedSpot = MARKERS.B1[0];
+    state.scale=0.9;
+  }else{
+    state.mode='overview'; state.selectedSpot=null;
+    state.scale=0.62;
+  }
+  renderMap(); renderUI();
+}
+
+/* ---------- 弹窗/按钮事件 ---------- */
+$('popClose').onclick = ()=>{ state.mode='overview'; state.selectedSpot=null; renderMap(); renderUI(); };
+$('popFocus').onclick = ()=>{
+  if(!state.selectedSpot) return;
+  const m = state.selectedSpot;
+  const w = mapWrap.clientWidth, h = mapWrap.clientHeight;
+  state.scale = 1.6;
+  state.tx = w/2 - m.x*state.scale;
+  state.ty = h/2 - m.y*state.scale;
+  mapSvg.setAttribute('transform', `translate(${state.tx},${state.ty}) scale(${state.scale})`);
+  toast('已聚焦到当前车位');
+};
+$('popSetDest').onclick = ()=>{
+  if(!state.selectedSpot) return;
+  if(state.floor!=='B4'){ toast('导航 Demo 仅展示 B4 路线'); return; }
+  state.mode='route';
+  state.endSpot = `B4-${state.selectedSpot.id}`;
+  state.selectedSpot=null;
+  state.scale=1.1;
+  renderMap(); renderUI();
+  toast('已设为终点，路线已生成');
+};
+$('btnCancel').onclick = ()=>{ stopNav(); state.mode='overview'; renderMap(); renderUI(); };
+$('route3dBtn').onclick = ()=> toggleView();
+$('btnView').onclick = ()=> toggleView();
+function toggleView(){
+  state.view = state.view==='2D' ? '3D' : '2D';
+  renderUI();
+  toast(`已切换至 ${state.view} 视图`);
+}
+$('btnHome').onclick = ()=> toast('返回首页（Demo）');
+
+/* ---------- 模拟导航 ---------- */
+$('btnNav').onclick = ()=>{
+  if(state.navigating){ stopNav(); renderUI(); return; }
+  startNav();
+};
+function startNav(){
+  if(state.floor!=='B4' || state.mode!=='route'){ toast('请先进入 B4 导航模式'); return; }
+  const path = mapInner.querySelector(`path[d="${ROUTE.d}"]`);
+  if(!path){ toast('未找到路线'); return; }
+  stopNav();
+  state.navigating = true;
+  $('btnNav').classList.add('navigating');
+  $('navText').textContent = '结束导航';
+  $('navIcon').textContent = '■';
+  navDot = el('circle',{r:11, fill:'#4CAF50', stroke:'#fff','stroke-width':3,
+    filter:'drop-shadow(0 0 6px rgba(76,175,80,.9))'}, mapInner);
+  const L = path.getTotalLength();
+  const DUR = 6000;
+  const t0 = performance.now();
+  // 剩余距离/时间动态更新
+  const totalM = 7;
+  function frame(t){
+    if(!state.navigating) return;
+    let p = Math.min(1, (t - t0)/DUR);
+    const ease = p<.5 ? 2*p*p : 1-Math.pow(-2*p+2,2)/2;
+    const pt = path.getPointAtLength(L*ease);
+    navDot.setAttribute('cx', pt.x); navDot.setAttribute('cy', pt.y);
+    const remainM = Math.max(0, Math.round(totalM*(1-p)));
+    const remainS = Math.max(0, Math.ceil(2*(1-p)));
+    $('routeMeta').textContent = `导航中…剩余${remainM}米，预计${remainS}s`;
+    if(p<1){ navAnim = requestAnimationFrame(frame); }
+    else{
+      toast('已到达终点 B4-162 🎉');
+      $('routeMeta').textContent = '已到达终点：B4-162';
+      stopNav(); renderUI();
+    }
+  }
+  navAnim = requestAnimationFrame(frame);
+}
+function stopNav(){
+  state.navigating = false;
+  if(navAnim){ cancelAnimationFrame(navAnim); navAnim=null; }
+  if(navDot){ navDot.remove(); navDot=null; }
+  if(state.mode==='route') $('routeMeta').textContent = '最优路线：全程7米，预计2s';
+}
+
+/* ---------- 查询 ---------- */
+$('btnSearch').onclick = ()=>{ $('searchModal').style.display='flex'; $('searchInput').value=''; setTimeout(()=>$('searchInput').focus(),50); };
+$('searchCancel').onclick = ()=> $('searchModal').style.display='none';
+$('searchModal').addEventListener('click', e=>{ if(e.target===e.currentTarget) e.currentTarget.style.display='none'; });
+$('searchConfirm').onclick = doSearch;
+$('searchInput').addEventListener('keydown', e=>{ if(e.key==='Enter') doSearch(); });
+function doSearch(){
+  const val = $('searchInput').value.trim();
+  if(!val){ toast('请输入车牌或车位号'); return; }
+  $('searchModal').style.display='none';
+  stopNav();
+  if(val.includes('162')){
+    state.floor='B4'; state.mode='route';
+    state.endSpot='B4-B4-162';
+    if(val.includes('粤')) state.plate=val;
+    state.scale=1.1; state.selectedSpot=null;
+    renderMap(); renderUI();
+    toast(`已定位到车位 B4-162`);
+  }else if(val.includes('036')){
+    state.floor='B1'; state.mode='spot';
+    state.selectedSpot = MARKERS.B1[0];
+    state.scale=0.9;
+    renderMap(); renderUI();
+    toast('已定位到车位 B1-036');
+  }else{
+    toast(`未找到与「${val}」匹配的车位`);
+  }
+}
+
+/* ---------- Toast ---------- */
+let toastTimer=null;
+function toast(s){
+  const t = $('toast');
+  t.textContent = s; t.style.display='block';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> t.style.display='none', 2000);
+}
+
+/* ---------- 楼层箭头 ---------- */
+$('floorUp').onclick = ()=>{
+  const i = FLOORS.indexOf(state.floor);
+  if(i>0) switchFloor(FLOORS[i-1]);
+};
+$('floorDown').onclick = ()=>{
+  const i = FLOORS.indexOf(state.floor);
+  if(i<FLOORS.length-1) switchFloor(FLOORS[i+1]);
+};
+
+/* ---------- 初始化 ---------- */
+window.addEventListener('resize', ()=>{ renderMap(); });
+renderMap();
+renderUI();
+</script>
+</body>
+</html>

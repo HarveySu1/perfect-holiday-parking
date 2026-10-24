@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>参赛改造方案｜完美金鹰·假日商圈 AI 大赛</title>
+<style>
+  :root{
+    --bg:#FFFFFF; --bg2:#F7F6F2; --bd:#E3E1D9; --tx:#2C2C2A; --tx2:#5F5E5A; --tx3:#888780;
+    --red-bg:#FCEBEB; --red-bd:#E24B4A; --red-tx:#791F1F;
+    --amb-bg:#FAEEDA; --amb-bd:#EF9F27; --amb-tx:#633806;
+    --grn-bg:#EAF3DE; --grn-bd:#639922; --grn-tx:#27500A;
+    --blu-bg:#E6F1FB; --blu-bd:#378ADD; --blu-tx:#0C447C;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg2);color:var(--tx);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    font-size:14px;line-height:1.75;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:940px;margin:0 auto;padding:40px 24px 80px;}
+  .paper{background:var(--bg);border:1px solid var(--bd);border-radius:12px;padding:44px 48px;}
+  h1{font-size:24px;font-weight:600;margin:0 0 6px;letter-spacing:-0.2px;}
+  .sub{color:var(--tx2);font-size:13px;margin:0 0 4px;}
+  .meta{color:var(--tx3);font-size:12px;margin:0 0 28px;}
+  h2{font-size:17px;font-weight:600;margin:38px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--bd);}
+  h3{font-size:15px;font-weight:600;margin:24px 0 10px;}
+  h4{font-size:14px;font-weight:600;margin:18px 0 6px;}
+  p{margin:0 0 12px;}
+  ul,ol{margin:0 0 12px;padding-left:22px;}
+  li{margin-bottom:6px;}
+  table{width:100%;border-collapse:collapse;margin:14px 0 18px;font-size:13px;}
+  th{background:var(--bg2);text-align:left;font-weight:600;padding:9px 10px;border:1px solid var(--bd);}
+  td{padding:9px 10px;border:1px solid var(--bd);vertical-align:top;}
+  td.c,th.c{text-align:center;}
+  .hero{display:grid;grid-template-columns:200px 1fr;gap:14px;margin:20px 0 8px;}
+  .card{border-radius:10px;padding:16px 18px;border:1px solid;}
+  .card.score{background:var(--red-bg);border-color:var(--red-bd);}
+  .card.score .n{font-size:34px;font-weight:600;color:var(--red-tx);line-height:1.1;}
+  .card.score .l{font-size:12px;color:var(--red-tx);opacity:.9;}
+  .card.verdict{background:var(--amb-bg);border-color:var(--amb-bd);}
+  .card.verdict .l{font-size:12px;color:var(--amb-tx);font-weight:600;margin-bottom:4px;}
+  .card.verdict .t{font-size:13px;color:var(--amb-tx);}
+  .tag{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;line-height:1.6;vertical-align:2px;white-space:nowrap;}
+  .t0{background:var(--red-bg);color:var(--red-tx);border:1px solid var(--red-bd);}
+  .t1{background:var(--amb-bg);color:var(--amb-tx);border:1px solid var(--amb-bd);}
+  .t2{background:var(--blu-bg);color:var(--blu-tx);border:1px solid var(--blu-bd);}
+  .tg{background:var(--grn-bg);color:var(--grn-tx);border:1px solid var(--grn-bd);}
+  .box{background:var(--bg2);border-left:3px solid var(--blu-bd);border-radius:0 8px 8px 0;padding:12px 16px;margin:10px 0 18px;}
+  .box .h{font-size:12px;font-weight:600;color:var(--blu-tx);margin-bottom:4px;}
+  .box.good{border-left-color:var(--grn-bd);} .box.good .h{color:var(--grn-tx);}
+  .box.bad{border-left-color:var(--red-bd);} .box.bad .h{color:var(--red-tx);}
+  .box.warn{border-left-color:var(--amb-bd);} .box.warn .h{color:var(--amb-tx);}
+  .paste{background:#FFFFFF;border:1px solid var(--blu-bd);border-radius:10px;padding:16px 18px;margin:12px 0 20px;}
+  .paste .h{font-size:12px;font-weight:600;color:var(--blu-tx);margin-bottom:8px;letter-spacing:.3px;}
+  .paste p{margin:0 0 10px;font-size:13.5px;}
+  .paste p:last-child{margin-bottom:0;}
+  code{font-family:ui-monospace,"SFMono-Regular",Consolas,monospace;font-size:12.5px;background:var(--bg2);padding:1px 5px;border-radius:4px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .pl{border:1px solid var(--bd);border-radius:10px;padding:14px 16px;background:var(--bg);}
+  .pl .ttl{font-size:13px;font-weight:600;margin-bottom:6px;}
+  .foot{margin-top:36px;padding-top:14px;border-top:1px solid var(--bd);color:var(--tx3);font-size:12px;}
+  @media print{body{background:#fff;}.paper{border:none;padding:0;}.wrap{padding:0;max-width:none;}}
+  @media (max-width:720px){.hero{grid-template-columns:1fr;}.grid2{grid-template-columns:1fr;}.paper{padding:24px 18px;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="paper">
+
+  <h1>参赛改造方案｜停车 AI 助手</h1>
+  <p class="sub">面向：完美金鹰·假日商圈 AI 大赛（金鹰亚洲 × ATOX）· 赛道二：商圈服务 · 用户体验</p>
+  <p class="meta">改造对象：《"完美金鹰·假日商圈"智能停车小程序方案》 · 输出日期：2026-09-20 · 距报名截止：3 天</p>
+
+  <div class="hero">
+    <div class="card score">
+      <div class="l">比赛口径得分</div>
+      <div class="n">48</div>
+      <div class="l">/ 100 分 · 评级 D</div>
+    </div>
+    <div class="card verdict">
+      <div class="l">一句话结论</div>
+      <div class="t">分数和上一版一样，但扣分的地方完全变了。上一版失分是"缺商业论证"，这一版失分是<strong>几乎不含 AI</strong>。这是一份写得很好的<strong>信息化方案</strong>，但它还不是一份<strong>AI 方案</strong>——而这恰好是本次比赛唯一的重心。好消息是：只需一次重构，它就能变成一份很强的参赛作品。</div>
+    </div>
+  </div>
+
+  <h2>一、先换尺子：比赛口径评分（满分 100）</h2>
+  <p>企业立项评审关心"划不划算、能不能落地"；这场比赛关心的是官方明说的三件事 —— <strong>解决什么商圈问题、AI 发挥什么作用、如何在商圈落地</strong>，再加上本次赛制特有的"线下一天黑客松"。所以尺子必须换掉，AI 与"一天可做出来"的权重被大幅抬高。</p>
+  <table>
+    <thead><tr>
+      <th style="width:22%">维度</th><th class="c" style="width:8%">权重</th><th style="width:42%">评分尺</th><th class="c" style="width:9%">得分</th><th class="c" style="width:10%">判定</th>
+    </tr></thead>
+    <tbody>
+      <tr><td><strong>AI 发挥什么作用</strong></td><td class="c">30</td><td>AI 是否是方案的主线骨架，还是仅作装饰；去掉 AI 方案是否即刻崩塌</td><td class="c">4</td><td class="c" style="color:var(--red-tx)">致命失分</td></tr>
+      <tr><td>如何在商圈落地</td><td class="c">25</td><td>是否轻量、是否无需硬件改造、是否与主办方现有资源协同</td><td class="c">17</td><td class="c" style="color:var(--amb-tx)">良好</td></tr>
+      <tr><td>解决什么商圈问题</td><td class="c">20</td><td>痛点是否真实、数据是否准确、是否说人话让人有共鸣</td><td class="c">16</td><td class="c" style="color:var(--grn-tx)">优秀</td></tr>
+      <tr><td>决赛一天可做出原型</td><td class="c">10</td><td>按赛制"一天线下黑客松"，核心链路能否当天跑通</td><td class="c">3</td><td class="c" style="color:var(--red-tx)">严重不足</td></tr>
+      <tr><td>表达与路演感染力</td><td class="c">10</td><td>是否有情绪钩子、有传播性、契合大赛"Outlier"气质</td><td class="c">5</td><td class="c" style="color:var(--amb-tx)">偏弱</td></tr>
+      <tr><td>差异化与记忆点</td><td class="c">5</td><td>是否有别人抄不走的独特切入</td><td class="c">3</td><td class="c" style="color:var(--amb-tx)">合格</td></tr>
+      <tr style="background:var(--bg2)"><td><strong>合计</strong></td><td class="c"><strong>100</strong></td><td><strong>比赛口径：AI 不是加分项，是必答项</strong></td><td class="c"><strong>48</strong></td><td class="c" style="color:var(--red-tx)"><strong>D</strong></td></tr>
+    </tbody>
+  </table>
+
+  <h2>二、核心诊断：方案里没有 AI</h2>
+  <p>全文出现过"AI"的地方只有两处，而且都不是方案自己的功能：</p>
+  <ul>
+    <li>"传统解决方案（蓝牙信标、<strong>视频 AI 识别</strong>、地磁传感器）" —— AI 是被否定的对手方；</li>
+    <li>"系统 <strong>OCR</strong> 识别后自动填入" —— 一个 2015 年就成熟的字符识别，属于功能点，不足以支撑整份方案的 AI 叙事。</li>
+  </ul>
+  <p>方案真正的骨架是这四样东西：<strong>二维码、静态地图、A* 最短路径、用户手动录入</strong>。这是一套完全不需要大模型的传统 IT 方案。评委按官方三问逐条打分时，"AI 发挥什么作用"这一栏，作者几乎无从落笔 —— 而这恰恰是权重最高的那一栏。</p>
+
+  <div class="box bad">
+    <div class="h">还有一个被忽略的事实：按赛制，这份方案做不出来</div>
+    <p style="margin:0">据中山日报 / 中山Plus 报道，本次大赛采用"线上命题征集 + 命题可行性复选 + <strong>线下黑客松</strong>"的形式，拟筛选 10–15 支队伍在决赛现场"<strong>一天线下决赛</strong>"，现场集中开发并路演。这意味着：铺 8000 个二维码、拿商场 CAD 图纸、建两个商场的矢量地图拓扑、跑 A* 算法——这些<strong>一天之内一件都完不成</strong>。方案的"重"会和赛制正面冲突。</p>
+  </div>
+
+  <h2>三、改造方向：把"让用户自己记"改成"AI 帮你记"</h2>
+  <p>这是本次最关键的思路转换，而且它顺手解决了方案最大的软肋。</p>
+  <p>原方案有一个始终没说破的矛盾：<strong>它要求用户在最累、最赶时间、手里提着东西的时候，去做一件需要准确度的手工活</strong>（停好车、记车位号）。作者自己显然也意识到了，所以才要补一个"5 分钟后推送提醒"——但那个通道在平台规则上也不存在。这个矛盾就是录号率会低的根因。</p>
+  <p>而"帮用户记住东西"恰恰是大模型最擅长的事。<strong>把方案最脆弱的一环交给 AI，是这次改造的支点。</strong></p>
+
+  <h3>五个 AI 改造点（按决赛可实现性排序）</h3>
+  <table>
+    <thead><tr><th style="width:22%">改造点</th><th style="width:46%">具体做什么</th><th class="c" style="width:14%">原方案对应</th><th class="c" style="width:18%">一天可做</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>A1 视觉记车位</strong><br><span style="color:var(--red-tx);font-size:12px">必做·核心</span></td>
+        <td>用户下车随手拍一张（或录 3 秒环视视频）。多模态模型自动读出：柱面编号、柱子颜色、区域字母、周边店铺导视、地面标识，直接输出结构化车位信息。<strong>用户零输入、零学习成本。</strong></td>
+        <td class="c">取代"手动录入"三种方式</td>
+        <td class="c"><span class="tag tg">高</span></td>
+      </tr>
+      <tr>
+        <td><strong>A2 人话描述</strong><br><span style="color:var(--red-tx);font-size:12px">必做·核心</span></td>
+        <td>把冷冰冰的 <code>WXH-B2-A056</code> 翻译成人能记住、能复述的话："停在一个红色柱子的车位，正对面是茶百道的后门。" 人记不住编码，但记得住画面。</td>
+        <td class="c">新增</td>
+        <td class="c"><span class="tag tg">高</span></td>
+      </tr>
+      <tr>
+        <td><strong>A3 对话式找车</strong><br><span style="color:var(--red-tx);font-size:12px">必做·核心</span></td>
+        <td>用户不需要知道任何准确信息，说"我车旁边有个红柱子"就能定位。完全想不起来时，Agent 主动追问收敛："最后逛的是哪家店？从哪个门进来的？" 再配合语音播报，边走边听不用看手机。</td>
+        <td class="c">升级"模糊查找"</td>
+        <td class="c"><span class="tag tg">高</span></td>
+      </tr>
+      <tr>
+        <td><strong>A4 行程级规划</strong><br><span style="color:var(--amb-tx);font-size:12px">强烈建议</span></td>
+        <td>把停车并回"逛商圈"这件事本身。用户说"带娃去书店吃饭"，AI 一次输出：停哪个区最省走路 + 从车位到店铺的路线 + 沿途母婴室 + 餐厅推荐 + 返程取车提醒。<strong>停车不再是一个孤立工具，而是商圈 AI 导览的一个环节。</strong></td>
+        <td class="c">升级"共享车位推荐"</td>
+        <td class="c"><span class="tag tg">高</span></td>
+      </tr>
+      <tr>
+        <td><strong>A5 主动记忆推断</strong><br><span style="color:var(--tx2);font-size:12px">可选·进阶</span></td>
+        <td>用户什么都不做。Agent 从"商圈消费时间线 + 停车缴费时间 + 相册照片"推断出车位，生成卡片让用户点一下"是这个"确认。把录号从"必须做"降级为"点一下确认"，确认率远高于录入率。</td>
+        <td class="c">取代"5 分钟提醒"</td>
+        <td class="c"><span class="tag t1">中</span></td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="box good">
+    <div class="h">为什么这套改造特别适合这次比赛</div>
+    <p style="margin:0">A1–A4 全部可以只靠<strong>现成的多模态与语言模型 API + 一个结构化车位库 + 小程序前端</strong>实现，<strong>不需要硬件、不需要施工、不需要改动道闸或停车系统</strong>。这正好匹配"一天黑客松现场开发"的赛制，而且决赛当天可以直接用主办方自己的真实车库拍照建样本库——"真实场景"这个加分项可以当场拿满。</p>
+  </div>
+
+  <h2>四、参赛定位：赛道、名字、一句话</h2>
+  <div class="grid2">
+    <div class="pl">
+      <div class="ttl">赛道</div>
+      <p style="margin:0;font-size:13px;color:var(--tx2)"><strong>赛道二：商圈服务 · 用户体验</strong>。官方征集方向里"智能导览、<strong>停车与到店</strong>、空间运营、适老服务"四项都对得上，选题天然对齐，不要改投别的赛道。</p>
+    </div>
+    <div class="pl">
+      <div class="ttl">项目名（建议）</div>
+      <p style="margin:0;font-size:13px;color:var(--tx2)"><strong>「车记得」</strong> —— 一个会自己记住你车停在哪的商圈 AI 助手。<br>备选：泊记 / 记车 / 找得到。<br>不要再用"智能停车小程序方案"这种内部立项式命名。</p>
+    </div>
+    <div class="pl">
+      <div class="ttl">一句话 slogan</div>
+      <p style="margin:0;font-size:13px;color:var(--tx2)">"你负责逛，车的位置交给我记。"<br>或更贴大赛气质：<strong>"你记不住的事，让 AI 替你记。"</strong></p>
+    </div>
+    <div class="pl">
+      <div class="ttl">电梯陈述（30 秒）</div>
+      <p style="margin:0;font-size:13px;color:var(--tx2)">两个商场打通了，但你的车没打通。我们把"自己记住车停哪"这件事整个交给 AI —— 下车拍一张、走时说一句，剩下的它来记。</p>
+    </div>
+  </div>
+
+  <h2>五、官方三大必答：可直接粘贴的文案</h2>
+  <p>报名材料要求讲清三点。下面这版已经按比赛口径重写，可直接使用或微调。</p>
+
+  <div class="paste">
+    <div class="h">① 解决什么商圈问题</div>
+    <p>完美金鹰广场与假日广场已于 2026 年 8 月 18 日正式打通，形成体量 62 万㎡、年客流超 3000 万人次、会员超 80 万人的超级商圈。物理空间通了、会员权益和停车优惠也已互认，但<strong>车的记忆没通</strong>：两个商场停车系统各自独立，万象汇约 4500 个车位分布在地下五层，消费者一旦跨场消费，就失去了"我停在哪儿"的锚点。</p>
+    <p>反向寻车是这个商圈里最持续、最普遍、最被忽视的痛点：地下楼层深、面积大、信号弱，平均寻车时间超过 8 分钟。带着孩子、拎着购物袋、赶着回家的场景，每天在 3000 万客流里重复发生。更关键的是——<strong>停车不是孤立的，它是每一次逛街体验的起点和终点</strong>。起点不顺畅，整段体验都会被拉低。</p>
+  </div>
+
+  <div class="paste">
+    <div class="h">② AI 发挥什么作用</div>
+    <p>在这个方案里，AI 不是助手，<strong>AI 就是那份记忆本身</strong>。我们把"用户自己记车位号"这个反人性的动作，整个交给 AI 完成：</p>
+    <p><strong>· 多模态视觉理解</strong>：用户下车时随手拍一张（或录 3 秒环视视频），视觉大模型自动读出柱面编号、柱子颜色、区域字母与周边店铺导视，直接生成结构化车位坐标。用户不需要输入任何字符。</p>
+    <p><strong>· 生成式表达</strong>：把 <code>WXH-B2-A056</code> 翻译成人能记住、能复述的话——"红色柱子旁边的车位，正对着茶百道后门"。人记不住编码，但记得住画面。</p>
+    <p><strong>· 语义检索 Agent</strong>：找回时用户不需要提供任何准确信息，说一句"我车旁边有个红柱子"就能定位；如果完全想不起来，Agent 会主动追问（最后逛的是哪家店？从哪个门进来的？）逐步收敛到唯一答案，并支持语音播报边走边听。</p>
+    <p><strong>· 行程级规划</strong>：把停车并回"逛商圈"本身。用户说"带娃去书店吃饭"，AI 一次输出停哪个区最省走路、从车位到店铺的路线、沿途母婴室与餐厅排队参考、以及返程取车提醒。</p>
+    <p>一句话概括：<strong>AI 把"记录车位"从一件需要用户完成的任务，变成一件用户根本感觉不到的服务。</strong>去掉 AI，这个方案剩下的就只是一张静态地图——AI 是它的骨架，不是装饰。</p>
+  </div>
+
+  <div class="paste">
+    <div class="h">③ 如何在商圈落地</div>
+    <p><strong>· 一天可出原型</strong>：核心链路只依赖现成多模态 API + 一个结构化车位库 + 小程序前端，无硬件、无施工、无需改动道闸与停车系统，适合决赛线下黑客松当天完成并现场演示。</p>
+    <p><strong>· 样本库可现场采集</strong>：决赛当天在真实地库拍摄 30–50 张柱面与导视照片，即可建立当天可用的识别样本库。车位分区信息可复用商圈现有车库分区资料，不需要 CAD 图纸。</p>
+    <p><strong>· 试点路径清晰</strong>：赛后先在万象汇 B1 或 B2 单层试点，以一层真实车位为样本库，两周内跑通"拍照记录 → 对话找车"完整闭环，实测寻车时长下降幅度与使用率，再逐步扩展到跨场场景。</p>
+    <p><strong>· 与现有体系协同</strong>：商圈已实现会员权益互认与停车优惠互通，本方案直接复用现有身份体系，不新增会员流程、不增加用户负担。</p>
+    <p><strong>· 可复用为商圈通用能力</strong>：同一套"AI 记忆 + 语义检索"能力可平移到活动体验、适老服务（语音寻车导航）、空间运营，成为商圈的 AI 能力底座。</p>
+  </div>
+
+  <h2>六、必须砍掉和降级的内容</h2>
+  <p>沿用原方案的框架没问题，但下面这些内容在比赛口径下会<strong>减分</strong>，因为它们让方案显得"一天做不出来"，而且稀释了 AI 叙事。</p>
+  <table>
+    <thead><tr><th style="width:34%">原方案内容</th><th class="c" style="width:12%">处理</th><th>原因</th></tr></thead>
+    <tbody>
+      <tr><td>8000 个车位贴二维码</td><td class="c"><span class="tag t0">砍</span></td><td>一天不可能完成，且暴露"重"的问题。改为"试点 200 个点位"，并说明二维码降级为兜底手段</td></tr>
+      <tr><td>获取商场 CAD 图纸、建双商场矢量地图</td><td class="c"><span class="tag t0">砍</span></td><td>高不可控依赖 + 一天做不出来。改为"复用现有分区资料 + 现场拍照"</td></tr>
+      <tr><td>A* 最短路径算法</td><td class="c"><span class="tag t0">砍</span></td><td>拓扑只有几十个节点，属过度设计；且与 AI 无关，占篇幅却没说服力</td></tr>
+      <tr><td>新能源 / 充电桩信息模块（五字段数据表）</td><td class="c"><span class="tag t1">降级</span></td><td>纯静态数据维护，AI 含量为零。移到"未来扩展"，避免稀释主线</td></tr>
+      <tr><td>6–9 万 vs 70–125 万成本对比表</td><td class="c"><span class="tag t1">降级</span></td><td>比赛不比省钱。压成一句"轻量、零硬件改造、无需对接停车系统"即可</td></tr>
+      <tr><td>"停车 5 分钟后推送提醒"</td><td class="c"><span class="tag t0">砍</span></td><td>小程序模板消息已废弃，订阅消息需用户主动授权且只能推一次，机制上不成立。改为 A5 主动记忆推断</td></tr>
+      <tr><td>"手动录入车位号"作为主路径</td><td class="c"><span class="tag t1">改</span></td><td>从主路径降为兜底路径（当拍照失败时使用），主路径改为 A1 拍照识别</td></tr>
+    </tbody>
+  </table>
+
+  <h2>七、决赛"一天黑客松"任务拆解</h2>
+  <p>这一节建议直接写进参赛材料——主动证明"我知道一天能做出什么"，是应对这个赛制最有效的姿态。假设可用约 6 小时。</p>
+  <table>
+    <thead><tr><th class="c" style="width:20%">时段</th><th style="width:36%">任务</th><th>产出 / 注意</th></tr></thead>
+    <tbody>
+      <tr><td class="c">09:00–10:00</td><td>去真实地库采集样本</td><td>拍 30–50 张柱面、导视、地面标识照片。<strong>用主办方自己的车库，这是最强的真实感</strong></td></tr>
+      <tr><td class="c">10:00–11:30</td><td>打通多模态识别链路</td><td>"照片 → 结构化字段（楼层/区/编号/柱色/邻店）"，处理模糊与失败情况</td></tr>
+      <tr><td class="c">11:30–13:00</td><td>人话描述 prompt 调优</td><td>让输出听起来像人说的，而不是像机器读的。多跑几组对照</td></tr>
+      <tr><td class="c">13:00–15:00</td><td>对话式检索 Agent</td><td>语义匹配 + 追问收敛逻辑 + 语音播报</td></tr>
+      <tr><td class="c">15:00–16:30</td><td>前端三屏</td><td>拍照页 / 车位卡片页 / 对话找车页（见本文档配套界面示意）</td></tr>
+      <tr><td class="c">16:30–17:30</td><td><strong>现场真人测试</strong></td><td>请评委或路人当场上手试一次，记录失败案例。<strong>不要省这一步</strong></td></tr>
+      <tr><td class="c">17:30–18:00</td><td>路演脚本排练</td><td>用一个真实场景开场，不用数据开场</td></tr>
+    </tbody>
+  </table>
+  <div class="box warn">
+    <div class="h">路演时不要这样开场</div>
+    <p style="margin:0">不要用"62 万㎡、3000 万客流、80 万会员"开场。评委比你更清楚这些数字。用一个具体的人开场："上周六下午四点，一位妈妈抱着睡着的孩子，在 B3 层绕了十分钟——她的车其实就在 B2。"</p>
+  </div>
+
+  <h2>八、三天倒排表（今天 9/20，截止 9/23 18:00）</h2>
+  <table>
+    <thead><tr><th class="c" style="width:18%">时间</th><th style="width:40%">要做的事</th><th>为什么是这件事</th></tr></thead>
+    <tbody>
+      <tr><td class="c"><strong>今天 9/20</strong><br>约 3 小时</td><td>① 定赛道（赛道二）② 定项目名与 slogan ③ 把第五节三段必答文案定稿 ④ 看清报名表字段与提交口径</td><td>提交材料的骨架就是这三问。先把它们写对，其余都是配图</td></tr>
+      <tr><td class="c"><strong>9/21</strong><br>半天</td><td>① 写成 1 页方案（问题 / AI / 落地）② 附上三屏界面示意 ③ 确认个人报名还是组队</td><td>据赛制，ATOX 会为有落地价值的命题提供"组队式技术支持"，缺技术队友可以申请配对</td></tr>
+      <tr><td class="c"><strong>9/22</strong><br>半天–1 天</td><td>录一段 30–60 秒演示视频，或做一个可点击原型。若暂时不会写代码，用界面示意 + 模拟对话截图呈现</td><td>"不要求成熟产品"是真的，但<strong>能看到东西</strong>永远比纯文字强</td></tr>
+      <tr><td class="c"><strong>9/23</strong><br>上午–18:00</td><td>材料定稿并提交，<strong>预留 2 小时缓冲</strong></td><td>不要卡点提交。系统拥堵、格式问题都会在截止前出现</td></tr>
+      <tr><td class="c">9/24–9/30</td><td>书面初选期间，准备一页纸精细化版本</td><td>9/30 20:00 前未收到通知即未入选</td></tr>
+      <tr><td class="c">10/8–10/18</td><td>线上复选（可行性评审），把原型做出来</td><td>这一轮考的是"可行性"，不是想法</td></tr>
+      <tr><td class="c">10 月下旬</td><td>线下决赛 · 一天黑客松 + 路演</td><td>按第七节的时段表准备</td></tr>
+    </tbody>
+  </table>
+
+  <h2>九、三个可以打的加分牌</h2>
+  <div class="box good">
+    <div class="h">牌一：你选的就是主办方自己的场子</div>
+    <p style="margin:0">完美金鹰广场与假日广场就是金鹰亚洲自己的物业。在材料里把这句话显式写出来："我们选择在完美金鹰·假日商圈落地，因为这里是中山唯一同时具备<strong>双场物理连通 + 会员权益已互通 + 真实停车痛点</strong>的场景。"这会让评委产生"这是给我们做的"的代入感——这是本次比赛可用的最强一张牌。</p>
+  </div>
+  <div class="box good">
+    <div class="h">牌二：主动对齐官方示例的形态</div>
+    <p style="margin:0">官方在赛道二给出的示例是："带老人和 3 岁小孩来逛商场，输入你的需求，AI 直接输出一条完整游览路线"——本质是一个<strong>路线规划 Agent</strong>。你的 A4「行程级规划」与它同构，停车只是这条路线里的一个环节。<strong>主动往官方示例的形态上靠，评委的理解成本最低。</strong></p>
+  </div>
+  <div class="box good">
+    <div class="h">牌三：准备一条小红书内容</div>
+    <p style="margin:0">大赛设有人气奖，而主办方自己在用小红书做"万人碰杯计划"打卡。备一条 30 秒内容：拍下"随手拍一张 → AI 说出你车在哪"这个瞬间，配一句"中山的商场，现在会自己记住你把车停哪了"。传播性远高于方案文档本身。</p>
+  </div>
+
+  <h2>十、两个小提醒</h2>
+  <ul>
+    <li><strong>名称口径统一。</strong>官方表述是"完美金鹰·假日商圈"，业态包含"万象汇（中山石岐万象汇）、假日广场、洲际双品牌酒店、未来中心写字楼、金鹰半山花园、金鹰街"。原文"万象汇拥有约 4500 个停车位"的表述容易让人误以为万象汇是独立第三方，建议统一为"完美金鹰广场一侧（含万象汇）"。评委是业主，口径对得上会加分，对不上会被当场指出。</li>
+    <li><strong>原作者在前一份文档里的数据是很扎实的</strong>——62 万㎡、3000 万客流、80 万会员、8 月 18 日打通，我逐条核实过，全部属实。这说明作者做过功课，这是加分项，在参赛材料里可以放心使用。真正缺的只有 AI 这一块。</li>
+  </ul>
+
+  <div class="foot">
+    输出日期：2026-09-20 · 赛事信息依据：金鹰亚洲 × ATOX 官方宣发、中山日报、中山Plus 报道（2026-08）<br>
+    核心建议一句话：<strong>不要在这三天里重写一份更完整的方案，而要把它从"信息化方案"改造成"AI 方案"，并证明一天做得出来。</strong>
+  </div>
+
+</div>
+</div>
+</body>
+</html>

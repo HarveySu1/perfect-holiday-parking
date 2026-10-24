@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="docx-page-size" content="A4">
+<title>车记得 · 完美金鹰·假日商圈 AI 大赛参赛项目方案</title>
+<style>
+  @page { @bottom-center { content: counter(page); } }
+  @page cover { @bottom-center { content: none; } }
+  section[role="cover"] { page: cover; }
+
+  :root {
+    /* ===== Design Tokens: business-modern（design-token skill 查表产物） ===== */
+    --typography-fontFamily-heading: "微软雅黑", "Microsoft YaHei", "PingFang SC", sans-serif;
+    --typography-fontFamily-body: "微软雅黑", "Microsoft YaHei", "PingFang SC", sans-serif;
+    --typography-fontFamily-bodyLatin: Calibri, "Helvetica Neue", sans-serif;
+    --typography-fontSize-coverTitle: 22pt;
+    --typography-fontSize-coverCategory: 14pt;
+    --typography-fontSize-subtitle: 18pt;
+    --typography-fontSize-sectionHeader: 13pt;
+    --typography-fontSize-h2: 11pt;
+    --typography-fontSize-h3: 10pt;
+    --typography-fontSize-body: 9pt;
+    --typography-fontSize-small: 8pt;
+    --typography-lineHeight-body: 1.6;
+    --typography-fontWeight-heading: 600;
+    --typography-fontWeight-body: 400;
+    --typography-fontWeight-emphasis: 500;
+    --color-primary: #1565C0;
+    --color-secondary: #0288D1;
+    --color-accent: #00897B;
+    --color-text: #212121;
+    --color-textSecondary: #616161;
+    --color-heading: #1A237E;
+    --color-divider: #E0E0E0;
+    --color-background: #FFFFFF;
+    --color-surface: #F5F7FA;
+    --spacing-paragraph: 0.75em;
+    --spacing-section: 2.5em;
+    --spacing-cardPadding: 1.5em;
+    --layout-marginTop: 2.5cm;
+    --layout-marginBottom: 2.0cm;
+    --layout-marginLeft: 2.5cm;
+    --layout-marginRight: 2.5cm;
+    --layout-pageSize: A4;
+    --layout-maxContentWidth: 160mm;
+
+    /* ===== 版式语义变量（引用 token 与间距刻度，禁裸值） ===== */
+    --fs-cover-title: var(--typography-fontSize-coverTitle);
+    --fs-cover-category: var(--typography-fontSize-coverCategory);
+    --fs-subtitle: var(--typography-fontSize-subtitle);
+    --fs-h2: var(--typography-fontSize-sectionHeader);
+    --fs-h3: var(--typography-fontSize-h2);
+    --fs-h4: var(--typography-fontSize-h3);
+    --fs-body: var(--typography-fontSize-body);
+    --fs-small: var(--typography-fontSize-small);
+    --ff-heading: var(--typography-fontFamily-heading);
+    --ff-body: var(--typography-fontFamily-body);
+    --lh-body: var(--typography-lineHeight-body);
+    --fw-heading: var(--typography-fontWeight-heading);
+    --fw-body: var(--typography-fontWeight-body);
+    --fw-emphasis: var(--typography-fontWeight-emphasis);
+    --fw-bold: 700;
+    --color-muted: var(--color-textSecondary);
+    --color-border: var(--color-divider);
+    --color-highlight: var(--color-surface);
+    --color-summary-bg: var(--color-surface);
+    --color-summary-border: var(--color-primary);
+    --summary-border-width: 4px;
+    --heading-border-width: 4px;
+    --radius-card: 8px;
+    --margin-page: 2.5cm;
+    --page-content-width: 15.6cm;
+    --color-emphasis: #C62828;
+
+    /* 间距刻度（spacing scale） */
+    --spacing-zero: 0em;
+    --spacing-3xs: 0.25em;
+    --spacing-2xs: 0.35em;
+    --spacing-xs: 0.4em;
+    --spacing-s: 0.45em;
+    --spacing-sm: 0.5em;
+    --spacing-m: 0.6em;
+    --spacing-ml: 0.7em;
+    --spacing-l: 0.8em;
+    --spacing-lg: 1em;
+    --spacing-xl: 1.1em;
+    --spacing-x1: 1.2em;
+    --spacing-2x: 1.6em;
+    --spacing-09: 0.9em;
+    --spacing-3x: 1.8em;
+    --spacing-4x: 2em;
+    --spacing-5x: 2.5em;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--ff-body); font-size: var(--fs-body); line-height: var(--lh-body);
+    color: var(--color-text); background: var(--color-background);
+    max-width: var(--page-content-width); margin-left: auto; margin-right: auto;
+  }
+
+  /* ===== 封面 ===== */
+  section.cover { padding: var(--margin-page); background: var(--color-surface); }
+  p.cover-category {
+    font-family: var(--ff-heading); font-size: var(--fs-cover-category);
+    font-weight: var(--fw-bold); color: var(--color-primary);
+    letter-spacing: 0.08em; text-align: left; margin-bottom: var(--spacing-x1);
+  }
+  h1.cover-title {
+    font-family: var(--ff-heading); font-size: var(--fs-cover-title);
+    font-weight: var(--fw-bold); color: var(--color-primary); text-align: left;
+    line-height: 1.3; margin-bottom: var(--spacing-sm);
+  }
+  p.cover-subtitle {
+    font-size: var(--fs-subtitle); color: var(--color-muted); text-align: left;
+    line-height: 1.4; margin-bottom: var(--spacing-5x);
+  }
+  table.cover-meta { width: 100%; border-collapse: collapse; }
+  table.cover-meta td, table.cover-meta th {
+    font-size: var(--fs-small); color: var(--color-muted); text-align: left; font-weight: var(--fw-body);
+    padding: var(--spacing-3xs) var(--spacing-zero); border: none; background: transparent;
+  }
+  table.cover-meta td.k, table.cover-meta th.k { color: var(--color-text); font-weight: var(--fw-emphasis); width: 5.5em; }
+
+  /* ===== 目录 ===== */
+  nav.doc-toc { padding: var(--spacing-x1) var(--spacing-zero); border-bottom: 1px solid var(--color-border); }
+  p.toc-title { font-family: var(--ff-heading); font-size: var(--fs-h3); font-weight: var(--fw-bold); color: var(--color-heading); margin-bottom: var(--spacing-sm); }
+  ol.toc-list { list-style: none; padding-left: 0; }
+  ol.toc-list li { font-size: var(--fs-body); color: var(--color-text); margin-bottom: var(--spacing-2xs); }
+  ol.toc-list a { color: var(--color-primary); text-decoration: none; }
+
+  /* ===== 执行摘要 ===== */
+  div.executive-summary {
+    border-left: var(--summary-border-width) solid var(--color-summary-border);
+    background: var(--color-summary-bg); padding: var(--spacing-cardPadding);
+    margin: var(--spacing-3x) var(--spacing-zero);
+  }
+  div.executive-summary h2 {
+    font-family: var(--ff-heading); font-size: var(--fs-h2); color: var(--color-heading);
+    font-weight: var(--fw-bold); margin-bottom: var(--spacing-l); border: none; padding: 0;
+  }
+  table.metrics { width: 100%; border-collapse: collapse; margin-bottom: var(--spacing-lg); }
+  table.metrics td, table.metrics th {
+    text-align: center; padding: var(--spacing-sm) var(--spacing-xs); border: 1px solid var(--color-border);
+    background: var(--color-background); font-weight: var(--fw-body);
+  }
+  table.metrics td.v, table.metrics th.v {
+    font-family: var(--ff-heading); font-size: var(--fs-h3); font-weight: var(--fw-bold);
+    color: var(--color-primary); line-height: 1.2;
+  }
+  table.metrics td.l, table.metrics th.l { font-size: var(--fs-small); color: var(--color-muted); }
+  div.executive-summary p { margin-bottom: var(--spacing-paragraph); }
+
+  /* ===== 正文 ===== */
+  main.report-body { padding: var(--spacing-lg) var(--spacing-zero); }
+  main.report-body h2 {
+    font-family: var(--ff-heading); font-size: var(--fs-h2); color: var(--color-heading);
+    font-weight: var(--fw-bold); border-left: var(--heading-border-width) solid var(--color-primary);
+    padding-left: var(--spacing-m); margin-top: var(--spacing-4x); margin-bottom: var(--spacing-ml);
+    page-break-after: avoid;
+  }
+  main.report-body h3 {
+    font-family: var(--ff-heading); font-size: var(--fs-h3); color: var(--color-primary);
+    font-weight: var(--fw-bold); margin-top: var(--spacing-x1); margin-bottom: var(--spacing-sm);
+    page-break-after: avoid;
+  }
+  main.report-body h4 {
+    font-family: var(--ff-heading); font-size: var(--fs-h4); color: var(--color-text);
+    font-weight: var(--fw-bold); margin-top: var(--spacing-lg); margin-bottom: var(--spacing-xs);
+  }
+  main.report-body p { margin-bottom: var(--spacing-paragraph); text-align: justify; }
+  main.report-body ul, main.report-body ol { margin: var(--spacing-zero) var(--spacing-zero) var(--spacing-paragraph) var(--spacing-2x); }
+  main.report-body li { margin-bottom: var(--spacing-2xs); }
+
+  /* 强调段落（单段落 callout：边框 + 底纹 + 前导空格） */
+  p.callout {
+    border-left: var(--heading-border-width) solid var(--color-primary);
+    background: var(--color-surface); padding: var(--spacing-m) var(--spacing-l);
+    margin: var(--spacing-09) var(--spacing-zero);
+  }
+  p.callout-accent { border-left-color: var(--color-accent); }
+
+  /* 对话示例引用块 */
+  p.dialog {
+    border-left: 3px solid var(--color-accent); background: var(--color-background);
+    padding: var(--spacing-sm) var(--spacing-l);
+    margin: var(--spacing-sm) var(--spacing-zero) var(--spacing-sm) var(--spacing-x1);
+    font-size: var(--fs-body); color: var(--color-textSecondary);
+  }
+
+  /* 数据表格 */
+  table.data { width: 100%; border-collapse: collapse; margin: var(--spacing-m) var(--spacing-zero) var(--spacing-xl); }
+  table.data th, table.data td {
+    border: 1px solid var(--color-border); padding: var(--spacing-s) var(--spacing-m);
+    font-size: var(--fs-small); text-align: left; vertical-align: top; line-height: 1.5;
+  }
+  table.data th { background: var(--color-highlight); color: var(--color-heading); font-weight: var(--fw-bold); font-family: var(--ff-heading); }
+  table.data td.c { text-align: center; }
+
+  /* 重点数据强调 */
+  .data-emphasis { color: var(--color-emphasis); font-weight: var(--fw-bold); }
+
+  /* 附录 */
+  div.appendix { border-top: 1px solid var(--color-border); margin-top: var(--spacing-4x); padding-top: var(--spacing-l); }
+  div.appendix p { font-size: var(--fs-small); color: var(--color-muted); text-align: left; }
+</style>
+</head>
+<body>
+
+<!-- ===================== 封面 ===================== -->
+<section role="cover" class="cover">
+  <p class="cover-category" style="text-align: left;">完美金鹰·假日商圈 AI 大赛 · 参赛项目方案</p>
+  <h1 class="cover-title" style="text-align: left;">车记得</h1>
+  <p class="cover-subtitle" style="text-align: left;">你负责逛，车的位置交给我记<br>一个会自己记住你车停在哪的商圈 AI 助手</p>
+  <table class="cover-meta">
+    <thead>
+      <tr><th class="k">参赛赛道</th><th>赛道二 · 商圈服务 · 用户体验（智能导览 / 停车与到店 / 适老服务）</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="k">项目形式</td><td>微信小程序 AI 助手（多模态识别 + 对话式 Agent）</td></tr>
+      <tr><td class="k">参赛团队</td><td>【待填写：团队名称 / 成员】</td></tr>
+      <tr><td class="k">提交日期</td><td>2026 年 9 月</td></tr>
+      <tr><td class="k">文档版本</td><td>V1.0</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ===================== 正文 ===================== -->
+<section role="body" data-page-restart="1">
+
+<nav class="doc-toc" aria-label="文档目录">
+  <p class="toc-title">目录</p>
+  <ol class="toc-list">
+    <li><a href="#ch1">一、项目概述</a></li>
+    <li><a href="#ch2">二、我们解决什么商圈问题</a></li>
+    <li><a href="#ch3">三、我们的解法：三个动作</a></li>
+    <li><a href="#ch4">四、AI 在其中发挥的作用</a></li>
+    <li><a href="#ch5">五、技术实现与"一天原型"计划</a></li>
+    <li><a href="#ch6">六、如何在商圈落地</a></li>
+    <li><a href="#ch7">七、范围边界：我们不做什么</a></li>
+    <li><a href="#ch8">八、风险与对策</a></li>
+    <li><a href="#ch9">九、预期效果与度量</a></li>
+    <li><a href="#ch10">十、团队与分工</a></li>
+    <li><a href="#ch11">十一、结语：三个问题的直接回答</a></li>
+  </ol>
+</nav>
+
+<div class="executive-summary">
+  <h2>执行摘要 · Executive Summary</h2>
+  <table class="metrics">
+    <thead>
+      <tr>
+        <th class="v">62 万㎡</th><th class="v">3000 万+</th><th class="v">80 万+</th><th class="v">2 个动作</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="l">商圈总体量</td><td class="l">年客流量</td><td class="l">会员规模</td><td class="l">用户全部操作</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>完美金鹰广场与假日广场已于 2026 年 8 月 18 日物理贯通，但开车消费者的"车的记忆"没有贯通——跨场消费后，"我的车停在哪儿"成为整个商圈体验中最普遍、最持续、又始终无人接住的断层。</p>
+  <p><strong>「车记得」把"记车位"从一件需要用户完成的任务，变成一件用户根本感觉不到的服务。</strong>用户只做两个动作：下车时拍一下，取车时说一句；识别、记忆、描述、检索、带路全部由 AI 完成。方案零硬件、零施工、零停车系统对接，决赛"一天线下黑客松"当天即可在主办方真实车库做出可运行原型。</p>
+  <p>面对手机厂商的系统级停车记录能力（华为负一屏停车卡片、苹果地图停车标记），本方案的定位不是替代"记录"，而是承接记录之后的部分：从店内回到车旁的商圈室内路径、与手机品牌无关的全民覆盖、以及沉淀给商圈自己的数据资产。详见第二章竞争格局与第 4.1 节记录能力三层设计。</p>
+</div>
+
+<main class="report-body">
+
+<h2 id="ch1">一、项目概述</h2>
+<p><strong>「车记得」是一个会自己记住你车停在哪的商圈 AI 助手。</strong></p>
+<p>两个商场在 2026 年 8 月 18 日打通了，但你的车没有。消费者在完美金鹰·假日商圈跨场消费时，最常失去的不是优惠，而是"我的车停在哪儿"这个锚点。「车记得」把"记车位"从一件需要用户完成的任务，变成一件用户根本感觉不到的服务。用户只做两个动作：<strong>下车时拍一下，取车时说一句</strong>。剩下的一切——识别、记忆、描述、检索、带路——全部由 AI 完成。</p>
+<table class="data">
+  <thead>
+    <tr><th style="width:22%">项目信息</th><th>内容</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>项目名称</td><td>车记得</td></tr>
+    <tr><td>参赛赛道</td><td>赛道二：商圈服务 · 用户体验（智能导览 / 停车与到店 / 适老服务）</td></tr>
+    <tr><td>项目形式</td><td>微信小程序 AI 助手（对话式 Agent + 多模态识别）</td></tr>
+    <tr><td>一句话介绍</td><td>你负责逛，车的位置交给我记</td></tr>
+    <tr><td>目标场景</td><td>完美金鹰·假日商圈停车与跨场逛街全流程</td></tr>
+  </tbody>
+</table>
+
+<h2 id="ch2">二、我们解决什么商圈问题</h2>
+<p>这个问题分三层来看：一层是一个具体的人的处境，一层是商圈层面的结构性断层，还有一层是——它为什么恰好适合用 AI 来解。</p>
+
+<h3>2.1 一个每天都在发生的场景</h3>
+<p>周六下午四点，一位妈妈抱着睡着的孩子，拎着两袋购物袋，在地下车库 B3 层绕了十分钟。她的车其实就停在 B2 层，离她站的地方不到一百米。</p>
+<p>这个场景里没有任何技术故障，也没有任何服务失误——商场一切运转正常，唯一的失误发生在<strong>人的记忆</strong>里。而在一个年客流超过 3000 万人次的商圈，这样的"记忆失误"每天都在成千上万次地发生。</p>
+
+<h3>2.2 商圈打通了，车的记忆没打通</h3>
+<p>完美金鹰广场与假日广场正式贯通后，形成了总体量 <span class="data-emphasis">62 万平方米</span>、年客流超 <span class="data-emphasis">3000 万人次</span>、会员规模突破 <span class="data-emphasis">80 万人</span>的超级商圈，业态涵盖万象汇、假日广场、洲际双品牌酒店、未来中心写字楼、金鹰半山花园及金鹰街。运营层面的互通也已经启动：会员权益互认、积分通兑、停车优惠通用。</p>
+<p>但对开车来的消费者而言，物理连通反而制造了一个新的认知断层：</p>
+<ul>
+  <li><strong>两套停车系统各自独立。</strong>万象汇一侧数千个车位分布在地下多层，假日广场另有独立停车区域。消费者"在万象汇停车、去假日广场逛书店、再回万象汇取车"的完整动线，在停车系统层面是断裂的。</li>
+  <li><strong>跨场消费失去位置锚点。</strong>在单一商场里，消费者还能靠"我停在这家商场"兜底；跨场之后，连这层模糊的记忆都失效了。</li>
+  <li><strong>反向寻车是体验的隐形终点。</strong>地下车库楼层深、面积大、信号弱，购物结束后找车常常要花上数分钟。停车是每次逛街体验的起点和终点——起点不顺畅，整段体验都会被拉低；终点不顺畅，前面所有美好的体验都会被最后一次糟糕的记忆覆盖。</li>
+</ul>
+
+<h3>2.3 为什么这个问题值得用 AI 解决</h3>
+<p>传统的解法是硬件：蓝牙信标、视频 AI 识别相机、地磁传感器，成本在 15 至 30 万元起步，且需要与商场现有停车系统深度对接，周期长、协调难度大。更重要的是，这些方案解决的都是"系统知道车在哪"，而不是"<strong>人记得车在哪</strong>"。</p>
+<p>而"帮人记住东西、帮人检索记忆、帮人把冷信息翻译成人话"，恰恰是今天的大模型最擅长的事。这是一个用软件和 AI 就能吃掉的问题，不需要动一颗螺丝。</p>
+
+<h3>2.4 竞争格局：谁已经解决了这个问题，谁永远解决不了</h3>
+<p>经过调研，"记住车停在哪"并非无人区：华为手机的负一屏"停车卡片"在车载蓝牙断开时无感记录，花瓣地图"地库寻车"在合作地库可显示楼层并引导至原电梯；苹果 iPhone 连接车载蓝牙或 CarPlay 后，地图自动生成停车标记（楼层需手动备注，地下定位存在偏差）；问界、特斯拉等智能汽车由车机自身记忆车位，精度最高；捷停车等车场服务商通过场内车牌识别提供反向寻车。<strong>坦率承认这些对手，是本方案成立的前提。</strong></p>
+<table class="data">
+  <thead>
+    <tr><th style="width:24%">玩家</th><th style="width:40%">能力</th><th>边界</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>手机系（华为 / 苹果）</td><td>蓝牙断连无感记录，部分场景显示楼层、AR 导航</td><td>完整体验限旗舰机型与合作地库；能力封闭在自家品牌生态内</td></tr>
+    <tr><td>车机系（问界 / 特斯拉等）</td><td>车辆自身记忆车位，精度最高</td><td>只服务自家品牌车主，与商场无关</td></tr>
+    <tr><td>车场系（捷停车 / 科拓等）</td><td>车牌识别定位车位</td><td>需车场硬件改造与系统对接，商场投入门槛高</td></tr>
+  </tbody>
+</table>
+<p>三类玩家的共同边界在于：<strong>它们都精确地停在"车位"这一步</strong>。手机厂商不会为一个地级市商圈定制连廊拓扑与店铺导视，也不会把停车数据分享给商场；车机只服务买它车的人；车场方案要商场先掏钱改造。而一个年客流 3000 万的家庭型商圈里，大量客群用的是非旗舰手机、其他品牌手机、开着老款燃油车，还有最需要帮助的老人——恰恰是厂商能力覆盖不到、也永远不会去覆盖的人。</p>
+<p class="callout">&nbsp;&nbsp;<strong>我们的位置：他们负责告诉用户"车在哪"，我们负责把用户从店里带回车旁。</strong>从假日广场二楼的书店，经连廊、扶梯、出口，走回万象汇 B2 的车旁——这中间的三百米，是所有厂商都不会为一个商圈定制的地方，也是商圈自己的数据、会员与服务唯一能落地的地方。</p>
+
+<h2 id="ch3">三、我们的解法：三个动作</h2>
+<p>「车记得」的全部交互被压缩成三个动作，每个动作都不超过五秒：</p>
+<table class="data">
+  <thead>
+    <tr><th>动作</th><th>时刻</th><th>用户做什么</th><th>AI 做什么</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>拍一下</strong></td><td>停好车、下车前</td><td>对着车位的柱子或环境随手拍一张照片</td><td>识别车位信息，生成结构化记录</td></tr>
+    <tr><td><strong>看一眼</strong></td><td>拍完后</td><td>瞄一眼屏幕上的卡片（可选）</td><td>把车位翻译成一句人能记住的话</td></tr>
+    <tr><td><strong>说一句</strong></td><td>逛完、准备取车</td><td>说"我车在哪"，或者描述任何记得的细节</td><td>定位车位，给出步行指引，可语音播报</td></tr>
+  </tbody>
+</table>
+<p class="callout">&nbsp;&nbsp;<strong>设计原则只有一条：不要求用户做任何"额外的事"。</strong>停车的人此刻手里拎着东西、心里想着接下来的安排，是最没有耐心操作手机的时刻。任何需要用户"扫码""输入""确认"的设计，都会在这一刻流失。所以我们把一切准确性要求从人身上移开，交给 AI。</p>
+
+<h2 id="ch4">四、AI 在其中发挥的作用</h2>
+<p>在「车记得」里，AI 不是助手，<strong>AI 就是那份记忆本身</strong>。记录是竞争最激烈的一层，我们不对抗而是分层承接（4.1）；真正的 AI 壁垒在记录之后——理解、翻译、检索与规划（4.2–4.6）。</p>
+
+<h3>4.1 记录能力的三层设计：兼容、无感、兜底</h3>
+<p>"记录"正在被手机与车机厂商做成系统级通用能力，硬拼没有意义。我们的策略是分层承接，让每一类用户都有当天可用的路径：</p>
+<table class="data">
+  <thead>
+    <tr><th style="width:16%">层级</th><th style="width:42%">方式</th><th>用户动作</th><th>阶段</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>L0 兼容层</strong></td><td>用户已有华为停车卡片、苹果地图停车标记或车机 App？直接把"楼层 + 区域"告诉对话 Agent，接入商圈室内导航</td><td>说一句</td><td>一期即可</td></tr>
+    <tr><td><strong>L1 无感层</strong></td><td>对接微信停车服务 / 车场服务商的车牌识别接口，或以停车缴费时刻触发 AI 推断，自动生成车位卡片</td><td>零动作（一次确认）</td><td>二期</td></tr>
+    <tr><td><strong>L2 兜底层</strong></td><td>拍一张照片，AI 视觉识别生成记录——任何手机、任何车、当天可用</td><td>拍一下</td><td>一期 / 决赛演示</td></tr>
+  </tbody>
+</table>
+<p>对已被厂商能力覆盖的用户，车记得不重复造轮子，直接接手"记录之后"的部分；对未被覆盖的大多数用户（非旗舰机、其他品牌手机、老款燃油车、老人），拍照兜底保证任何人可用。<strong>记录的尽头是通用能力，路径与商圈联动才是壁垒。</strong></p>
+
+<h3>4.2 多模态视觉理解：把一张随手拍变成一条精确记录（兜底层引擎）</h3>
+<p>用户下车时随手拍一张照片——不需要对准任何特定目标，拍到柱面编号、柱子颜色、区域字母、店铺导视牌、地面标识中的任何几样即可。多模态视觉模型自动从照片中提取：</p>
+<ul>
+  <li>柱面 / 地面编号（如 B2-A056）</li>
+  <li>柱子颜色与区域标识（如红色柱、A 区）</li>
+  <li>周边可辨识的店铺导视或商户招牌（如"茶百道后门"）</li>
+  <li>楼层与建筑归属（万象汇 / 假日广场）</li>
+</ul>
+<p>这一步彻底取代了传统方案中的"用户手动录入车位号"。用户零输入、零学习成本，识别准确率由 AI 而非用户的耐心决定。</p>
+
+<h3>4.3 生成式表达：把编码翻译成人话</h3>
+<p><code style="font-size: var(--fs-small);">WXH-B2-A056</code> 是机器的语言，人记不住也复述不出。「车记得」用生成式模型把每一条停车记录翻译成一句人话：</p>
+<p class="dialog">"停在一个红色柱子旁边的车位，正对面是茶百道的后门。"</p>
+<p>这句话出现在拍照后的确认卡片上，也出现在取车时的检索结果里。人记不住编码，但记得住画面——当用户想不起车位号时，这句话本身就是最好的检索线索。</p>
+
+<h3>4.4 对话式语义检索 Agent：说人话就能找到车</h3>
+<p>取车时，用户不需要提供任何准确信息。以下每一句话都能定位到车位：</p>
+<ul>
+  <li>"我车旁边有个红柱子"</li>
+  <li>"对面好像是家奶茶店"</li>
+  <li>"我在万象汇这边，车可能停在假日那边"</li>
+</ul>
+<p>当用户完全想不起来时，Agent 会主动追问、逐步收敛："您最后逛的是哪家店？""是从哪个门进来的？""买的什么东西？"——像一位记得你行程的朋友帮你一起回忆。结果支持语音播报，用户边走边听，不需要低头看手机（这在地下车库也是一条安全设计）。</p>
+
+<h3>4.5 行程级规划：把停车并回"逛商圈"本身</h3>
+<p>停车不该是一个孤立的功能。「车记得」把停车嵌入商圈导览的完整链路。用户出发前说一句需求，AI 一次性输出整段行程：</p>
+<p class="dialog">"带娃去假日广场的书店，顺便吃个午饭。"<br>—— 建议停在万象汇 B2 层 A 区，从连廊步行至书店约 5 分钟；沿途经过母婴室与卫生间；午餐推荐三家适合带孩子的餐厅并附排队参考；返程取车路线已为您备好。</p>
+<p>这一层让「车记得」从一个停车工具，升维成商圈 AI 导览助手的入口。带老人、带孩子、赶时间——不同人群的停车与逛街动线，都可以由同一个 Agent 按需求生成。</p>
+
+<h3>4.6 主动记忆推断：你什么都不做，它也记得（进阶）</h3>
+<p>更进一步，Agent 可以从用户在商圈内的数字足迹——停车缴费时间、消费时间线、相册照片——主动推断车位并生成停车卡片，用户只需点一下"是这个"确认。把记录动作从"必须主动做"降级为"点一下确认"，确认率远高于任何录入率。此项为进阶能力，列入二期。</p>
+
+<p class="callout callout-accent">&nbsp;&nbsp;<strong>去掉 AI，「车记得」只剩下几张静态的分区示意图。</strong>多模态识别、生成式描述、语义检索、行程规划，每一环都以大模型能力为前提——AI 是这个方案的骨架，不是装饰。</p>
+
+<h2 id="ch5">五、技术实现与"一天原型"计划</h2>
+<p>方案的技术形态由一个硬约束决定：本次大赛的决赛是一天线下黑客松、现场集中开发。因此架构必须极简、能力必须现成、样本必须当天可得——以下全部设计都围绕这一点展开。</p>
+
+<h3>5.1 极简架构</h3>
+<table class="data">
+  <thead>
+    <tr><th style="width:18%">层</th><th style="width:34%">选型</th><th>说明</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>前端</td><td>微信小程序</td><td>无需下载，扫码即用，覆盖成本最低</td></tr>
+    <tr><td>模型层</td><td>现成多模态与语言模型 API</td><td>视觉理解、描述生成、语义检索、行程规划全部调用云端现成能力</td></tr>
+    <tr><td>数据层</td><td>结构化车位知识库 + 轻量后端</td><td>车位分区、柱面编号、店铺导视关联关系</td></tr>
+    <tr><td>部署</td><td>云函数 + 托管数据库</td><td>无需自建服务器，按量付费</td></tr>
+    <tr><td>数据接入（二期）</td><td>微信停车服务 / 车场服务商标准接口</td><td>接入车牌级寻车能力，实现 L1 无感记录（见 4.1），无需商场自建硬件</td></tr>
+  </tbody>
+</table>
+<p><strong>一期零硬件、零施工、零停车系统对接；二期只走标准接口，不动一颗螺丝，不改一行道闸代码。</strong></p>
+
+<h3>5.2 车位知识库：现场拍照即可构建</h3>
+<p>方案的唯一数据依赖是一个结构化的车位知识库（车位分区、柱面编号、颜色、周边店铺关联）。它不需要 CAD 图纸，也不需要测绘：</p>
+<ul>
+  <li>决赛当天，在真实地库用手机拍摄 <span class="data-emphasis">30 至 50 张</span>柱面与导视照片，即可建立当天可用的样本库；</li>
+  <li>车位分区信息可复用商圈现有的车库分区资料；</li>
+  <li>每个区域只需一个中心点坐标，步行导航到区域差十几米，肉眼一秒解决——不需要逐车位测绘。</li>
+</ul>
+
+<h3>5.3 弱网与离线兜底</h3>
+<p>地下车库普遍弱网甚至无网，而用户最需要答案的时刻恰恰在地下。三条兜底：</p>
+<ol>
+  <li><strong>柱面二维码采用纯文本内容</strong>（如 B2-A056），微信原生扫一扫可离线读出，不依赖联网；</li>
+  <li><strong>停车记录本地缓存</strong>，网络恢复后异步同步；</li>
+  <li><strong>静态分区图随小程序包内置</strong>，不依赖实时下载。</li>
+</ol>
+
+<h3>5.4 决赛一天原型计划</h3>
+<p>本次大赛决赛为"一天线下决赛、现场集中开发"。「车记得」的核心链路恰好可以在一天内做出可运行原型——这是我们选择这条技术路线的重要原因。</p>
+<table class="data">
+  <thead>
+    <tr><th style="width:22%">时段</th><th style="width:34%">任务</th><th>产出</th></tr>
+  </thead>
+  <tbody>
+    <tr><td class="c">09:00–10:00</td><td>在真实地库采集样本</td><td>30–50 张柱面与导视照片，建立当天样本库</td></tr>
+    <tr><td class="c">10:00–11:30</td><td>打通多模态识别链路</td><td>"照片 → 结构化字段（楼层 / 区 / 编号 / 柱色 / 邻店）"</td></tr>
+    <tr><td class="c">11:30–13:00</td><td>人话描述生成调优</td><td>输出听起来像人说的描述，多组对照</td></tr>
+    <tr><td class="c">13:00–15:00</td><td>对话式检索 Agent</td><td>语义匹配 + 主动追问收敛 + 语音播报</td></tr>
+    <tr><td class="c">15:00–16:30</td><td>前端三屏</td><td>拍照页 / 车位卡片页 / 对话找车页</td></tr>
+    <tr><td class="c">16:30–17:30</td><td><strong>现场真人测试</strong></td><td>请评委或路人上手试一次，记录失败案例</td></tr>
+    <tr><td class="c">17:30–18:00</td><td>路演脚本排练</td><td>以真实场景开场</td></tr>
+  </tbody>
+</table>
+<p class="callout">&nbsp;&nbsp;<strong>在主办方自己的车库里跑通一次真实的"拍一下 → 找到车"，比任何 PPT 都有说服力。</strong></p>
+
+<h2 id="ch6">六、如何在商圈落地</h2>
+<p>落地不是一句"可以试点"，而是一组明确的前提、路径与协同关系。本章回答三件事：为什么恰好是这个商圈、分几步走、以及如何接进现有的会员与停车体系。</p>
+
+<h3>6.1 为什么是完美金鹰·假日商圈</h3>
+<p>这里是中山唯一同时具备三个条件的场景：<strong>双场物理连通</strong>（跨场停车认知断层真实存在）、<strong>会员权益与停车优惠已互认</strong>（身份体系现成，无需新建）、<strong>年客流超 3000 万</strong>（痛点密度足够高）。换句话说，这个问题的"另一半答案"——基础设施、身份体系、真实客流——主办方已经建好了，缺的只是把 AI 记忆层接上去。</p>
+
+<h3>6.2 试点路径</h3>
+<table class="data">
+  <thead>
+    <tr><th style="width:26%">阶段</th><th style="width:32%">范围</th><th>目标</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>第一阶段（赛后 2 周内）</td><td>万象汇 B1 或 B2 单层试点</td><td>跑通"拍照记录 → 对话找车"完整闭环，实测寻车时长与使用率</td></tr>
+    <tr><td>第二阶段（1–2 个月）</td><td>扩展至两个商场全部车库</td><td>上线跨场导航（连廊路径），接入行程级规划</td></tr>
+    <tr><td>第三阶段（视情况）</td><td>并入商圈会员体系</td><td>与现有会员权益、停车优惠联动，开放主动记忆推断</td></tr>
+  </tbody>
+</table>
+
+<h3>6.3 与现有体系协同</h3>
+<p>商圈已实现会员权益互认与停车优惠互通，「车记得」直接复用这一身份体系，不新增注册流程、不增加用户负担。用户无需填写车牌——系统以微信身份为主键即可完成全部闭环，这也从源头规避了收集车牌带来的个人信息合规负担。</p>
+
+<h3>6.4 可扩展为商圈通用 AI 能力</h3>
+<p>同一套"多模态识别 + 生成式描述 + 语义检索"能力，可以平移到大赛征集方向中的多个场景：<strong>适老服务</strong>（语音寻车导航、大字版界面）、<strong>活动体验</strong>（拍照打卡点识别与引导）、<strong>空间运营</strong>（停车与逛逛行为数据分析）。「车记得」是这套能力在停车场景上的第一个应用，不是唯一应用。</p>
+
+<h2 id="ch7">七、范围边界：我们不做什么</h2>
+<p>明确不做的部分与做什么是同等重要的产品决策：</p>
+<table class="data">
+  <thead>
+    <tr><th style="width:38%">不做</th><th>理由</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>硬件改造（信标 / 相机 / 传感器）</td><td>成本高、周期长，且解决的是"系统知道"而非"人记得"</td></tr>
+    <tr><td>对接商场停车系统与道闸（一期）</td><td>一期保持零改造接入，当天可用；二期通过微信停车服务等标准接口实现 L1 无感记录（见 4.1）</td></tr>
+    <tr><td>实时车位数据</td><td>冷启动阶段数据不足且易造成误导，二期再评估</td></tr>
+    <tr><td>充电桩实时状态等静态信息模块</td><td>与主线无关且 AI 含量低，避免稀释核心体验</td></tr>
+    <tr><td>收集车牌号</td><td>个人信息合规负担，且非闭环必需</td></tr>
+  </tbody>
+</table>
+
+<h2 id="ch8">八、风险与对策</h2>
+<table class="data">
+  <thead>
+    <tr><th style="width:34%">风险</th><th>对策</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>照片模糊或特征不足，识别失败</td><td>提示重拍；兜底提供手动选择楼层与区域（不需要输入车位号）；主动记忆推断作为第三层兜底</td></tr>
+    <tr><td>地下车库弱网 / 无网</td><td>纯文本二维码离线可读；停车记录本地缓存；静态分区图随包内置</td></tr>
+    <tr><td>用户不习惯"拍一下"</td><td>在电梯厅、扶梯口铺设统一文案物料："拍一下，省下找车十分钟"——把提醒前置到用户动机最强的物理时刻</td></tr>
+    <tr><td>跨场路径复杂（连廊、楼层）</td><td>第一阶段先做单场试点跑通，第二阶段再引入连廊路径</td></tr>
+    <tr><td>冷启动样本库不足</td><td>决赛当天现场采集即可建立可用样本库；试点期由少量人工采集补充</td></tr>
+  </tbody>
+</table>
+
+<h2 id="ch9">九、预期效果与度量</h2>
+<p><strong>北极星指标：每周完成的"拍一下"停车记录次数</strong>——它直接代表核心价值被真实交付的次数。</p>
+<table class="data">
+  <thead>
+    <tr><th style="width:26%">指标</th><th style="width:42%">定义</th><th>目标</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>平均寻车时长</td><td>从"开始找车"到"到达车位"</td><td>由数分钟级降至 <span class="data-emphasis">2–3 分钟</span>以内</td></tr>
+    <tr><td>拍照记录完成率</td><td>到场停车的活跃用户中完成"拍一下"的比例</td><td><span class="data-emphasis">≥ 25%</span>（第一阶段试点）</td></tr>
+    <tr><td>找车使用留存</td><td>记录过的用户中，7 日内再次使用找车的比例</td><td><span class="data-emphasis">≥ 40%</span></td></tr>
+    <tr><td>弱网可用率</td><td>地下各层成功加载记录与指引的比例</td><td><span class="data-emphasis">≥ 95%</span></td></tr>
+  </tbody>
+</table>
+<p>数据基线将在试点期实测建立，所有指标上线前后对照汇报。</p>
+
+<h2 id="ch10">十、团队与分工</h2>
+<table class="data">
+  <thead>
+    <tr><th style="width:22%">角色</th><th style="width:44%">职责</th><th>成员</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>产品 / 负责人</td><td>方案设计、需求定义、路演</td><td>【待填】</td></tr>
+    <tr><td>AI / 开发</td><td>多模态链路、Agent、小程序前端</td><td>【待填，或申请 ATOX 技术导师配对】</td></tr>
+    <tr><td>运营 / 现场</td><td>样本采集、试点落地、用户反馈</td><td>【待填】</td></tr>
+  </tbody>
+</table>
+<p class="callout">&nbsp;&nbsp;我们认同大赛"想法遇见技术"的理念。如团队暂缺开发力量，希望申请 ATOX 提供的组队式技术支持，由技术导师协助把"拍一下 → 说一句"这条链路在决赛当天变成可运行的实物。</p>
+
+<h2 id="ch11">十一、结语：三个问题的直接回答</h2>
+<p><strong>解决什么商圈问题？</strong> 商圈物理打通后，跨场消费者的"车的记忆"断层——一个每天在 3000 万年客流中重复发生、却始终没人接住的真实现象。</p>
+<p><strong>AI 发挥什么作用？</strong> AI 就是那份记忆本身：多模态识别让用户随手一拍即成精确记录，生成式表达把编码翻译成人话，语义检索 Agent 让"说一句模糊的回忆"就能找到车，行程级规划把停车并回逛商圈的完整链路。去掉 AI，只剩几张静态示意图。</p>
+<p><strong>如何在商圈落地？</strong> 零硬件、零系统对接、复用已互通的会员身份体系；决赛一天可在主办方真实车库做出可运行原型；赛后两周内单层试点实测，两个月扩展至双场全车库。</p>
+<p><strong>如果华为和苹果已经能记车位，为什么还需要车记得？</strong> 因为它们都精确地停在"车位"这一步。华为与苹果的能力封闭在自家旗舰机型和品牌生态里，不会为一个地级市商圈定制连廊拓扑与店铺导视，更不会把停车数据交给商场。我们兼容它们（用户说一句"车在 B2 C 区"即可接入商圈导航），并把厂商覆盖不到的大多数人——非旗舰手机、老款燃油车、老人——用一张照片兜住。他们负责"记"，我们负责"带"，并把这一路的数据、体验与会员服务还给商圈。这不是同一个赛道，而是同一次逛街的两段路。</p>
+<p class="callout callout-accent">&nbsp;&nbsp;<strong>你负责逛，车的位置，交给我记。</strong></p>
+
+</main>
+
+<div class="appendix">
+  <p>数据来源：完美金鹰·假日商圈启幕相关报道（中山日报、中山Plus、中山新闻网，2026 年 8 月）；完美金鹰·假日商圈 AI 大赛官方宣发材料；竞品信息来自华为消费者业务官网（负一屏停车卡片、花瓣地图地库寻车功能说明）与苹果官方支持文档（地图"显示停车位置"功能）。</p>
+  <p>说明：文中"寻车时长"为待试点实测的基线目标，非已验证数据；万象汇一侧车位规模引自参赛前期调研口径。</p>
+</div>
+
+</section>
+</body>
+</html>

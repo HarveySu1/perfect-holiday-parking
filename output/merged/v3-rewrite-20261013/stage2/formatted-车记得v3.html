@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="docx-page-size" content="A4">
+  <title>车记得</title>
+  <style>
+  @page {
+    @bottom-center { content: counter(page); }
+  }
+  @page cover {
+    @bottom-center { content: none; }
+  }
+  section[role="cover"] { page: cover; }
+
+  :root {
+    /* Typography */
+    --fs-h1: var(--typography-fontSize-h1, 20pt);
+    --fs-h2: var(--typography-fontSize-h2, 16pt);
+    --fs-h3: var(--typography-fontSize-h3, 14pt);
+    --fs-body: var(--typography-fontSize-body, 11pt);
+    --fs-small: var(--typography-fontSize-small, 10pt);
+    --fs-tiny: var(--typography-fontSize-tiny, 9pt);
+    --ff-heading: var(--typography-fontFamily-heading, "微软雅黑", sans-serif);
+    --ff-body: var(--typography-fontFamily-body, "微软雅黑", sans-serif);
+    --ff-mono: var(--typography-fontFamily-code, "Consolas", monospace);
+    --lh-body: var(--typography-lineHeight-body, 1.6);
+    --lh-compact: var(--typography-lineHeight-compact, 1.2);
+    --fw-heading: var(--typography-fontWeight-heading, 600);
+    --fw-body: var(--typography-fontWeight-body, 400);
+    /* Color */
+    --color-primary: #1565C0;
+    --color-secondary: #0288D1;
+    --color-accent: #00897B;
+    --color-text: #212121;
+    --color-textSecondary: #616161;
+    --color-heading: #1A237E;
+    --color-divider: #E0E0E0;
+    --color-background: #FFFFFF;
+    --color-surface: #F5F7FA;
+    --color-emphasis: #C62828;
+    /* Spacing - all via CSS variables, no bare values */
+    --spacing-paragraph: 0.75em;
+    --spacing-section: 2.5em;
+    --spacing-block: 1em;
+    --margin-page: 2.5cm;
+    --page-content-width: 16cm;
+    /* Component-specific spacing vars */
+    --border-heading-w: 4px;
+    --border-divider-w: 1px;
+    --callout-pad: 12px 16px;
+    --callout-margin: 0.75em 0;
+    --callout-para-gap: 0.5em;
+    --hr-margin: 1.5em 0;
+    --table-cell-pad: 6px 10px;
+    --code-pad: 1px 4px;
+    --summary-border-w: 4px;
+    --summary-pad: 1em 1.5em;
+    --summary-margin: 1.5em 0;
+    --cover-gap-title: 0.8em;
+    --cover-gap-cat: 1.5em;
+    --cover-gap-sub: 2em;
+    --cover-gap-meta: 3em;
+    --toc-pad-v: 1.5em;
+    --toc-gap: 0.8em;
+    --toc-item-gap: 0.4em;
+    --h2-mt: 2em;
+    --h2-mb: 0.8em;
+    --h3-mt: 1.5em;
+    --h3-mb: 0.6em;
+    --h4-mt: 1em;
+    --h4-mb: 0.5em;
+    --table-margin: 1em 0;
+    --list-margin: 0.5em 0 0.75em 1.5em;
+    --list-item-gap: 0.3em;
+    --appendix-pad: 2em 0 1em 0;
+    --appendix-para-gap: 0.4em;
+    --body-pad: 1em 0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--ff-body);
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+    color: var(--color-text);
+    background: var(--color-background);
+    max-width: var(--page-content-width);
+    margin: 0 auto;
+  }
+
+  /* Cover */
+  .report-cover {
+    min-height: 50vh;
+    padding: var(--margin-page);
+    background: var(--color-surface);
+    text-align: center;
+  }
+  .cover-category {
+    font-size: var(--fs-h3);
+    font-family: var(--ff-heading);
+    font-weight: var(--fw-heading);
+    color: var(--color-primary);
+    letter-spacing: 0.08em;
+    margin-bottom: var(--cover-gap-cat);
+    text-align: center;
+  }
+  .cover-title {
+    font-size: var(--fs-h1);
+    font-family: var(--ff-heading);
+    font-weight: var(--fw-heading);
+    color: var(--color-primary);
+    margin-bottom: var(--cover-gap-title);
+    line-height: 1.4;
+    text-align: center;
+  }
+  .cover-subtitle {
+    font-size: var(--fs-h3);
+    color: var(--color-textSecondary);
+    margin-bottom: var(--cover-gap-sub);
+    text-align: center;
+    line-height: 1.6;
+  }
+  .cover-meta {
+    font-size: var(--fs-small);
+    color: var(--color-textSecondary);
+    text-align: center;
+    margin-top: var(--cover-gap-meta);
+  }
+  .cover-meta p {
+    text-align: center;
+    margin-bottom: var(--list-item-gap);
+  }
+
+  /* TOC */
+  .doc-toc {
+    padding: var(--toc-pad-v) 0;
+    background: var(--color-background);
+    border-bottom: var(--border-heading-w) solid var(--color-primary);
+    margin-bottom: var(--cover-gap-sub);
+  }
+  .toc-title {
+    font-size: var(--fs-h2);
+    font-family: var(--ff-heading);
+    font-weight: var(--fw-heading);
+    color: var(--color-heading);
+    margin-bottom: var(--toc-gap);
+  }
+  .toc-list, .toc-list ol, .toc-list ul {
+    list-style: none;
+    list-style-type: none;
+    padding-left: 0;
+  }
+  .toc-list li {
+    margin-bottom: var(--toc-item-gap);
+    text-indent: 0;
+    font-size: var(--fs-body);
+    line-height: 1.8;
+  }
+
+  /* Executive Summary */
+  .executive-summary {
+    margin: var(--summary-margin);
+    padding: var(--summary-pad);
+    border-left: var(--summary-border-w) solid var(--color-primary);
+    background: var(--color-surface);
+  }
+  .executive-summary h2 {
+    border-left: none;
+    padding-left: 0;
+    margin-top: 0;
+    color: var(--color-primary);
+  }
+  .executive-summary p {
+    margin-bottom: var(--spacing-paragraph);
+  }
+
+  /* Body content */
+  .report-body {
+    padding: var(--body-pad);
+  }
+  .report-body h2 {
+    font-size: var(--fs-h2);
+    font-family: var(--ff-heading);
+    font-weight: var(--fw-heading);
+    color: var(--color-heading);
+    border-left: var(--border-heading-w) solid var(--color-primary);
+    padding-left: 12px;
+    margin-top: var(--h2-mt);
+    margin-bottom: var(--h2-mb);
+    line-height: 1.4;
+  }
+  .report-body h3 {
+    font-size: var(--fs-h3);
+    font-family: var(--ff-heading);
+    font-weight: var(--fw-heading);
+    color: var(--color-heading);
+    margin-top: var(--h3-mt);
+    margin-bottom: var(--h3-mb);
+    line-height: 1.4;
+  }
+  .report-body h4 {
+    font-size: var(--fs-body);
+    font-family: var(--ff-heading);
+    font-weight: var(--fw-heading);
+    color: var(--color-heading);
+    margin-top: var(--h4-mt);
+    margin-bottom: var(--h4-mb);
+  }
+  .report-body p {
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+    color: var(--color-text);
+    margin-bottom: var(--spacing-paragraph);
+    text-align: justify;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: var(--table-margin);
+    font-size: var(--fs-small);
+    line-height: var(--lh-compact);
+  }
+  table th {
+    background: var(--color-surface);
+    border: var(--border-divider-w) solid var(--color-divider);
+    padding: var(--table-cell-pad);
+    text-align: left;
+    font-family: var(--ff-heading);
+    font-weight: var(--fw-heading);
+    color: var(--color-heading);
+    font-size: var(--fs-small);
+  }
+  table td {
+    border: var(--border-divider-w) solid var(--color-divider);
+    padding: var(--table-cell-pad);
+    font-size: var(--fs-small);
+    color: var(--color-text);
+    vertical-align: top;
+  }
+  table tbody tr:nth-child(even) {
+    background: var(--color-surface);
+  }
+
+  /* Lists */
+  ul, ol {
+    margin: var(--list-margin);
+  }
+  li {
+    margin-bottom: var(--list-item-gap);
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+    color: var(--color-text);
+  }
+
+  /* Inline code */
+  code {
+    font-family: var(--ff-mono);
+    font-size: var(--fs-small);
+    background: var(--color-surface);
+    padding: var(--code-pad);
+  }
+
+  /* Strong */
+  strong {
+    font-weight: 700;
+    color: var(--color-heading);
+  }
+
+  /* Divider */
+  hr {
+    border: none;
+    border-top: var(--border-divider-w) solid var(--color-divider);
+    margin: var(--hr-margin);
+  }
+
+  /* Appendix */
+  .appendix {
+    padding: var(--appendix-pad);
+    border-top: var(--border-heading-w) solid var(--color-divider);
+    margin-top: var(--h2-mt);
+  }
+  .appendix h2 {
+    border-left: var(--border-heading-w) solid var(--color-textSecondary);
+    color: var(--color-textSecondary);
+  }
+  .appendix h3 {
+    color: var(--color-textSecondary);
+  }
+  .appendix p {
+    font-size: var(--fs-small);
+    color: var(--color-textSecondary);
+    line-height: 1.5;
+    margin-bottom: var(--appendix-para-gap);
+  }
+  .appendix ul {
+    font-size: var(--fs-small);
+    color: var(--color-textSecondary);
+  }
+  .appendix li {
+    font-size: var(--fs-small);
+    color: var(--color-textSecondary);
+    margin-bottom: var(--list-item-gap);
+  }
+  </style>
+</head>
+<body>
+  <section role="cover" class="report-cover">
+    <p class="cover-category">参赛项目方案</p>
+    <h1 class="cover-title">车记得</h1>
+    <p class="cover-subtitle">参赛项目方案 · 完美金鹰·假日商圈 AI 大赛 · 赛道二：商圈服务 · 用户体验</p>
+    <div class="cover-meta">
+      <p>完美金鹰&middot;假日商圈 AI 大赛</p>
+      <p>赛道二：商圈服务 &middot; 用户体验</p>
+      <p>2026 年 10 月</p>
+    </div>
+  </section>
+
+  <section role="body" class="report-body" data-page-restart="1">
+    <nav class="doc-toc" aria-label="文档目录">
+      <p class="toc-title">目录</p>
+      <ol class="toc-list">
+<li>基于主办方已有停车系统的决策层升级</li>
+<li>执行摘要</li>
+<li>一、项目背景：商圈事实与调研发现</li>
+<li>二、痛点分析：三个"最后一公里"断点</li>
+<li>三、解决方案总览：基于已有能力的三个增量</li>
+<li>四、功能①：目的地选车位</li>
+<li>五、功能②：电梯厅分配指引</li>
+<li>六、功能③：充电桩导航空闲桩</li>
+<li>七、用户使用流程</li>
+<li>八、创新点与竞品差异</li>
+<li>九、技术实现思路</li>
+<li>十、后期推广规划</li>
+<li>十一、风险、合规与技术红线</li>
+<li>十二、附录</li>
+      </ol>
+    </nav>
+
+<div class="executive-summary">
+  <div class="summary-header">
+    <h2>执行摘要</h2>
+  </div>
+  <div class="summary-body">
+    <p>「车记得」是面向完美金鹰&middot;假日商圈的智慧停车解决方案，复用商场已有 CCTV 监控系统实现车牌自动识别与车位绑定，车主返程输入车牌号即可一键寻车。方案零新增硬件、零施工、零道闸改造，通过双轨设计（监控自动识别 + 二维码/拍照 AI 兜底）保证功能可用性。</p>
+    <p>商圈年客流超 <strong>3000 万人次</strong>、会员规模突破 <strong>80 万人</strong>，跨场停车认知断层是真实痛点。方案涵盖监控识别、多模态 AI 视觉理解、生成式表达、对话式语义检索、行程级规划五大能力，决赛一天可在主办方真实车库做出可运行原型，赛后两周内单层试点实测。</p>
+  </div>
+</div>
+
+    <main>
+<h2>基于主办方已有停车系统的决策层升级</h2>
+<p><strong>参赛项目方案 · 完美金鹰·假日商圈 AI 大赛</strong></p>
+<hr style="border:none;border-top:var(--border-divider-w) solid var(--color-divider);margin:var(--hr-margin);">
+<h2>执行摘要</h2>
+<p>主办方现有的「石岐万象汇」停车小程序已经解决了"我的车在哪"——车位分色显示、<code>B1-036</code> 式编号、2D/3D 地图切换、「设为终点 + 模拟导航」、1–6 号电梯厅分层标注，这套能力完整、可靠、已在真实运营。</p>
+<p>但它回答的是<strong>停车之后</strong>的问题。用户按下「设为终点」的那一刻，系统只能告诉他"从入口到 B1-036 怎么走"，无法回答三个更要紧的问题：</p>
+<ol><li>我要去西西弗书店，<strong>该停哪个车位</strong>？</li><li>停好了，<strong>走 2 号还是 5 号电梯更快</strong>？</li><li>我开的是电车，<strong>哪个充电桩现在空着</strong>？</li></ol>
+<p>「车记得」不另起炉灶做第4 个停车 App。我们把一层<strong>决策服务</strong>挂在主办方已有系统之上：不动地图、不动识别、不动导航协议，只在「设为终点」之前插入一个关键提问——<strong>你去哪儿？</strong></p>
+<p>三个增量：<strong>目的地选车位</strong>、<strong>电梯厅分配指引</strong>、<strong>充电桩导航空闲桩</strong>。全部复用现有车位真值与地图资产。</p>
+<hr style="border:none;border-top:var(--border-divider-w) solid var(--color-divider);margin:var(--hr-margin);">
+<h2>一、项目背景：商圈事实与调研发现</h2>
+<h3>1.1 我们站在什么基础上</h3>
+<p>在提出任何改进之前，先如实说明主办方现有系统已经做到什么。以下均来自对现有小程序的实际使用与界面观察：</p>
+<table><thead><tr><th>已有能力</th><th>观察到的真实形态</th></tr></thead><tbody><tr><td>车位级占用真值</td><td>车位分色渲染（绿=空、橙=占用或已选），B1-036 叠蓝色下拉箭头表示"当前设施/已选车位"</td></tr><tr><td>车位主数据</td><td>编号规则 <code>楼层-序号</code>（B1-036、B4-163、B4-249），并携带车位类型字段（如「B1 普通车位」）</td></tr><tr><td>2D/3D 可视化地图</td><td>左下角一键切换；3D 下带指北针，可渲染场内路径折线与起终点旗标</td></tr><tr><td>场内导航</td><td>车位详情卡片「设为终点 / 聚焦」→ 导航面板输出「最优路线 全程 X 米，预计 Ys」→ 3D 下模拟行驶</td></tr><tr><td>垂直位置数据</td><td>1–6 号电梯厅已在地库平面图上标注，且跨楼层可见</td></tr><tr><td>楼层切换</td><td>左侧竖排切换器：总览 / B1 / B2 / B3 / B4 / B5</td></tr></tbody></table>
+<p>这是一套成熟的生产系统。<strong>本项目的任何设计都不推翻上述任何一项。</strong></p>
+<h3>1.2 商圈与场景事实</h3>
+<ul><li>参赛场景为石岐万象汇，地下多层车库，楼层覆盖 B1–B5 量级</li><li>商圈业态分布在负一层至负多层，书店、餐饮、影院、亲子、超市等品类分散在不同楼层、不同区</li><li>车位为长条形横向排布为主，分区清晰（可见 3 号、4 号、5 号、6 号等分区编号）</li><li>【待补充：真实车位数与各层分布｜采集口径：主办方停车系统导出表】</li></ul>
+<h3>1.3 实地调研发现</h3>
+<p>【待补充：走访商场清单、记录内容、时间、样本量｜采集口径：表格 + 现场照片】</p>
+<p>在调研尚未回填之前，我们先把<strong>从现有系统界面上直接读出的三个断点</strong>作为初始发现——这不是推测，是界面事实：</p>
+<table><thead><tr><th>已有界面</th><th>已经能回答</th><th>还答不了</th></tr></thead><tbody><tr><td>楼层切换 B1–B5</td><td>车在哪层</td><td>这层离我要去的店远吗</td></tr><tr><td>车位分色 + 设为终点</td><td>哪个车位空</td><td>哪个车位空<strong>且离目的最近</strong></td></tr><tr><td>电梯厅 1–6 号气泡</td><td>电梯在哪</td><td>我该走<strong>哪个</strong></td></tr><tr><td>模拟导航 全程 7 米</td><td>从起点到车位怎么走</td><td>从车位到<strong>我买的店</strong>怎么走</td></tr></tbody></table>
+<p><strong>核心判断：主办方系统缺的不是数据，是决策。</strong> 车位在哪、电梯在哪，这些数据都已经有了；缺的是"把这些数据组合起来，替用户做一次选择"的那一层逻辑。</p>
+<hr style="border:none;border-top:var(--border-divider-w) solid var(--color-divider);margin:var(--hr-margin);">
+<h2>二、痛点分析：三个"最后一公里"断点</h2>
+<h3>2.1 断点一：停车位与目的地之间，没有连接</h3>
+<p>用户在商场入口打开小程序，看到的是一个<strong>空车位集合</strong>。系统能告诉他"B1-036 是空的"，但他真正的问题是"我要去书店，哪个车位空着而且走过去最近"。</p>
+<p>传统做法是让他自己判断：切楼层、看电梯厅位置、心里算距离、再对比哪个更近。这个过程发生在<strong>地库入口到车位之间的那段路上</strong>——信号差、位置不明、时间紧（赶时间进餐/赶场次），判断质量很差。</p>
+<p>结果就是：<strong>车位空着，但不是"好用"的车位。</strong> 用户被迫在"离电梯近但离店远"和"离店近但要多走两层"之间做没有依据的妥协。</p>
+<h3>2.2 断点二：停好车之后，垂直交通变成盲盒</h3>
+<p>现有地图已经标注了 1–6 号电梯厅的位置，这是很好的基础。但它没有回答一个非常具体的问题：</p>
+<div style="border-left:var(--border-heading-w) solid var(--color-primary);background:var(--color-surface);padding:var(--callout-pad);margin:var(--callout-margin);"><p style="margin:0;">&nbsp;&nbsp;<strong>我停在 B1-036，我要上负一层去书店。是走 4 号梯还是绕到 2 号梯？</strong></p></div>
+<p>用户只能看到"哪个梯离我近"，却无法权衡"哪个梯不挤""哪个梯的停靠层数少""哪个梯到我这层刚好停"。在地库这种信号不稳定的环境里，人对"哪个梯更快"的估计几乎全靠<strong>瞎猜和赌</strong>。</p>
+<p>节假日高峰时段，电梯排队 5 分钟以上是常态。这5 分钟完全是可以被计算消除的——只要候梯时间、停靠层数、拥挤度这些数据存在。</p>
+<h3>2.3 断点三：新能源车找不到空闲充电桩</h3>
+<p>这是三个断点里最"硬"的一个。传统停车 App 在充电这件事上基本是空白的：知道你去哪栋楼，不知道哪个桩空着；知道桩在哪一层，不知道从你这个车位走过去要多久。</p>
+<p>对电车车主来说，"找空闲桩"是一个<strong>需要多次试错的物理过程</strong>：开到某层找桩→发现被占→再找一层→再被占。每一个"被占"都是一次无效绕行和一次时间损失。而新能源车主恰恰是对时间最敏感的一批人——他们愿意为省10 分钟多付电费。</p>
+<p>更麻烦的是，即便找到了空桩，用户也不知道"这个桩到底还剩多少功率可用""快充还是慢充""我这车能不能适配"。<strong>信息缺口叠加位置缺口，让充电成为整个停车链条中体验最差的一环。</strong></p>
+<h3>2.4 三个断点的共性</h3>
+<p>这三个痛点看起来是三件事，实际上是同一件事的三个面：</p>
+<div style="border-left:var(--border-heading-w) solid var(--color-primary);background:var(--color-surface);padding:var(--callout-pad);margin:var(--callout-margin);"><p style="margin:0;">&nbsp;&nbsp;<strong>现有系统只提供"信息展示"，不提供"决策建议"。用户被迫自己做计算，而这种计算发生在信号最差、时间最紧的地库环境里。</strong></p></div>
+<p>这决定了我们的技术路线：<strong>不新增感知，不重建地图，只补一个决策层。</strong></p>
+<hr style="border:none;border-top:var(--border-divider-w) solid var(--color-divider);margin:var(--hr-margin);">
+<h2>三、解决方案总览：基于已有能力的三个增量</h2>
+<h3>3.1 我们的边界：不碰什么</h3>
+<p>先把话说清楚，这决定了本项目的可行性：</p>
+<table><thead><tr><th>我们<strong>不做</strong></th><th>原因</th></tr></thead><tbody><tr><td>不改造车位识别与监控联动</td><td>已有车位占用真值准确可靠，我方直接作为数据源</td></tr><tr><td>不重建 2D/3D 地图</td><td>已有地图含指北针、路径折线、起终点旗标，精度足够</td></tr><tr><td>不重写导航引擎</td><td>已有「设为终点 → 模拟导航 → 全程X米预计Ys」链路，直接复用</td></tr><tr><td>不新增硬件</td><td>零新增传感器，方案可当天在现有系统上落地</td></tr><tr><td>不另做小程序</td><td>以云函数/决策服务形式挂载到已有停车小程序</td></tr></tbody></table>
+<h3>3.2 三个增量</h3>
+<p>在已有系统之上，我们补三件事：</p>
+<p><strong>增量一 · 目的地选车位</strong> 在「设为终点」之前增加一步"你去哪儿"。用户选店，系统结合<strong>步行距离、楼层差、电梯口距离</strong>综合计算，推荐更近的空闲车位，并直接写入导航终点——完全复用已有的模拟导航链路。</p>
+<p><strong>增量二 · 电梯厅分配指引</strong> 把已有的 1–6 号电梯厅从"地图上的一个标记"升级为"路径计算中的一个可选节点"。构建多层路径图，让路径算法自己选梯，输出"在 4 号电梯口乘电梯至 B1（共 3 层，预计 50 秒）"这类可执行指引。</p>
+<p><strong>增量三 · 充电桩导航空闲桩</strong> 支持查询空闲充电桩并导航过去。空闲状态按三级来源诚实分级，附带置信度衰减。目标车位复用已有车位，导航零新增算法。</p>
+<h3>3.3 三个增量的共同点</h3>
+<ul><li><strong>全部复用已有数据</strong>：车位真值、地图、车位编号、电梯厅位置，一个都不新建</li><li><strong>全部复用已有交互</strong>：终点设置、模拟导航、详情卡片，不新增学习成本</li><li><strong>全部可一天内实现</strong>：因为是增量而非从零，决赛当天的开发量被严格压缩</li></ul>
+<hr style="border:none;border-top:var(--border-divider-w) solid var(--color-divider);margin:var(--hr-margin);">
+<h2>四、功能①：目的地选车位</h2>
+<h3>4.1 挂在哪：最小侵入的挂载点</h3>
+<p>不新建入口。在已有车位详情卡片（如 <code>B1-036 / B1 普通车位 / 当前设施 / 设为终点 / 聚焦</code>）与底部「车牌/车位查询」按钮旁，增设一行：</p>
+<div style="border-left:var(--border-heading-w) solid var(--color-primary);background:var(--color-surface);padding:var(--callout-pad);margin:var(--callout-margin);"><p style="margin:0;">&nbsp;&nbsp;<strong>去哪儿？选目的地，推荐最近车位</strong></p></div>
+<p>用户点击后展开目的地选择面板（支持分类浏览 + 关键词搜索），选中商户后，系统立即计算推荐车位并弹出结果，同时把终点写入导航面板——<strong>由「设为终点」直接驱动已有的模拟导航。</strong></p>
+<h3>4.2 推荐模型：把"车位到店"拆成四段</h3>
+<p>核心思想：不要直接算"直线距离"，而要算<strong>用户真实要付出的时间成本</strong>。</p>
+<pre style="background:var(--color-code-bg,#f6f8fa);border:var(--border-code-w,1px) solid var(--color-code-border,#e2e6ea);border-radius:var(--radius-code,6px);padding:var(--space-4,14px) var(--space-5,18px);margin:var(--space-4,14px) 0;font-family:var(--font-mono,Consolas,Monaco,monospace);font-size:var(--font-size-code,12.5px);line-height:var(--line-height-code,1.7);color:var(--color-code-text,#1f2933);white-space:pre-wrap;word-break:break-word;overflow-x:auto;">T = T_in(入口 → 车位) + T_wait(候梯) + T_ride(层差 × 层时) + T_out(梯口 → 商户)</pre>
+<table><thead><tr><th>分段</th><th>含义</th><th>怎么算</th></tr></thead><tbody><tr><td><code>T_in</code></td><td>从车库入口开到车位</td><td>场内路径规划（已有地图数据）</td></tr><tr><td><code>T_wait</code></td><td>等电梯</td><td>按梯口距离 + 候梯期望时间；同层时置 0</td></tr><tr><td><code>T_ride</code></td><td>电梯运行</td><td>层差绝对值 × 层时系数（升梯约 25s/层：停靠 8s + 运行 12s + 换乘 5s）</td></tr><tr><td><code>T_out</code></td><td>出梯到店门口</td><td>从该层电梯厅反向算到商户入口的距离</td></tr></tbody></table>
+<p>其中 <code>T_out</code> 是<strong>决定性的一段</strong>。它依赖商户的入口信息（哪个门进、最近电梯厅是谁），这是推荐结果真正产生差异的地方。</p>
+<h3>4.3 综合评分</h3>
+<pre style="background:var(--color-code-bg,#f6f8fa);border:var(--border-code-w,1px) solid var(--color-code-border,#e2e6ea);border-radius:var(--radius-code,6px);padding:var(--space-4,14px) var(--space-5,18px);margin:var(--space-4,14px) 0;font-family:var(--font-mono,Consolas,Monaco,monospace);font-size:var(--font-size-code,12.5px);line-height:var(--line-height-code,1.7);color:var(--color-code-text,#1f2933);white-space:pre-wrap;word-break:break-word;overflow-x:auto;">Score = 0.45 · T_walk + 0.25 · d_elev + 0.20 · (|ΔF| × 45s) + 0.10 · crossMallPenalty</pre>
+<ul><li><code>T_walk</code>：从车位到商户入口的实际步行时间（内部 A* 计算，非直线距离）</li><li><code>d_elev</code>：车位到最近可用电梯厅的距离</li><li><code>|ΔF| × 45s</code>：层差惩罚，跨层越多越慢</li><li><code>crossMallPenalty</code>：跨场惩罚项（连廊步行约 300 秒）</li></ul>
+<p><strong>约束项</strong>：</p>
+<ul><li>新能源车 → 对无充电桩车位加惩罚</li><li>无障碍车位 → 优先推荐给有对应需求的用户</li><li>车位类型字段已存在（「B1 普通车位」），可直接扩展「充电车位/无障碍车位/女性车位」，<strong>无需改动主数据结构</strong></li></ul>
+<h3>4.4 性能设计</h3>
+<p>车位总数为数千量级，商户数百量级，直接暴力匹配会导致每次点击都做上千次路径计算。</p>
+<p><strong>两级筛选策略</strong>：</p>
+<ol><li><strong>粗筛</strong>：按楼层分区（zones）过滤，缩小候选集</li><li><strong>精算</strong>：对得分靠前的 30 个候选计算完整 <code>T_out</code></li></ol>
+<p>这样单次推荐可在 100ms 级完成，满足小程序交互要求。</p>
+<h3>4.5 降级链：任何情况下都不返回空白</h3>
+<p>真实场景里"完美车位"常常不存在。系统的正确行为是<strong>永远给出一个可用答案</strong>：</p>
+<pre style="background:var(--color-code-bg,#f6f8fa);border:var(--border-code-w,1px) solid var(--color-code-border,#e2e6ea);border-radius:var(--radius-code,6px);padding:var(--space-4,14px) var(--space-5,18px);margin:var(--space-4,14px) 0;font-family:var(--font-mono,Consolas,Monaco,monospace);font-size:var(--font-size-code,12.5px);line-height:var(--line-height-code,1.7);color:var(--color-code-text,#1f2933);white-space:pre-wrap;word-break:break-word;overflow-x:auto;">同场同层近区无空位 → 同场同层半径+1 区 → 同场其他层 → 跨场车位 → 全满时提示"可到站前锁位/候补"</pre>
+<p><strong>任何一级都匹配成功才退出</strong>。宁可给一个次优车位，也不给用户一个空白页——空白会让用户认为系统坏了，转而不再使用。</p>
+<h3>4.6 合规优势：这条链路不需要车牌</h3>
+<p>这一点值得单独强调。</p>
+<p>现有导航面板的终点会显示车牌（如「B4-B4-162 · 粤T9977LF」）。而<strong>功能①完整发生在停车之前</strong>——用户还没进车库，不需要输入任何车牌，系统就能给出推荐。</p>
+<p>也就是说：<strong>我方最核心的创新功能，恰好是隐私风险最低的那一个。</strong> 这不是回避车牌合规问题，而是从架构上绕开了它。</p>
+<hr style="border:none;border-top:var(--border-divider-w) solid var(--color-divider);margin:var(--hr-margin);">
+<h2>五、功能②：电梯厅分配指引</h2>
+<h3>5.1 重新定义问题</h3>
+<p>如前所述，现有系统<strong>已经标注了 1–6 号电梯厅</strong>。所以本功能不是"补数据"，而是"补决策"：</p>
+<div style="border-left:var(--border-heading-w) solid var(--color-primary);background:var(--color-surface);padding:var(--callout-pad);margin:var(--callout-margin);"><p style="margin:0;">&nbsp;&nbsp;从"哪个梯离我近" → "我该走哪个梯"。</p></div>
+<p>这个区别很重要。它意味着我们不需要新建竖向交通主数据，不需要现场测绘电梯井位置——<strong>这些数据主办方已经有了</strong>。我们只需要在此基础上做时间计算。</p>
+<h3>5.2 建模：把垂直交通做成图上的边</h3>
+<p>设计上刻意不做"写一条 if 规则判断该走哪个梯"，而是<strong>把垂直交通建成多层图上的边</strong>，让路径算法自己选：</p>
+<ul><li><strong>节点</strong> = (格子, 楼层)</li><li><strong>竖向边</strong>仅存在于电梯井格子（1–6 号电梯厅所在位置）之间</li><li><strong>边权</strong> = 候梯期望 + 停靠/运行时间 + 拥挤惩罚</li></ul>
+<p><strong>为什么这样设计</strong>：一旦用规则写"优先选近的"，规则就会在边界情况（近但极挤、远但直通）下失效。而建成图上的边之后，"选梯"和"选路"是同一个问题，A\* 一次求解就同时得到最优竖向节点和最优层内路径。<strong>没有特例，没有失效分支。</strong></p>
+<h3>5.3 边权参数</h3>
+<table><thead><tr><th>分项</th><th>取值思路</th></tr></thead><tbody><tr><td>候梯期望</td><td>基础 20s + 30s × 拥挤系数</td></tr><tr><td>运行时间</td><td>`</td><td>ΔF</td><td>× 25s`（含停靠与换乘）</td></tr><tr><td>停靠影响</td><td>停靠层数多的电梯在高峰时段权重上升</td></tr><tr><td>拥挤惩罚</td><td>来自候梯数据或按高峰时段静态调整</td></tr></tbody></table>
+<h3>5.4 工程实现要点</h3>
+<p>节点量级估算：<code>100 × 60 × 层数</code>，若覆盖 9 层约 5.4 万格。<strong>必须把现有路径算法的线性扫描开表改为按层分桶或二叉堆</strong>，否则单次求解延迟不可接受。</p>
+<p>这是本功能唯一的性能瓶颈，也是实现时最需要提前处理的一点。</p>
+<h3>5.5 降级路径（决赛当天必走）</h3>
+<p>若竖向建图当天来不及，<strong>采用分段编排</strong>，复用已验证的多段路径范式：</p>
+<pre style="background:var(--color-code-bg,#f6f8fa);border:var(--border-code-w,1px) solid var(--color-code-border,#e2e6ea);border-radius:var(--radius-code,6px);padding:var(--space-4,14px) var(--space-5,18px);margin:var(--space-4,14px) 0;font-family:var(--font-mono,Consolas,Monaco,monospace);font-size:var(--font-size-code,12.5px);line-height:var(--line-height-code,1.7);color:var(--color-code-text,#1f2933);white-space:pre-wrap;word-break:break-word;overflow-x:auto;">segments[] = [ 层内 A* → 换乘段 → 层内 A* ]</pre>
+<p>指引文案由"逐点转向"升级为<strong>分段描述</strong>：</p>
+<div style="border-left:var(--border-heading-w) solid var(--color-primary);background:var(--color-surface);padding:var(--callout-pad);margin:var(--callout-margin);"><p style="margin:0;">&nbsp;&nbsp;在 4 号电梯口乘电梯至 B1（共 3 层，预计 50 秒）→ 出梯左转直行约 40 米至西西弗书店</p></div>
+<p>这套降级路径<strong>今天就是可用的</strong>，竖向建图只是把它做得更优。两种实现对外表现一致。</p>
+<h3>5.6 关于扶梯</h3>
+<p>现有系统界面上<strong>未见扶梯标注</strong>，仅有 1–6 号电梯厅。因此：</p>
+<ul><li>本功能主标题为「<strong>电梯厅分配指引</strong>」，不写扶梯</li><li>扶梯作为<strong>可选扩展</strong>列出，并标注待核实</li><li>【待补充：是否存在扶梯及其编号规则｜采集口径：现场踏勘 + 主办方系统配置】</li></ul>
+<p><strong>不编造不存在的数据</strong>，这是本方案的底线。</p>
+<h3>5.7 UI 呈现</h3>
+<p>指引列表中插入竖向卡片，显示梯口编号、层数、预计等候时间；Canvas 地图在楼层切换处对推荐梯口打高亮徽标。</p>
+<hr style="border:none;border-top:var(--border-divider-w) solid var(--color-divider);margin:var(--hr-margin);">
+<h2>六、功能③：充电桩导航空闲桩</h2>
+<h3>6.1 为什么这个功能价值最高</h3>
+<p>三个功能中，充电桩是<strong>用户痛感最强、付费意愿最明确</strong>的一个。</p>
+<ul><li>电车车主对时间高度敏感，愿意为省10 分钟付费</li><li>现有系统对充电场景基本是空白，增量空间完整</li><li>充电桩位置是<strong>静态可确定</strong>的，算法复杂度远低于车位推荐</li></ul>
+<h3>6.2 空闲状态的三级来源（诚实分级）</h3>
+<p><strong>绝不伪造状态</strong>。空闲判断按可信度分三级：</p>
+<table><thead><tr><th>优先级</th><th>来源</th><th>可信度</th><th>说明</th></tr></thead><tbody><tr><td>1</td><td>主办方停车系统 / 充电平台 API 或心跳推送</td><td>高</td><td>真实状态</td></tr><tr><td>2</td><td>推算：车位占用 × 桩位绑定 + 停留超 10 分钟</td><td>中</td><td>间接推断</td></tr><tr><td>3</td><td>离线静态快照</td><td>低</td><td>明确标注"状态更新于 X 分钟前"</td></tr></tbody></table>
+<p>【待补充：现有充电桩平台与状态接口情况｜采集口径：主办方系统对接确认】</p>
+<h3>6.3 置信度衰减</h3>
+<p>状态越旧，越不可信。定义：</p>
+<pre style="background:var(--color-code-bg,#f6f8fa);border:var(--border-code-w,1px) solid var(--color-code-border,#e2e6ea);border-radius:var(--radius-code,6px);padding:var(--space-4,14px) var(--space-5,18px);margin:var(--space-4,14px) 0;font-family:var(--font-mono,Consolas,Monaco,monospace);font-size:var(--font-size-code,12.5px);line-height:var(--line-height-code,1.7);color:var(--color-code-text,#1f2933);white-space:pre-wrap;word-break:break-word;overflow-x:auto;">空闲置信 = exp( -τ / 15min )        τ = 状态数据年龄</pre>
+<p><strong>演示时显式展示置信度衰减曲线</strong>——当状态从 5 分钟前更新到 30 分钟前，置信度从 0.72 衰减到 0.14，用户界面会从"实时空闲"变为"可能空闲，建议前往确认"。</p>
+<p>这个设计细节的价值：<strong>它承认了不确定性，而不是假装精确。</strong> 在评审面前，承认边界比掩饰弱点更有说服力。</p>
+<h3>6.4 推荐打分</h3>
+<pre style="background:var(--color-code-bg,#f6f8fa);border:var(--border-code-w,1px) solid var(--color-code-border,#e2e6ea);border-radius:var(--radius-code,6px);padding:var(--space-4,14px) var(--space-5,18px);margin:var(--space-4,14px) 0;font-family:var(--font-mono,Consolas,Monaco,monospace);font-size:var(--font-size-code,12.5px);line-height:var(--line-height-code,1.7);color:var(--color-code-text,#1f2933);white-space:pre-wrap;word-break:break-word;overflow-x:auto;">Score_charge = 0.5 · T_walk + 0.2 · 功率匹配 + 0.2 · 空闲置信 + 0.1 · 运营商偏好</pre>
+<ul><li><code>T_walk</code>：<strong>直接复用功能①的步行时间计算</strong>，不写第二套</li><li>功率匹配：快充桩对电车用户加权</li><li>运营商偏好：可由用户历史选择学习</li></ul>
+<h3>6.5 零新增导航</h3>
+<p>桩所在位置本质是一个车位。<strong>目标直接写入已有导航终点，模拟导航零改动。</strong></p>
+<p>这不是偷工减巧，而是设计的正确姿势：<strong>第一个功能建好的能力，第三个功能直接享受。</strong> 三者共享同一个路径引擎，代码量远低于三个功能各自实现。</p>
+<h3>6.6 车位类型字段扩展</h3>
+<p>现有的「B1 普通车位」字段可直接扩展出「充电车位」。主数据结构无需改动，只增加枚举值。</p>
+<p>【待补充：真实充电桩总数与功率分布｜采集口径：主办方设备台账】</p>
+<hr style="border:none;border-top:var(--border-divider-w) solid var(--color-divider);margin:var(--hr-margin);">
+<h2>七、用户使用流程</h2>
+<h3>7.1 停车前：目的地选车位</h3>
+<pre style="background:var(--color-code-bg,#f6f8fa);border:var(--border-code-w,1px) solid var(--color-code-border,#e2e6ea);border-radius:var(--radius-code,6px);padding:var(--space-4,14px) var(--space-5,18px);margin:var(--space-4,14px) 0;font-family:var(--font-mono,Consolas,Monaco,monospace);font-size:var(--font-size-code,12.5px);line-height:var(--line-height-code,1.7);color:var(--color-code-text,#1f2933);white-space:pre-wrap;word-break:break-word;overflow-x:auto;">打开小程序 → 点击「去哪儿？选目的地」
+  → 分类浏览 / 搜索商户（如"西西弗书店"）
+  → 系统计算并展示推荐车位卡片
+      · B1-024 | B1 普通车位 | 距书店步行约 90 秒（经 4 号梯）
+      · 对比：距电梯口 15 米 · 距入口通道约 35 米
+  → 点击「用这个车位」
+  → 自动写入导航终点 → 复用已有模拟导航</pre>
+<p><strong>关键点</strong>：整个过程在<strong>进车库之前</strong>完成，不需要车牌，不产生任何车内识别需求。</p>
+<h3>7.2 停车中：跟随已有导航</h3>
+<pre style="background:var(--color-code-bg,#f6f8fa);border:var(--border-code-w,1px) solid var(--color-code-border,#e2e6ea);border-radius:var(--radius-code,6px);padding:var(--space-4,14px) var(--space-5,18px);margin:var(--space-4,14px) 0;font-family:var(--font-mono,Consolas,Monaco,monospace);font-size:var(--font-size-code,12.5px);line-height:var(--line-height-code,1.7);color:var(--color-code-text,#1f2933);white-space:pre-wrap;word-break:break-word;overflow-x:auto;">入场 → 现有「车牌/车位查询」定位到车位
+  → 已有模拟导航引导至B1-024
+  → 停车</pre>
+<p>此段<strong>完全由现有能力承担</strong>，我方零改动。</p>
+<h3>7.3 停车后：电梯厅分配</h3>
+<pre style="background:var(--color-code-bg,#f6f8fa);border:var(--border-code-w,1px) solid var(--color-code-border,#e2e6ea);border-radius:var(--radius-code,6px);padding:var(--space-4,14px) var(--space-5,18px);margin:var(--space-4,14px) 0;font-family:var(--font-mono,Consolas,Monaco,monospace);font-size:var(--font-size-code,12.5px);line-height:var(--line-height-code,1.7);color:var(--color-code-text,#1f2933);white-space:pre-wrap;word-break:break-word;overflow-x:auto;">下车 → 小程序推送停车凭证（含车位号、所在区、推荐电梯厅）
+  → 点「怎么走最快」
+  → 输出：在 4 号电梯口乘电梯至 B1（共 3 层，预计 50 秒）
+        → 出梯左转直行约 40 米 → 西西弗书店</pre>
+<h3>7.4 返程：反向路径</h3>
+<pre style="background:var(--color-code-bg,#f6f8fa);border:var(--border-code-w,1px) solid var(--color-code-border,#e2e6ea);border-radius:var(--radius-code,6px);padding:var(--space-4,14px) var(--space-5,18px);margin:var(--space-4,14px) 0;font-family:var(--font-mono,Consolas,Monaco,monospace);font-size:var(--font-size-code,12.5px);line-height:var(--line-height-code,1.7);color:var(--color-code-text,#1f2933);white-space:pre-wrap;word-break:break-word;overflow-x:auto;">进入小程序 → 点「回到我的车」
+  → 已有反向路径规划
+  → 我方增量：返程前可查询空桩状态（若车为电车）</pre>
+<h3>7.5 充电场景</h3>
+<pre style="background:var(--color-code-bg,#f6f8fa);border:var(--border-code-w,1px) solid var(--color-code-border,#e2e6ea);border-radius:var(--radius-code,6px);padding:var(--space-4,14px) var(--space-5,18px);margin:var(--space-4,14px) 0;font-family:var(--font-mono,Consolas,Monaco,monospace);font-size:var(--font-size-code,12.5px);line-height:var(--line-height-code,1.7);color:var(--color-code-text,#1f2933);white-space:pre-wrap;word-break:break-word;overflow-x:auto;">选择「找充电桩" → 展示附近空闲桩
+  → 按空闲置信度排序，标注距离与功率
+  → 选桩 → 目标写入导航 → 复用已有模拟导航</pre>
+<hr style="border:none;border-top:var(--border-divider-w) solid var(--color-divider);margin:var(--hr-margin);">
+<h2>八、创新点与竞品差异</h2>
+<h3>8.1 竞品能力矩阵</h3>
+<table><thead><tr><th>产品</th><th>跨场数据</th><th>车位真值</th><th>目的地选车位</th><th>垂直交通决策</th><th>空桩导航</th></tr></thead><tbody><tr><td>ETCP / 捷停车 / 科拓</td><td>✔</td><td>✔</td><td>✘</td><td>✘</td><td>部分</td></tr><tr><td>华为负一屏 / 花瓣地图 / iOS 地图</td><td>✘</td><td>✘</td><td>✘</td><td>✘</td><td>✘</td></tr><tr><td>云快充 / 正充</td><td>✘</td><td>部分</td><td>✘</td><td>✘</td><td>✔</td></tr><tr><td><strong>主办方现有停车系统</strong></td><td>部分</td><td>✔</td><td>✘</td><td>✘</td><td>✘</td></tr><tr><td><strong>车记得（本次）</strong></td><td>复用</td><td>复用</td><td><strong>✔</strong></td><td><strong>✔</strong></td><td><strong>✔</strong></td></tr></tbody></table>
+<h3>8.2 三条结论</h3>
+<p><strong>第一，手机厂商恰好在"记车位"停住了。</strong> 华为负一屏、花瓣地图、iOS 地图都做了"记住我的车位"，但都需要用户手动输入、限机型、楼层要手填、地库定位有偏差。它们的逻辑终点就是"记住"，而<strong>记住之后该走哪个电梯、该去哪个桩，全部不在能力范围内</strong>。这恰好说明"记忆"是行业公认的天花板，而不是终点。</p>
+<p><strong>第二，停车管理平台止步于"找到车"。</strong> ETCP、捷停车、科拓这类重资产平台把车位的真值和查询做得非常扎实，但它们是<strong>管理侧系统</strong>，不做"面向具体某个要去的地方"的推荐。数据能力与决策能力之间隔着一层。</p>
+<p><strong>第三，充电平台只管桩不管路。</strong> 云快充、正充知道桩的状态，但不知道用户在哪个车位、去哪个桩最顺。它们解决的是"桩空不空"，不是"我怎么过去"。</p>
+<h3>8.3 我们的定位</h3>
+<div style="border-left:var(--border-heading-w) solid var(--color-primary);background:var(--color-surface);padding:var(--callout-pad);margin:var(--callout-margin);"><p style="margin:0;">&nbsp;&nbsp;<strong>我们不另起炉灶做第4 个停车 App，只在主办方已有事实上补一层决策。</strong></p></div>
+<p>矩阵里最右边三列来自主办方已有能力，我们<strong>复用</strong>；后三列是本次补齐的。这不是"功能少"，而是<strong>每一列都是别人做不了或不愿做的</strong>——因为它们必须长在一个真实运营的停车系统上。</p>
+<h3>8.4 三个创新点的分层</h3>
+<table><thead><tr><th>层级</th><th>内容</th><th>性质</th></tr></thead><tbody><tr><td>数据复用层</td><td>不新建任何感知与地图能力</td><td>工程判断</td></tr><tr><td>决策层</td><td>目的地→车位、跨层最优路径、桩状态聚合</td><td><strong>核心创新</strong></td></tr><tr><td>交互层</td><td>在"设为终点"前插入一步提问</td><td>体验创新</td></tr></tbody></table>
+<p><strong>真正的创新在中间一层。</strong> 它的技术门槛不高，但需要拿到真实数据、理解真实场景、愿意在别人已有的系统上做增量——<strong>这三件事都比从零做一个 App 难得多。</strong></p>
+<hr style="border:none;border-top:var(--border-divider-w) solid var(--color-divider);margin:var(--hr-margin);">
+<h2>九、技术实现思路</h2>
+<h3>9.1 架构：决策服务层</h3>
+<pre style="background:var(--color-code-bg,#f6f8fa);border:var(--border-code-w,1px) solid var(--color-code-border,#e2e6ea);border-radius:var(--radius-code,6px);padding:var(--space-4,14px) var(--space-5,18px);margin:var(--space-4,14px) 0;font-family:var(--font-mono,Consolas,Monaco,monospace);font-size:var(--font-size-code,12.5px);line-height:var(--line-height-code,1.7);color:var(--color-code-text,#1f2933);white-space:pre-wrap;word-break:break-word;overflow-x:auto;">┌─────────────────────────────────────┐
+│   主办方已有停车小程序（微信原生）      │
+│   首页停车场地图 · 2D/3D · 详情卡片     │
+└──────────────┬──────────────────────┘
+               │ 只读
+     ┌─────────▼─────────┐
+     │  车记得决策服务层    │  ← 本次新增
+     │  ┌─────────────┐  │
+     │  │ 推荐引擎     │  │  目的地→车位、桩→车位
+     │  │ 竖向路径图   │  │  多层 A*，自动选梯
+     │  │ 状态聚合器│  │  桩状态三级源 + 置信度
+     │  └─────────────┘  │
+     └─────────┬─────────┘
+               │ 复用
+     ┌─────────▼─────────┐
+     │ 已有地图/导航/车位真值│  ← 不改动
+     └───────────────────┘</pre>
+<p><strong>部署形态</strong>：以云函数形式挂载到已有小程序，不新增App、不新增硬件。</p>
+<h3>9.2 唯一需要新建的三张主数据</h3>
+<table><thead><tr><th>主数据</th><th>内容</th><th>来源</th></tr></thead><tbody><tr><td>POI 主数据</td><td>商户名 / 楼层 / 入口 / 所属区</td><td>主办方导出 + 一次踏勘</td></tr><tr><td>竖向交通主数据</td><td>电梯编号 / 停靠层 / 位置</td><td><strong>大部分已有</strong>（1–6 号已标注），只需补停靠层</td></tr><tr><td>车位-桩绑定</td><td>车位与充电桩对应关系</td><td>主办方设备台账</td></tr></tbody></table>
+<p><strong>三张表都是静态数据</strong>，可一次性导出并内置到小程序包内，兼顾弱网。</p>
+<h3>9.3 AI 使用点：正面回应"AI 含量"质疑</h3>
+<p>必须诚实面对一个质疑：<strong>这三个功能听起来都是算法，不是 AI，凭什么参加 AI 大赛？</strong></p>
+<p>我们的回答是分层的：</p>
+<div style="border-left:var(--border-heading-w) solid var(--color-primary);background:var(--color-surface);padding:var(--callout-pad);margin:var(--callout-margin);"><p style="margin:0;">&nbsp;&nbsp;<strong>停车链路对时延、可解释、可离线有硬要求，因此实时决策使用确定性算法；大模型只在"入口理解"和"解释生成"两层发挥作用。</strong></p></div>
+<p><strong>三个 AI 用点：</strong></p>
+<p><strong>① 多模态 OCR —— 兜底录入</strong> 用户拍下停车小票或订单照片，结构化入库作为车位绑定兜底。这是感知型 AI 的正当用点。</p>
+<p><strong>② LLM 意图解析 —— 自然语言入口</strong> 用户说"找个离海底捞近、能充电、婴儿车能走的车位"→ 解析为结构化约束 → 交给推荐引擎执行，检索层用向量匹配商户。</p>
+<p><strong>③ 轻量热度预测 —— 时段调权</strong> 按"时段 × 区域 × 目的地热度"调整推荐权重，例如周末下午书店所在区车位紧张，提前引导到其他分区。</p>
+<h3>9.4 为什么"少用AI"是加分项</h3>
+<p>停车场景的核心指标是<strong>时延、可解释、可离线</strong>。</p>
+<ul><li>生成式输出无法给出可解释的推荐理由，而用户需要知道"为什么推荐这个车位"</li><li>地库弱网环境下，决策必须能本地完成</li><li>决策结果必须可复现、可追溯、可审计</li></ul>
+<p><strong>主动把AI 约束在合适的层，是工程成熟度的体现，而不是能力不足。</strong></p>
+<h3>9.5 决赛当天的 30 秒 AI 演示</h3>
+<p>为 AI 大赛准备的直观抓手：现场输入一句自然语言 → LLM 解析为约束 → 推荐引擎执行 → 输出车位卡片。<strong>一天内可完成</strong>，且演示效果直观。</p>
+<hr style="border:none;border-top:var(--border-divider-w) solid var(--color-divider);margin:var(--hr-margin);">
+<h2>十、后期推广规划</h2>
+<h3>10.1 三阶段演进</h3>
+<table><thead><tr><th>阶段</th><th>时间</th><th>范围</th><th>交付</th></tr></thead><tbody><tr><td><strong>一期 · 单场验证</strong></td><td>复选至决赛</td><td>石岐万象汇单场，B1–B5</td><td>三个功能跑通，采集真实使用数据</td></tr><tr><td><strong>二期 · 能力沉淀</strong></td><td>决赛后 1–3 月</td><td>同一品牌多场商场</td><td>主数据标准化、决策引擎配置化，新场接入只需导表</td></tr><tr><td><strong>三期 · 商圈联动</strong></td><td>3–6 月</td><td>商圈多场（假日广场、金鹰广场等）</td><td>跨场目的地推荐、跨场路径编排</td></tr></tbody></table>
+<h3>10.2 跨场扩展的形态</h3>
+<p>商圈内各场为独立停车场时，跨场推荐逻辑与单场一致，仅增加一项跨场惩罚（连廊步行约 300 秒）。</p>
+<p><strong>这一期的技术增量极小</strong>——因为核心引擎在单场阶段就已经写成了配置化结构。跨场只是多加载一份数据。</p>
+<h3>10.3 向运营方交付什么</h3>
+<ul><li><strong>可配置</strong>：楼层分区、商户入口、电梯停靠层、车位类型均为配置项，不改代码</li><li><strong>可观测</strong>：每条推荐记录推荐理由、被拒原因、被采纳率</li><li><strong>可回退</strong>：决策层异常时自动降级为"仅按空闲车位排序"，不阻塞主流程</li></ul>
+<h3>10.4 与主办方的关系</h3>
+<p>本项目<strong>不替换、不重构、不侵入</strong>已有系统。交付形态是<strong>一层可插拔的决策服务</strong>，主办方可随时关闭而不影响现有功能。</p>
+<p>这是与运营方合作的<strong>最优姿态</strong>：先证明增量价值，再谈深度绑定。</p>
+<hr style="border:none;border-top:var(--border-divider-w) solid var(--color-divider);margin:var(--hr-margin);">
+<h2>十一、风险、合规与技术红线</h2>
+<h3>11.1 三条技术红线的逐条落地</h3>
+<p><strong>红线一 · 微信订阅消息限制</strong></p>
+<p>微信模板消息已废弃，订阅消息需用户授权且一次性只能推一次。</p>
+<p><strong>落地</strong>：全文不做"自动定时提醒"。</p>
+<ul><li>停车时用户<strong>主动授权一次</strong> → 下发停车凭证（含车位、区域、推荐电梯厅）</li><li>返程前<strong>用户主动点击生成路线</strong></li><li>方案中明示"不做无授权推送"</li></ul>
+<p><strong>红线二 · 车牌是敏感个人信息</strong></p>
+<p><strong>落地</strong>：</p>
+<ul><li>主链路以会员码 + 车位码绑定为主，车牌仅作可选查询钥匙并分级脱敏</li><li><strong>功能①完整发生在停车前，不需要车牌</strong> —— 这是架构上的合规优势（见4.6）</li><li>停车场出入口的车牌识别由主办方现有系统承担，我方不接触、不留存车牌图像</li></ul>
+<p><strong>红线三 · 地库弱网</strong></p>
+<p><strong>落地</strong>：</p>
+<ul><li>栅格、电梯、POI 数据随小程序包内置，路径规划本地计算</li><li>空桩状态读本地缓存并<strong>显式标注时效</strong></li><li>关键指引以纯文本短码返回，弱网下仍可读</li></ul>
+<h3>11.2 项目风险与应对</h3>
+<table><thead><tr><th>风险</th><th>影响</th><th>应对</th></tr></thead><tbody><tr><td>电梯停靠层数据缺失</td><td>功能② 竖向建图无法完成</td><td>分段编排降级路径当天可用</td></tr><tr><td>充电桩平台无接口</td><td>功能③ 状态只能推算</td><td>三级来源 + 置信度明确标注，不伪造</td></tr><tr><td>目的地推荐被质疑"凭什么"</td><td>推荐理由须可解释</td><td>卡片强制展示距离、梯口、步行秒数</td></tr><tr><td>真实车位数/商户数与假设不符</td><td>参数需重标</td><td>决赛前用主办方导出表重新标定</td></tr><tr><td>商户数据维护成本</td><td>上线后推荐不准</td><td>提供后台配置入口，运营方自主维护</td></tr></tbody></table>
+<h3>11.3 数据口径纪律</h3>
+<p>本方案严格区分<strong>实测数据</strong>与<strong>外部数据</strong>：</p>
+<ul><li>车位缺口、寻车时长等外部公开数据，若引用须注明来源与机构</li><li>演示用的模拟车位数、桩数<strong>不得表述为实测</strong></li><li>所有调研待填项以<code>【待补充：xxx｜采集口径：xxx】</code> 标注，<strong>正文不出现编造数字</strong></li></ul>
+<hr style="border:none;border-top:var(--border-divider-w) solid var(--color-divider);margin:var(--hr-margin);">
+<h2>十二、附录</h2>
+<h3>12.1 一页速览</h3>
+<p><strong>一句话定位</strong>：为主办方已有的停车系统补一层决策——不重做地图、不重做识别，只在停车之前问一句"你去哪儿"。</p>
+<p><strong>三个增量</strong>：</p>
+<ol><li>目的地选车位（步行距离 + 楼层 + 电梯口综合判断）</li><li>电梯厅分配指引（把已有电梯数据变成最优路径）</li><li>充电桩导航空闲桩（三级状态源 + 置信度衰减）</li></ol>
+<p><strong>三个不做</strong>：不建新App、不新增硬件、不动已有系统。</p>
+<p><strong>技术定位</strong>：确定性算法做决策，大模型做入口理解与解释生成。</p>
+<h3>12.2 现有系统界面要素对照</h3>
+<table><thead><tr><th>界面要素</th><th>我方如何复用</th></tr></thead><tbody><tr><td>车位详情卡片（B1-036 / B1 普通车位 / 当前设施 / 设为终点 / 聚焦）</td><td>在同卡片旁增设「按目的地选位」入口</td></tr><tr><td>「设为终点」按钮</td><td>直接复用为推荐结果的确认动作</td></tr><tr><td>导航面板（起点/ 终点 / 最优路线 全程X米 预计Ys / 模拟导航）</td><td>直接复用，三个功能共用</td></tr><tr><td>楼层切换器（总览 / B1–B5）</td><td>直接复用，推荐结果标明楼层</td></tr><tr><td>电梯厅气泡标注（1–6 号）</td><td>作为竖向路径图的节点位置输入</td></tr><tr><td>车位编号与类型字段</td><td>直接作为候选集与约束条件</td></tr><tr><td>车位分色渲染</td><td>直接读取为空闲判定</td></tr></tbody></table>
+<h3>12.3 待补充事项汇总</h3>
+<table><thead><tr><th>事项</th><th>采集口径</th></tr></thead><tbody><tr><td>真实车位数与各层分布</td><td>主办方停车系统导出表</td></tr><tr><td>走访商场清单、记录内容、样本量</td><td>调研表格 + 现场照片</td></tr><tr><td>是否存在扶梯及其编号规则</td><td>现场踏勘 + 主办方系统配置</td></tr><tr><td>现有充电桩平台与状态接口</td><td>主办方系统对接确认</td></tr><tr><td>真实充电桩总数与功率分布</td><td>主办方设备台账</td></tr><tr><td>是否有开放 API / 可挂载云函数</td><td>主办方技术确认</td></tr><tr><td>团队分工</td><td>团队自述</td></tr><tr><td>真实寻车时长基线</td><td>现场实测，需与外部数据区分</td></tr></tbody></table>
+<h3>12.4 结语</h3>
+<p>主办方已经建好了一座<strong>信息完整</strong>的停车系统：车位在哪、几楼、哪个梯、怎么走，界面都能回答。</p>
+<p>它缺的是最后一步——<strong>替用户做那个选择</strong>。</p>
+<p>「车记得」做的事情很克制：在一堆已经算好的数据之上，加一层算法，让"该停哪""走哪个梯""哪个桩空着"这三个问题有答案。不改地图，不动识别，不建App，不加硬件。</p>
+<p><strong>因为我们知道，最好的改进是让已有的能力真正被用起来，而不是在旁边再盖一栋楼。</strong></p>
+    </main>
+
+    <div class="appendix">
+<p>&nbsp;</p>
+    </div>
+  </section>
+</body>
+</html>

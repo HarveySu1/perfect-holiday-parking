@@ -1,0 +1,77 @@
+<Slide style={{ width: '1280px', height: '720px', padding: '20px 64px', flexDirection: 'column', background: '#FFFFFF' }}>
+    {/* A 标题块 */}
+    <Box style={{ height: '100px', flexDirection: 'column', justifyContent: 'center', gap: '6px' }}>
+        <Text style={{ fontSize: 13, fontWeight: 600, color: '#2456E6', letterSpacing: 2 }}>完成度 · 做得出来吗</Text>
+        <Text style={{ fontSize: 30, fontWeight: 'bold', color: '#16181D', lineHeight: 1.25 }}>可演的 AI 入口：说一句话，得到一个车位</Text>
+    </Box>
+
+    {/* B 内容区 */}
+    <Box style={{ height: '540px', flexDirection: 'column', gap: '13px' }}>
+        {/* 上：demo 三连（竖屏 + 箭头） */}
+        <Box style={{ flexDirection: 'row', justifyContent: 'center', gap: '30px', height: '385px' }}>
+            <Box style={{ flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                <Text style={{ fontSize: 14, fontWeight: 600, color: '#2456E6' }}>① 首页 AI 入口</Text>
+                <Image src="assets/demo_home.png" style={{ width: '165px', height: '357px', objectFit: 'cover', borderRadius: '16px', border: '1px solid #E5E8EF' }} />
+            </Box>
+            <Box style={{ justifyContent: 'center', paddingBottom: '40px' }}>
+                <FAIcon name='arrow-right' style={{ fill: '#5C6470', width: '28px', height: '28px' }} />
+            </Box>
+            <Box style={{ flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                <Text style={{ fontSize: 14, fontWeight: 600, color: '#2456E6' }}>② AI 解析弹窗</Text>
+                <Image src="assets/demo_parse.png" style={{ width: '165px', height: '357px', objectFit: 'cover', borderRadius: '16px', border: '1px solid #E5E8EF' }} />
+            </Box>
+            <Box style={{ justifyContent: 'center', paddingBottom: '40px' }}>
+                <FAIcon name='arrow-right' style={{ fill: '#5C6470', width: '28px', height: '28px' }} />
+            </Box>
+            <Box style={{ flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                <Text style={{ fontSize: 14, fontWeight: 600, color: '#2456E6' }}>③ 推荐结果</Text>
+                <Image src="assets/demo_reco.png" style={{ width: '165px', height: '357px', objectFit: 'cover', borderRadius: '16px', border: '1px solid #E5E8EF' }} />
+            </Box>
+        </Box>
+
+        {/* 中：30 秒动线 */}
+        <Box style={{ height: '100px', background: '#F5F7FB', border: '1px solid #E5E8EF', borderRadius: '12px', padding: '10px 18px', flexDirection: 'column', gap: '6px' }}>
+            <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#16181D' }}>30 秒动线</Text>
+                <Text style={{ marginLeft: 'auto', fontSize: 12, color: '#5C6470' }}>浏览器内现场可演</Text>
+            </Box>
+            <Box style={{ flexDirection: 'row', gap: '10px', flex: 1 }}>
+                <Box style={{ flex: 1, flexDirection: 'column', gap: '2px' }}>
+                    <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#2456E6' }}>①</Text>
+                    <Text style={{ fontSize: 12, color: '#16181D', lineHeight: 1.4 }}>输入「去海底捞，要充电」</Text>
+                </Box>
+                <Box style={{ flex: 1, flexDirection: 'column', gap: '2px' }}>
+                    <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#2456E6' }}>②</Text>
+                    <Text style={{ fontSize: 12, color: '#16181D', lineHeight: 1.4 }}>AI 解析意图，输出结构化约束</Text>
+                </Box>
+                <Box style={{ flex: 1, flexDirection: 'column', gap: '2px' }}>
+                    <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#2456E6' }}>③</Text>
+                    <Text style={{ fontSize: 12, color: '#16181D', lineHeight: 1.4 }}>调用推荐引擎</Text>
+                </Box>
+                <Box style={{ flex: 1, flexDirection: 'column', gap: '2px' }}>
+                    <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#2456E6' }}>④</Text>
+                    <Text style={{ fontSize: 12, color: '#16181D', lineHeight: 1.4 }}>输出车位卡片：编号+推荐理由</Text>
+                </Box>
+                <Box style={{ flex: 1, flexDirection: 'column', gap: '2px' }}>
+                    <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#2456E6' }}>⑤</Text>
+                    <Text style={{ fontSize: 12, color: '#16181D', lineHeight: 1.4 }}>点「导航到此车位」</Text>
+                </Box>
+            </Box>
+        </Box>
+
+        {/* 下：诚实标注 */}
+        <Box style={{ flexDirection: 'row', alignItems: 'center', gap: '10px' }}>
+            <Box style={{ width: '3px', height: '16px', background: '#F5A623', borderRadius: '2px' }} />
+            <Text style={{ fontSize: 12, color: '#5C6470', lineHeight: 1.4 }}>演示用：当前 AI 解析为关键词模拟，真实链路接入多模态大模型 API，可解析更复杂的自然语言；演示车位数、桩数为模拟数据，非实测。评审现场可输入任意自然语言，引擎当场返回推荐结果。</Text>
+        </Box>
+    </Box>
+
+    {/* C 页脚条 */}
+    <Box style={{ height: '40px', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'row', alignItems: 'center', gap: '8px' }}>
+            <FAIcon name='car' style={{ fill: '#2456E6', width: '18px', height: '18px' }} />
+            <Text style={{ fontSize: 13, color: '#5C6470' }}>车记得 · 完美金鹰假日商圈 AI 大赛</Text>
+        </Box>
+        <Text style={{ fontSize: 13, color: '#5C6470' }}><span style={{ fontWeight: 'bold', color: '#2456E6' }}>06</span> / 12</Text>
+    </Box>
+</Slide>

@@ -1,0 +1,123 @@
+<Slide style={{ width: '1280px', height: '720px', padding: '20px 64px', flexDirection: 'column', background: '#FFFFFF' }}>
+    {/* A 标题块 */}
+    <Box style={{ height: '100px', flexDirection: 'column', justifyContent: 'center', gap: '6px' }}>
+        <Text style={{ fontSize: 13, fontWeight: 600, color: '#2456E6', letterSpacing: 2 }}>金鹰落地 · 能落地吗</Text>
+        <Text style={{ fontSize: 30, fontWeight: 'bold', color: '#16181D', lineHeight: 1.25 }}>先在石岐万象汇单场跑通，再走向商圈级</Text>
+    </Box>
+
+    {/* B 内容区 */}
+    <Box style={{ height: '540px', flexDirection: 'column', gap: '12px' }}>
+        {/* 引导句 */}
+        <Text style={{ fontSize: 19, color: '#5C6470', lineHeight: 1.5 }}>一期零硬件、零系统改造，落在主办方已具备条件的单场；每一步都有当天可用的退路。</Text>
+
+        {/* 三阶段卡（等高）+ 箭头串联 */}
+        <Box style={{ flexDirection: 'row', alignItems: 'stretch', gap: '0px', height: '362px' }}>
+            {/* 卡 1 */}
+            <Box style={{ flex: 1, flexDirection: 'column', background: '#F5F7FB', border: '1px solid #E5E8EF', borderTop: '3px solid #0FA958', borderRadius: '12px', padding: '18px 20px', gap: '10px' }}>
+                <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Box style={{ background: 'rgba(15,169,88,0.10)', border: '1px solid rgba(15,169,88,0.35)', borderRadius: '4px', padding: '3px 8px' }}>
+                        <Text style={{ fontSize: 12, fontWeight: 600, color: '#0FA958' }}>复选至决赛</Text>
+                    </Box>
+                </Box>
+                <Box style={{ flexDirection: 'row', alignItems: 'baseline', gap: '8px' }}>
+                    <Text style={{ fontSize: 56, fontWeight: 'bold', fontFamily: '"Inter", "Noto Sans SC", sans-serif', color: '#0FA958', lineHeight: 1 }}>01</Text>
+                    <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#16181D' }}>单场验证</Text>
+                </Box>
+                <Box style={{ flexDirection: 'column', gap: '6px' }}>
+                    <Text style={{ fontSize: 17, color: '#16181D', lineHeight: 1.55 }}>石岐万象汇单场落地，三个功能完整跑通</Text>
+                    <Text style={{ fontSize: 15, color: '#5C6470', lineHeight: 1.55 }}>采集真实使用数据，验证推荐采纳率与被拒原因分布</Text>
+                </Box>
+                <Box style={{ marginTop: 'auto', flexDirection: 'row', alignItems: 'center', gap: '8px' }}>
+                    <FAIcon name='check' style={{ fill: '#0FA958', width: '14px', height: '14px' }} />
+                    <Text style={{ fontSize: 13, color: '#0FA958', fontWeight: 600 }}>零硬件 · 零系统改造</Text>
+                </Box>
+            </Box>
+
+            {/* 箭头 1 */}
+            <Box style={{ width: '40px', alignItems: 'center', justifyContent: 'center' }}>
+                <FAIcon name='arrow-right' style={{ fill: '#0FA958', width: '22px', height: '22px' }} />
+            </Box>
+
+            {/* 卡 2 */}
+            <Box style={{ flex: 1, flexDirection: 'column', background: '#F5F7FB', border: '1px solid #E5E8EF', borderTop: '3px solid #0FA958', borderRadius: '12px', padding: '18px 20px', gap: '10px' }}>
+                <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Box style={{ background: 'rgba(15,169,88,0.10)', border: '1px solid rgba(15,169,88,0.35)', borderRadius: '4px', padding: '3px 8px' }}>
+                        <Text style={{ fontSize: 12, fontWeight: 600, color: '#0FA958' }}>决赛后 1–3 月</Text>
+                    </Box>
+                </Box>
+                <Box style={{ flexDirection: 'row', alignItems: 'baseline', gap: '8px' }}>
+                    <Text style={{ fontSize: 56, fontWeight: 'bold', fontFamily: '"Inter", "Noto Sans SC", sans-serif', color: '#0FA958', lineHeight: 1 }}>02</Text>
+                    <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#16181D' }}>能力沉淀</Text>
+                </Box>
+                <Box style={{ flexDirection: 'column', gap: '6px' }}>
+                    <Text style={{ fontSize: 17, color: '#16181D', lineHeight: 1.55 }}>同品牌多场复制，决策服务与场地解耦</Text>
+                    <Text style={{ fontSize: 15, color: '#5C6470', lineHeight: 1.55 }}>主数据标准化、引擎配置化，新场接入只需导表</Text>
+                </Box>
+                <Box style={{ marginTop: 'auto', flexDirection: 'row', alignItems: 'center', gap: '8px' }}>
+                    <FAIcon name='check' style={{ fill: '#0FA958', width: '14px', height: '14px' }} />
+                    <Text style={{ fontSize: 13, color: '#0FA958', fontWeight: 600 }}>一套引擎 · 多场复用</Text>
+                </Box>
+            </Box>
+
+            {/* 箭头 2 */}
+            <Box style={{ width: '40px', alignItems: 'center', justifyContent: 'center' }}>
+                <FAIcon name='arrow-right' style={{ fill: '#0FA958', width: '22px', height: '22px' }} />
+            </Box>
+
+            {/* 卡 3 */}
+            <Box style={{ flex: 1, flexDirection: 'column', background: '#F5F7FB', border: '1px solid #E5E8EF', borderTop: '3px solid #0FA958', borderRadius: '12px', padding: '18px 20px', gap: '10px' }}>
+                <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Box style={{ background: 'rgba(15,169,88,0.10)', border: '1px solid rgba(15,169,88,0.35)', borderRadius: '4px', padding: '3px 8px' }}>
+                        <Text style={{ fontSize: 12, fontWeight: 600, color: '#0FA958' }}>3–6 月</Text>
+                    </Box>
+                </Box>
+                <Box style={{ flexDirection: 'row', alignItems: 'baseline', gap: '8px' }}>
+                    <Text style={{ fontSize: 56, fontWeight: 'bold', fontFamily: '"Inter", "Noto Sans SC", sans-serif', color: '#0FA958', lineHeight: 1 }}>03</Text>
+                    <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#16181D' }}>商圈联动</Text>
+                </Box>
+                <Box style={{ flexDirection: 'column', gap: '6px' }}>
+                    <Text style={{ fontSize: 17, color: '#16181D', lineHeight: 1.55 }}>跨场目的地推荐，同一目的地跨场比较</Text>
+                    <Text style={{ fontSize: 15, color: '#5C6470', lineHeight: 1.55 }}>跨场路径编排，走向商圈级客流动线分配</Text>
+                </Box>
+                <Box style={{ marginTop: 'auto', flexDirection: 'row', alignItems: 'center', gap: '8px' }}>
+                    <FAIcon name='check' style={{ fill: '#0FA958', width: '14px', height: '14px' }} />
+                    <Text style={{ fontSize: 13, color: '#0FA958', fontWeight: 600 }}>复用主办方会员体系</Text>
+                </Box>
+            </Box>
+        </Box>
+
+        {/* 三特性通栏 */}
+        <Box style={{ flexDirection: 'row', gap: '12px', height: '118px' }}>
+            <Box style={{ flex: 1, background: 'rgba(15,169,88,0.10)', border: '1px solid rgba(15,169,88,0.35)', borderRadius: '12px', padding: '14px 16px', flexDirection: 'column', gap: '6px' }}>
+                <Box style={{ flexDirection: 'row', alignItems: 'center', gap: '8px' }}>
+                    <FAIcon name='sliders' style={{ fill: '#0FA958', width: '16px', height: '16px' }} />
+                    <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#16181D' }}>可灰度</Text>
+                </Box>
+                <Text style={{ fontSize: 14, color: '#16181D', lineHeight: 1.5 }}>单楼层 + 部分 POI 先行，影响面可控，不一次性全量切换</Text>
+            </Box>
+            <Box style={{ flex: 1, background: 'rgba(15,169,88,0.10)', border: '1px solid rgba(15,169,88,0.35)', borderRadius: '12px', padding: '14px 16px', flexDirection: 'column', gap: '6px' }}>
+                <Box style={{ flexDirection: 'row', alignItems: 'center', gap: '8px' }}>
+                    <FAIcon name='line-chart' style={{ fill: '#0FA958', width: '16px', height: '16px' }} />
+                    <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#16181D' }}>可观测</Text>
+                </Box>
+                <Text style={{ fontSize: 14, color: '#16181D', lineHeight: 1.5 }}>推荐理由、被拒原因、采纳率全记录，效果用数据说话</Text>
+            </Box>
+            <Box style={{ flex: 1, background: 'rgba(15,169,88,0.10)', border: '1px solid rgba(15,169,88,0.35)', borderRadius: '12px', padding: '14px 16px', flexDirection: 'column', gap: '6px' }}>
+                <Box style={{ flexDirection: 'row', alignItems: 'center', gap: '8px' }}>
+                    <FAIcon name='history' style={{ fill: '#0FA958', width: '16px', height: '16px' }} />
+                    <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#16181D' }}>可回退</Text>
+                </Box>
+                <Text style={{ fontSize: 14, color: '#16181D', lineHeight: 1.5 }}>异常自动降级为仅按空闲排序，主办方可随时关闭决策层</Text>
+            </Box>
+        </Box>
+    </Box>
+
+    {/* C 页脚条 */}
+    <Box style={{ height: '40px', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'row', alignItems: 'center', gap: '8px' }}>
+            <FAIcon name='car' style={{ fill: '#2456E6', width: '18px', height: '18px' }} />
+            <Text style={{ fontSize: 13, color: '#5C6470' }}>车记得 · 完美金鹰假日商圈 AI 大赛</Text>
+        </Box>
+        <Text style={{ fontSize: 13, color: '#5C6470' }}><span style={{ fontWeight: 'bold', color: '#2456E6' }}>07</span> / 12</Text>
+    </Box>
+</Slide>

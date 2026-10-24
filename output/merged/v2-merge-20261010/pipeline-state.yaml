@@ -1,0 +1,85 @@
+# Pipeline State - tdoc-orchestrator 溯源记录
+# request_id: v2-merge-20261010
+# 链路: beautify_only (S2 → S3)
+# 生成时间: 2026-10-10
+
+request_id: "v2-merge-20261010"
+entry_type: "beautify_only"
+current_stage: "completed"
+
+# === 输入 ===
+source_md_path: "C:/Users/Su/Desktop/完美假日/output/merged/车记得_v2_合并方案.md"
+source_md_size: 18658  # bytes (approx)
+
+# === 输出 ===
+output_docx_path: "C:/Users/Su/Desktop/完美假日/output/merged/车记得_v2_参赛方案.docx"
+output_docx_user_specified: true
+output_docx_size: 64515  # bytes (63.0 KB)
+
+# === Stage 2: doc-formatter ===
+stage_2:
+  executor: "doc-formatter"
+  status: "completed"
+  route: "html"
+  html_sub: "template"
+  genre: "business-report"
+  theme_name: "business-modern"
+  content_source: "content_doc_path"
+  entry_type: "standalone"
+  intermediate_dir: "C:/Users/Su/Desktop/完美假日/output/merged/v2-merge-20261010/stage2/intermediate/"
+  output_path: "stage2/formatted-车记得v2.html"
+  output_format: "html"
+  output_size: 51130  # bytes
+  design_tokens_path: "stage2/design_tokens.json"
+  skills_invoked:
+    - "design-token"
+    - "doc-typeset"
+    - "html-review"
+  template_used: "business-report"
+  html_review:
+    attempts: 1  # 做过一次定向修正
+    final_score: 85
+    passed_dimensions: 5  # design_token, structural, genre_fit, decoration, security
+    failed_dimensions: 1  # typographic_quality (h2→h3 无导语，源稿结构决定)
+    notes: "TQ-03: 5处h2后直接跟h3（源稿结构，未修改内容）; TQ-05: 14个h2（正常参赛方案篇幅）"
+  fallback: false
+  fallback_reason: null
+
+# === Stage 3: doc-converter ===
+stage_3:
+  executor: "doc-converter"
+  status: "completed"
+  input_format: "html"
+  output_path: "C:/Users/Su/Desktop/完美假日/output/merged/车记得_v2_参赛方案.docx"
+  skill_used: ["html-to-docx"]
+  convert_options:
+    page_size: "A4"
+    orientation: "portrait"
+    margin_top: 2.54  # cm
+    margin_bottom: 2.54  # cm
+    margin_left: 2.54  # cm
+    margin_right: 2.54  # cm
+  convert_result:
+    success: true
+    warnings: []
+    fields: []
+  present_files_opened: false  # 用户指示不需要 present_files
+  fallback: false
+  fallback_reason: null
+
+# === 环境信息 ===
+environment:
+  venv_path: "C:/Users/Su/.venv-html-to-docx"
+  venv_python: "C:/Users/Su/.venv-html-to-docx/Scripts/python.exe"
+  scripts_dir: "C:/Users/Su/.workbuddy/plugins/cache/workbuddy-builtin/tencent-docx/5.7.7-wb.40774747.g2e8619da.had9031c93ded/skills/html-to-docx/scripts"
+  pip_mirror: "https://pypi.tuna.tsinghua.edu.cn/simple"
+  dependencies_installed: true
+
+# === consistency_check ===
+consistency_check:
+  pipeline_complete: true
+  stages_executed: ["S2", "S3"]
+  final_output_exists: true
+  final_output_path: "C:/Users/Su/Desktop/完美假日/output/merged/车记得_v2_参赛方案.docx"
+  final_output_size: 64515
+  content_integrity: "源稿内容未修改，仅做排版格式转换"

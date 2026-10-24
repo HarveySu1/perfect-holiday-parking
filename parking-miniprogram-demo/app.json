@@ -1,0 +1,15 @@
+{
+  "pages": [
+    "pages/index/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "石岐万象汇（Demo）",
+    "navigationBarTextStyle": "black",
+    "navigationBarBackgroundColor": "#F7F8FA",
+    "backgroundColor": "#F7F8FA",
+    "navigationStyle": "custom"
+  },
+  "lazyCodeLoading": "requiredComponents",
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

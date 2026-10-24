@@ -1,0 +1,95 @@
+<Slide style={{ width: '1280px', height: '720px', padding: '20px 64px', flexDirection: 'column', background: '#FFFFFF' }}>
+    {/* A 标题块 0–120px */}
+    <Box style={{ height: '100px', flexDirection: 'column', justifyContent: 'center', gap: '6px' }}>
+        <Text style={{ fontSize: 13, fontWeight: 600, color: '#2456E6', letterSpacing: 2 }}>真实问题 · 值得做吗</Text>
+        <Text style={{ fontSize: 30, fontWeight: 'bold', color: '#16181D', lineHeight: 1.25 }}>地下车库里，用户要做三个没有依据的决策</Text>
+    </Box>
+
+    {/* B 内容区 120–660px */}
+    <Box style={{ height: '540px', flexDirection: 'row', gap: '24px' }}>
+        {/* 左：主色标题栏 */}
+        <Box style={{ width: '352px', height: '540px', background: '#2456E6', borderRadius: '16px', padding: '28px', flexDirection: 'column', justifyContent: 'space-between', position: 'relative', overflow: 'hidden' }}>
+            <Box style={{ position: 'absolute', right: '0px', bottom: '0px' }}>
+                <FAIcon name='car' style={{ fill: 'rgba(255,255,255,0.08)', width: '150px', height: '150px' }} />
+            </Box>
+            <Box style={{ flexDirection: 'column' }}>
+                <Text style={{ fontSize: 52, fontWeight: 'bold', color: 'rgba(255,255,255,0.35)', lineHeight: 1, fontFamily: '"Inter", "Noto Sans SC", sans-serif' }}>02</Text>
+                <Box style={{ flexDirection: 'row', alignItems: 'flex-end', gap: '10px', marginTop: '20px' }}>
+                    <Text style={{ fontSize: 92, fontWeight: 'bold', color: '#FFFFFF', lineHeight: 0.9, fontFamily: '"Inter", "Noto Sans SC", sans-serif' }}>3</Text>
+                    <Box style={{ flexDirection: 'column', paddingBottom: '6px' }}>
+                        <Text style={{ fontSize: 20, fontWeight: 600, color: '#FFFFFF', lineHeight: 1.3 }}>个没有依据的决策</Text>
+                        <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.72)', lineHeight: 1.5, marginTop: '4px' }}>停哪层 · 走哪个梯 · 哪个桩空</Text>
+                    </Box>
+                </Box>
+            </Box>
+            <Box style={{ flexDirection: 'column' }}>
+                <Box style={{ width: '32px', height: '2px', background: 'rgba(255,255,255,0.35)' }} />
+                <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', letterSpacing: 2, marginTop: '16px' }}>共性</Text>
+                <Text style={{ fontSize: 16, color: 'rgba(255,255,255,0.92)', lineHeight: 1.75, marginTop: '8px' }}>信号差、时间紧——三段判断都集中在地库入口到车位之间，发生在最不该判断的时刻。</Text>
+            </Box>
+            <Box style={{ background: 'rgba(245,166,35,0.12)', border: '1px solid rgba(245,166,35,0.5)', borderRadius: '999px', padding: '9px 16px', alignSelf: 'flex-start' }}>
+                <Text style={{ fontSize: 13, fontWeight: 600, color: '#F5A623' }}>真正的痛点不是「找回车难」</Text>
+            </Box>
+        </Box>
+
+        {/* 右：三行决策卡 */}
+        <Box style={{ flex: 1, height: '540px', flexDirection: 'column', gap: '14px' }}>
+            <Box style={{ flex: 1, background: '#F5F7FB', border: '1px solid #E5E8EF', borderRadius: '14px', padding: '16px 20px', flexDirection: 'column', justifyContent: 'center', gap: '10px' }}>
+                <Box style={{ flexDirection: 'row', alignItems: 'center', gap: '14px' }}>
+                    <Box style={{ width: '46px', height: '46px', borderRadius: '12px', background: 'rgba(36,86,230,0.08)', justifyContent: 'center', alignItems: 'center' }}>
+                        <FAIcon name='car' style={{ fill: '#2456E6', width: '24px', height: '24px' }} />
+                    </Box>
+                    <Text style={{ fontSize: 19, fontWeight: 'bold', color: '#16181D' }}>停哪个车位</Text>
+                    <Box style={{ marginLeft: 'auto', background: 'rgba(245,166,35,0.12)', borderRadius: '999px', padding: '4px 12px' }}>
+                        <Text style={{ fontSize: 12, fontWeight: 600, color: '#16181D' }}>只能自己算</Text>
+                    </Box>
+                </Box>
+                <Text style={{ fontSize: 14, color: '#5C6470', lineHeight: 1.5 }}>现在只能自己切楼层、看电梯、在心里默默算距离</Text>
+                <Box style={{ background: '#FFFFFF', border: '1px solid #E5E8EF', borderRadius: '8px', padding: '9px 14px' }}>
+                    <Text style={{ fontSize: 14, fontWeight: 600, color: '#2456E6' }}>→ 车位空着，但不是「好用」的车位</Text>
+                </Box>
+            </Box>
+
+            <Box style={{ flex: 1, background: '#F5F7FB', border: '1px solid #E5E8EF', borderRadius: '14px', padding: '16px 20px', flexDirection: 'column', justifyContent: 'center', gap: '10px' }}>
+                <Box style={{ flexDirection: 'row', alignItems: 'center', gap: '14px' }}>
+                    <Box style={{ width: '46px', height: '46px', borderRadius: '12px', background: 'rgba(36,86,230,0.08)', justifyContent: 'center', alignItems: 'center' }}>
+                        <FAIcon name='building' style={{ fill: '#2456E6', width: '24px', height: '24px' }} />
+                    </Box>
+                    <Text style={{ fontSize: 19, fontWeight: 'bold', color: '#16181D' }}>走哪个电梯</Text>
+                    <Box style={{ marginLeft: 'auto', background: 'rgba(245,166,35,0.12)', borderRadius: '999px', padding: '4px 12px' }}>
+                        <Text style={{ fontSize: 12, fontWeight: 600, color: '#16181D' }}>只能赌</Text>
+                    </Box>
+                </Box>
+                <Text style={{ fontSize: 14, color: '#5C6470', lineHeight: 1.5 }}>现在只能赌哪个近、哪个不挤，没有任何数据可依</Text>
+                <Box style={{ background: '#FFFFFF', border: '1px solid #E5E8EF', borderRadius: '8px', padding: '9px 14px' }}>
+                    <Text style={{ fontSize: 14, fontWeight: 600, color: '#2456E6' }}>→ 高峰候梯 5 分钟以上是常态</Text>
+                </Box>
+            </Box>
+
+            <Box style={{ flex: 1, background: '#F5F7FB', border: '1px solid #E5E8EF', borderRadius: '14px', padding: '16px 20px', flexDirection: 'column', justifyContent: 'center', gap: '10px' }}>
+                <Box style={{ flexDirection: 'row', alignItems: 'center', gap: '14px' }}>
+                    <Box style={{ width: '46px', height: '46px', borderRadius: '12px', background: 'rgba(36,86,230,0.08)', justifyContent: 'center', alignItems: 'center' }}>
+                        <FAIcon name='bolt' style={{ fill: '#2456E6', width: '24px', height: '24px' }} />
+                    </Box>
+                    <Text style={{ fontSize: 19, fontWeight: 'bold', color: '#16181D' }}>哪个桩空着</Text>
+                    <Box style={{ marginLeft: 'auto', background: 'rgba(245,166,35,0.12)', borderRadius: '999px', padding: '4px 12px' }}>
+                        <Text style={{ fontSize: 12, fontWeight: 600, color: '#16181D' }}>只能开到再看</Text>
+                    </Box>
+                </Box>
+                <Text style={{ fontSize: 14, color: '#5C6470', lineHeight: 1.5 }}>现在只能开到某一层才发现被占，然后再找下一层</Text>
+                <Box style={{ background: '#FFFFFF', border: '1px solid #E5E8EF', borderRadius: '8px', padding: '9px 14px' }}>
+                    <Text style={{ fontSize: 14, fontWeight: 600, color: '#2456E6' }}>→ 每发现一次「被占」就是一次无效绕行</Text>
+                </Box>
+            </Box>
+        </Box>
+    </Box>
+
+    {/* C 页脚条 660–720px */}
+    <Box style={{ height: '40px', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'row', alignItems: 'center', gap: '8px' }}>
+            <FAIcon name='car' style={{ fill: '#2456E6', width: '18px', height: '18px' }} />
+            <Text style={{ fontSize: 13, color: '#5C6470' }}>车记得 · 完美金鹰假日商圈 AI 大赛</Text>
+        </Box>
+        <Text style={{ fontSize: 13, color: '#5C6470' }}><span style={{ fontWeight: 'bold', color: '#2456E6' }}>02</span> / 12</Text>
+    </Box>
+</Slide>

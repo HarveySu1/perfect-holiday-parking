@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="docx-page-size" content="A4">
+  <title>车记得 —— 你负责逛，车的位置交给我记</title>
+  <style>
+  @page {
+    @bottom-center { content: counter(page); }
+  }
+  @page cover {
+    @bottom-center { content: none; }
+  }
+  section[role="cover"] { page: cover; }
+
+  :root {
+    /* Typography */
+    --fs-h1: var(--typography-fontSize-h1, 20pt);
+    --fs-h2: var(--typography-fontSize-h2, 16pt);
+    --fs-h3: var(--typography-fontSize-h3, 14pt);
+    --fs-body: var(--typography-fontSize-body, 11pt);
+    --fs-small: var(--typography-fontSize-small, 10pt);
+    --fs-tiny: var(--typography-fontSize-tiny, 9pt);
+    --ff-heading: var(--typography-fontFamily-heading, "微软雅黑", sans-serif);
+    --ff-body: var(--typography-fontFamily-body, "微软雅黑", sans-serif);
+    --ff-mono: var(--typography-fontFamily-code, "Consolas", monospace);
+    --lh-body: var(--typography-lineHeight-body, 1.6);
+    --lh-compact: var(--typography-lineHeight-compact, 1.2);
+    --fw-heading: var(--typography-fontWeight-heading, 600);
+    --fw-body: var(--typography-fontWeight-body, 400);
+    /* Color */
+    --color-primary: #1565C0;
+    --color-secondary: #0288D1;
+    --color-accent: #00897B;
+    --color-text: #212121;
+    --color-textSecondary: #616161;
+    --color-heading: #1A237E;
+    --color-divider: #E0E0E0;
+    --color-background: #FFFFFF;
+    --color-surface: #F5F7FA;
+    --color-emphasis: #C62828;
+    /* Spacing - all via CSS variables, no bare values */
+    --spacing-paragraph: 0.75em;
+    --spacing-section: 2.5em;
+    --spacing-block: 1em;
+    --margin-page: 2.5cm;
+    --page-content-width: 16cm;
+    /* Component-specific spacing vars */
+    --border-heading-w: 4px;
+    --border-divider-w: 1px;
+    --callout-pad: 12px 16px;
+    --callout-margin: 0.75em 0;
+    --callout-para-gap: 0.5em;
+    --hr-margin: 1.5em 0;
+    --table-cell-pad: 6px 10px;
+    --code-pad: 1px 4px;
+    --summary-border-w: 4px;
+    --summary-pad: 1em 1.5em;
+    --summary-margin: 1.5em 0;
+    --cover-gap-title: 0.8em;
+    --cover-gap-cat: 1.5em;
+    --cover-gap-sub: 2em;
+    --cover-gap-meta: 3em;
+    --toc-pad-v: 1.5em;
+    --toc-gap: 0.8em;
+    --toc-item-gap: 0.4em;
+    --h2-mt: 2em;
+    --h2-mb: 0.8em;
+    --h3-mt: 1.5em;
+    --h3-mb: 0.6em;
+    --h4-mt: 1em;
+    --h4-mb: 0.5em;
+    --table-margin: 1em 0;
+    --list-margin: 0.5em 0 0.75em 1.5em;
+    --list-item-gap: 0.3em;
+    --appendix-pad: 2em 0 1em 0;
+    --appendix-para-gap: 0.4em;
+    --body-pad: 1em 0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--ff-body);
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+    color: var(--color-text);
+    background: var(--color-background);
+    max-width: var(--page-content-width);
+    margin: 0 auto;
+  }
+
+  /* Cover */
+  .report-cover {
+    min-height: 50vh;
+    padding: var(--margin-page);
+    background: var(--color-surface);
+    text-align: center;
+  }
+  .cover-category {
+    font-size: var(--fs-h3);
+    font-family: var(--ff-heading);
+    font-weight: var(--fw-heading);
+    color: var(--color-primary);
+    letter-spacing: 0.08em;
+    margin-bottom: var(--cover-gap-cat);
+    text-align: center;
+  }
+  .cover-title {
+    font-size: var(--fs-h1);
+    font-family: var(--ff-heading);
+    font-weight: var(--fw-heading);
+    color: var(--color-primary);
+    margin-bottom: var(--cover-gap-title);
+    line-height: 1.4;
+    text-align: center;
+  }
+  .cover-subtitle {
+    font-size: var(--fs-h3);
+    color: var(--color-textSecondary);
+    margin-bottom: var(--cover-gap-sub);
+    text-align: center;
+    line-height: 1.6;
+  }
+  .cover-meta {
+    font-size: var(--fs-small);
+    color: var(--color-textSecondary);
+    text-align: center;
+    margin-top: var(--cover-gap-meta);
+  }
+  .cover-meta p {
+    text-align: center;
+    margin-bottom: var(--list-item-gap);
+  }
+
+  /* TOC */
+  .doc-toc {
+    padding: var(--toc-pad-v) 0;
+    background: var(--color-background);
+    border-bottom: var(--border-heading-w) solid var(--color-primary);
+    margin-bottom: var(--cover-gap-sub);
+  }
+  .toc-title {
+    font-size: var(--fs-h2);
+    font-family: var(--ff-heading);
+    font-weight: var(--fw-heading);
+    color: var(--color-heading);
+    margin-bottom: var(--toc-gap);
+  }
+  .toc-list, .toc-list ol, .toc-list ul {
+    list-style: none;
+    list-style-type: none;
+    padding-left: 0;
+  }
+  .toc-list li {
+    margin-bottom: var(--toc-item-gap);
+    text-indent: 0;
+    font-size: var(--fs-body);
+    line-height: 1.8;
+  }
+
+  /* Executive Summary */
+  .executive-summary {
+    margin: var(--summary-margin);
+    padding: var(--summary-pad);
+    border-left: var(--summary-border-w) solid var(--color-primary);
+    background: var(--color-surface);
+  }
+  .executive-summary h2 {
+    border-left: none;
+    padding-left: 0;
+    margin-top: 0;
+    color: var(--color-primary);
+  }
+  .executive-summary p {
+    margin-bottom: var(--spacing-paragraph);
+  }
+
+  /* Body content */
+  .report-body {
+    padding: var(--body-pad);
+  }
+  .report-body h2 {
+    font-size: var(--fs-h2);
+    font-family: var(--ff-heading);
+    font-weight: var(--fw-heading);
+    color: var(--color-heading);
+    border-left: var(--border-heading-w) solid var(--color-primary);
+    padding-left: 12px;
+    margin-top: var(--h2-mt);
+    margin-bottom: var(--h2-mb);
+    line-height: 1.4;
+  }
+  .report-body h3 {
+    font-size: var(--fs-h3);
+    font-family: var(--ff-heading);
+    font-weight: var(--fw-heading);
+    color: var(--color-heading);
+    margin-top: var(--h3-mt);
+    margin-bottom: var(--h3-mb);
+    line-height: 1.4;
+  }
+  .report-body h4 {
+    font-size: var(--fs-body);
+    font-family: var(--ff-heading);
+    font-weight: var(--fw-heading);
+    color: var(--color-heading);
+    margin-top: var(--h4-mt);
+    margin-bottom: var(--h4-mb);
+  }
+  .report-body p {
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+    color: var(--color-text);
+    margin-bottom: var(--spacing-paragraph);
+    text-align: justify;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: var(--table-margin);
+    font-size: var(--fs-small);
+    line-height: var(--lh-compact);
+  }
+  table th {
+    background: var(--color-surface);
+    border: var(--border-divider-w) solid var(--color-divider);
+    padding: var(--table-cell-pad);
+    text-align: left;
+    font-family: var(--ff-heading);
+    font-weight: var(--fw-heading);
+    color: var(--color-heading);
+    font-size: var(--fs-small);
+  }
+  table td {
+    border: var(--border-divider-w) solid var(--color-divider);
+    padding: var(--table-cell-pad);
+    font-size: var(--fs-small);
+    color: var(--color-text);
+    vertical-align: top;
+  }
+  table tbody tr:nth-child(even) {
+    background: var(--color-surface);
+  }
+
+  /* Lists */
+  ul, ol {
+    margin: var(--list-margin);
+  }
+  li {
+    margin-bottom: var(--list-item-gap);
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+    color: var(--color-text);
+  }
+
+  /* Inline code */
+  code {
+    font-family: var(--ff-mono);
+    font-size: var(--fs-small);
+    background: var(--color-surface);
+    padding: var(--code-pad);
+  }
+
+  /* Strong */
+  strong {
+    font-weight: 700;
+    color: var(--color-heading);
+  }
+
+  /* Divider */
+  hr {
+    border: none;
+    border-top: var(--border-divider-w) solid var(--color-divider);
+    margin: var(--hr-margin);
+  }
+
+  /* Appendix */
+  .appendix {
+    padding: var(--appendix-pad);
+    border-top: var(--border-heading-w) solid var(--color-divider);
+    margin-top: var(--h2-mt);
+  }
+  .appendix h2 {
+    border-left: var(--border-heading-w) solid var(--color-textSecondary);
+    color: var(--color-textSecondary);
+  }
+  .appendix h3 {
+    color: var(--color-textSecondary);
+  }
+  .appendix p {
+    font-size: var(--fs-small);
+    color: var(--color-textSecondary);
+    line-height: 1.5;
+    margin-bottom: var(--appendix-para-gap);
+  }
+  .appendix ul {
+    font-size: var(--fs-small);
+    color: var(--color-textSecondary);
+  }
+  .appendix li {
+    font-size: var(--fs-small);
+    color: var(--color-textSecondary);
+    margin-bottom: var(--list-item-gap);
+  }
+  </style>
+</head>
+<body>
+  <section role="cover" class="report-cover">
+    <p class="cover-category">参赛项目方案</p>
+    <h1 class="cover-title">车记得 —— 你负责逛，车的位置交给我记</h1>
+    <p class="cover-subtitle">参赛项目方案 · 完美金鹰·假日商圈 AI 大赛 · 赛道二：商圈服务 · 用户体验</p>
+    <div class="cover-meta">
+      <p>完美金鹰&middot;假日商圈 AI 大赛</p>
+      <p>赛道二：商圈服务 &middot; 用户体验</p>
+      <p>2026 年 10 月</p>
+    </div>
+  </section>
+
+  <section role="body" class="report-body" data-page-restart="1">
+    <nav class="doc-toc" aria-label="文档目录">
+      <p class="toc-title">目录</p>
+      <ol class="toc-list">
+<li>一、项目概述</li>
+<li>二、核心机制：车库监控识别与"输入车牌即寻车"</li>
+<li>三、我们解决什么商圈问题</li>
+<li>四、我们的解法：三个动作</li>
+<li>五、AI 在其中发挥的作用</li>
+<li>六、运营与推广建议</li>
+<li>七、风险与应对</li>
+<li>八、发展规划</li>
+<li>九、技术实现与"一天原型"计划</li>
+<li>十、如何在商圈落地</li>
+<li>十一、市场调研与数据</li>
+<li>十二、竞品分析</li>
+<li>十三、预期效果与度量</li>
+<li>十四、团队与结语</li>
+      </ol>
+    </nav>
+
+<div class="executive-summary">
+  <div class="summary-header">
+    <h2>执行摘要</h2>
+  </div>
+  <div class="summary-body">
+    <p>「车记得」是面向完美金鹰&middot;假日商圈的智慧停车解决方案，复用商场已有 CCTV 监控系统实现车牌自动识别与车位绑定，车主返程输入车牌号即可一键寻车。方案零新增硬件、零施工、零道闸改造，通过双轨设计（监控自动识别 + 二维码/拍照 AI 兜底）保证功能可用性。</p>
+    <p>商圈年客流超 <strong>3000 万人次</strong>、会员规模突破 <strong>80 万人</strong>，跨场停车认知断层是真实痛点。方案涵盖监控识别、多模态 AI 视觉理解、生成式表达、对话式语义检索、行程级规划五大能力，决赛一天可在主办方真实车库做出可运行原型，赛后两周内单层试点实测。</p>
+  </div>
+</div>
+
+    <main>
+<p><strong>参赛项目方案</strong> · 完美金鹰·假日商圈 AI 大赛 · 赛道二：商圈服务 · 用户体验</p>
+<hr style="border:none;border-top:var(--border-divider-w) solid var(--color-divider);margin:var(--hr-margin);">
+<h2>一、项目概述</h2>
+<p><strong>「车记得」是一个会自己记住你车停在哪的商圈智慧停车助手。</strong></p>
+<p>完美金鹰广场与假日广场在 2026 年 8 月 18 日正式打通，形成了总体量 62 万平方米、年客流超 3000 万人次、会员规模突破 80 万人的超级商圈。但对开车来的消费者而言，物理连通反而制造了一个新的认知断层——"我的车停在哪儿"。在一个年客流超过 3000 万人次的商圈，这样的"记忆失误"每天都在成千上万次地发生。</p>
+<p>「车记得」围绕车主"停车—找车—离场"全流程，提供五大核心能力：<strong>车库监控识别与车位绑定、输入车牌号一键寻车、反向导航、新能源车位与充电桩查询、防遗忘提醒</strong>。</p>
+<p>一句话概括它的工作方式：<strong>车库已有的监控自动认出你的车牌，并自动记录下车所在的车位号；你返程时只需要输入车牌号，就能知道车停在哪里、怎么走过去。</strong> 扫码、拍照、记车位号这些动作全部由系统代劳。</p>
+<h3>（一）产品定位</h3>
+<p>产品采用 <strong>"车库监控自动识别为主、二维码/手动记录/拍照兜底为辅"的双轨设计</strong>，复用商场已有 CCTV 监控系统，零新增硬件、零施工、零道闸改造。监控未覆盖的楼层或识别失败时，自动回落到"车位二维码 + 电梯口定位 + 拍照 AI 识别"的零硬件路径。两种模式共用同一套云端地图、寻路与绘制能力，商场可按楼层分批启用、平滑升级。</p>
+<h3>（二）目标用户与合作对象</h3>
+<ul><li><strong>目标用户</strong>：驾车前往购物中心的家庭客群、新能源车主</li><li><strong>合作对象</strong>：商业综合体运营方、停车场管理公司、充电运营商</li></ul>
+<div style="border-left:var(--border-heading-w) solid var(--color-primary);background:var(--color-surface);padding:var(--callout-pad);margin:var(--callout-margin);"><p style="margin:0;">&nbsp;&nbsp;特别说明：完美金鹰·假日商圈的运营方同时是本次 AI 大赛的主办方。这意味着<strong>评委即用户</strong>——方案既要经得起赛事评委的专业审视，也要让主办方自己看到可落地的产品价值。</p></div>
+<h3>（三）核心价值主张</h3>
+<ul><li><strong>对车主</strong>：什么都不用记——停好车直接离开，返程输入车牌号即刻知道车在哪一层、哪一个车位、怎么走过去，不再"地库迷路"</li><li><strong>对商场</strong>：提升到场体验与会员粘性，零新增硬件补齐智慧停车短板，并获得真实车位占用率、周转率与车辆到店频次数据</li><li><strong>对充电运营商</strong>：新能源车位与充电桩获得精准线上入口与导流</li></ul>
+<hr style="border:none;border-top:var(--border-divider-w) solid var(--color-divider);margin:var(--hr-margin);">
+<h2>二、核心机制：车库监控识别与"输入车牌即寻车"</h2>
+<p>本章是全篇方案的核心。传统反向寻车产品都要求车主先"做点什么"——扫二维码、拍照片、背下车位号，或在找车机前手动输入车牌。<strong>车记得把这个前置动作整个交给了系统</strong>：车库已有的监控摄像头拍到车辆停稳后，自动识别车牌、自动绑定"哪辆车停在哪个车位"并写入云端；车主返程时只需输入车牌号，立刻就能知道车在哪个商场的哪一层、哪一个车位，并直接开始导航。</p>
+<h3>（一）端到端流程：谁做什么</h3>
+<p>一次完整停车中，<strong>车主侧真正需要输入的只有"车牌号"这一次</strong>，其余全部由系统自动完成：</p>
+<table><thead><tr><th>阶段</th><th>系统自动完成</th><th>车主需要做的</th></tr></thead><tbody><tr><td>入场停稳</td><td>监控检测车位由"空"变为"占用" → 抓拍 → 车牌 OCR → 绑定车位号 → 写入云端停车记录与识别事件流 → 建立"车牌→车位"在停索引</td><td>无（熄火下车即可）</td></tr><tr><td>记录通知</td><td>命中已授权车牌时，微信订阅消息推送"已为你记录车位 B2-A016（监控自动识别）"</td><td>无</td></tr><tr><td>购物期间</td><td>停车时长、预估停车费实时刷新；异常停留触发防遗忘提醒</td><td>可随时查看</td></tr><tr><td>返程找车</td><td>云端按车牌命中在停索引，返回商场/楼层/车位号与识别来源</td><td>输入车牌号（或"我的车牌"一键带入）</td></tr><tr><td>场内导航</td><td>电梯口扫码获取当前位置 → A* 路径规划 → Canvas 绘制虚线路径与文字指引</td><td>扫码定位，跟着指引走到车旁</td></tr><tr><td>离场</td><td>记录归档，时长与费用计入个人统计</td><td>一键"结束停车"</td></tr></tbody></table>
+<p>该链路已在网页版 Demo 中端到端演示（模拟监控画面、OCR 流水线、云端事件流、车牌寻车与隐私分级查询）。</p>
+<h3>（二）核心目标：删掉"记录车位"这个动作</h3>
+<p>这套机制要解决的，是反向寻车全流程中唯一的摩擦点：让车主主动"记录车位"。忘记扫码、嫌麻烦、车位二维码污损，都会让后续寻车链路直接断掉。<strong>监控方案的处理方式很直接——把这个动作从车主身上移除，交给系统。</strong></p>
+<p>两种模式在用户动作、部署成本与适用阶段上的对比如下：</p>
+<table><thead><tr><th>对比项</th><th>模式 A：二维码+拍照兜底（零硬件）</th><th>模式 B：车库监控自动识别（零新增硬件）</th></tr></thead><tbody><tr><td>停车时用户动作</td><td>扫码或拍照（1 次）</td><td>无（车辆停稳即自动绑定）</td></tr><tr><td>找车时用户动作</td><td>打开小程序即有记录，或对话式检索</td><td>输入车牌号 → 一键导航</td></tr><tr><td>硬件投入</td><td>仅二维码物料</td><td>复用商场已有 CCTV 监控，零新增硬件</td></tr><tr><td>识别可靠性</td><td>100%（用户主动确认）</td><td>受 CCTV 覆盖与角度限制，需兜底路径</td></tr><tr><td>附带产出</td><td>—</td><td>真实车位占用率、周转率、车辆到店频次数据</td></tr><tr><td>适用阶段</td><td>冷启动、监控未覆盖楼层</td><td>高客流商场、监控覆盖完善的车库</td></tr></tbody></table>
+<p>两种模式并存而非替代：监控识别失败或未覆盖时，自动回落至扫码/拍照/手动记录，保证功能可用性不因覆盖降级而中断。</p>
+<h3>（三）技术链路</h3>
+<ol><li><strong>触发</strong>：监控视频流实时检测车位状态由"空"变为"占用"</li><li><strong>识别</strong>：抓拍车牌画面 → OCR 识别车牌字符 → 输出车牌号 + 置信度</li><li><strong>绑定</strong>：按"监控—覆盖车位组"映射关系，把车牌号与车位号绑定</li><li><strong>入库</strong>：写入云端 <code>parking_records</code> 与 <code>lpr_events</code>，建立"车牌→车位"在停索引</li><li><strong>推送</strong>：命中已授权车牌 → 微信订阅消息推送记录通知</li><li><strong>寻车</strong>：用户输入车牌号 → 云端在停索引返回精确车位 → A* 规划路径 → Canvas 绘制导航</li></ol>
+<h3>（四）复用已有 CCTV 的覆盖限制与兜底</h3>
+<p><strong>诚实说明</strong>：商场已有的安防 CCTV 监控并非为车牌识别而设计，其摄像头位置、角度、分辨率通常不达专用 LPR 相机标准。因此：</p>
+<ul><li><strong>覆盖限制</strong>：CCTV 能覆盖的车位通常集中在通道两侧、出入口附近；车位深处、立柱后方、转角盲区的车辆可能无法被准确识别</li><li><strong>准确率预期</strong>：受控场景下专用 LPR 相机可达 98%+，但已有 CCTV 复用做 LPR 的准确率会显著降低，需实测建立基线</li><li><strong>兜底策略</strong>：</li></ul>
+<ol><li>置信度低于阈值（建议起点 92%）的不自动绑定，转人工复核或提示用户扫码/拍照</li><li>监控未覆盖的楼层，自动启用模式 A（二维码+拍照兜底）</li><li>用户始终可通过"拍一下"触发多模态 AI 识别作为最后一道兜底</li></ol>
+<p><strong>这一设计的关键取舍</strong>：用零新增硬件换来了覆盖与准确率的让步，但通过双轨兜底保证了功能可用性不中断。商场可先在监控覆盖完善的楼层启用模式 B，其余楼层跑模式 A，逐步优化。</p>
+<h3>（五）隐私合规设计</h3>
+<p>车牌属于个人信息，采集与展示须遵循最小必要原则。五要点：</p>
+<ol><li><strong>告知同意</strong>：用户需在"我的车辆"中主动绑定车牌并开启自动识别授权，未绑定不推送不展示精确车位</li><li><strong>查询分级</strong>：查询非本人绑定的车牌仅返回"所在商场+楼层"，不返回精确车位号与抓拍图片（Demo 已实现）</li><li><strong>脱敏展示</strong>：事件流/界面/日志一律脱敏呈现（如粤 A***88），完整车牌仅在用户本人会话中展示</li><li><strong>留存与清理</strong>：抓拍图片加密存储并按 30-90 天策略定期清理，车辆离场后仅保留不含图片的结构化记录</li><li><strong>布设规范</strong>：监控取景范围限定在车位区域，避免覆盖电梯厅等人员聚集区，现场设置"车牌识别采集"告示牌</li></ol>
+<div style="border-left:var(--border-heading-w) solid var(--color-primary);background:var(--color-surface);padding:var(--callout-pad);margin:var(--callout-margin);"><p style="margin:0;">&nbsp;&nbsp;建议在项目立项阶段完成个人信息影响评估（PIA），不可后置处理。</p></div>
+<hr style="border:none;border-top:var(--border-divider-w) solid var(--color-divider);margin:var(--hr-margin);">
+<h2>三、我们解决什么商圈问题</h2>
+<h3>3.1 一个每天都在发生的场景</h3>
+<p>周六下午四点，一位妈妈抱着睡着的孩子，拎着两袋购物袋，在地下车库 B3 层绕了十分钟。她的车其实就停在 B2 层，离她站的地方不到一百米。</p>
+<p>这个场景里没有任何技术故障，也没有任何服务失误——商场一切运转正常，唯一的失误发生在<strong>人的记忆</strong>里。而在一个年客流超过 3000 万人次的商圈，这样的"记忆失误"每天都在成千上万次地发生。</p>
+<h3>3.2 商圈打通了，车的记忆没打通</h3>
+<p>完美金鹰广场与假日广场正式贯通后，形成了总体量 62 万平方米、年客流超 3000 万人次、会员规模突破 80 万人的超级商圈，业态涵盖万象汇、假日广场、洲际双品牌酒店、未来中心写字楼、金鹰半山花园及金鹰街。运营层面的互通也已经启动：会员权益互认、积分通兑、停车优惠通用。</p>
+<p>但对开车来的消费者而言，物理连通反而制造了一个新的认知断层：</p>
+<ul><li><strong>两套停车系统各自独立</strong>。万象汇一侧数千个车位分布在地下多层，假日广场另有独立停车区域。消费者"在万象汇停车、去假日广场逛书店、再回万象汇取车"的完整动线，在停车系统层面是断裂的。</li><li><strong>跨场消费失去位置锚点</strong>。在单一商场里，消费者还能靠"我停在这家商场"兜底；跨场之后，连这层模糊的记忆都失效了。</li><li><strong>反向寻车是体验的隐形终点</strong>。地下车库楼层深、面积大、信号弱，购物结束后找车常常要花上数分钟。停车是每次逛街体验的起点和终点——起点不顺畅，整段体验都会被拉低；终点不顺畅，前面所有美好的体验都会被最后一次糟糕的记忆覆盖。</li></ul>
+<h3>3.3 为什么这个问题值得用 AI 解决</h3>
+<p>传统的解法是硬件：蓝牙信标、视频 AI 识别相机、地磁传感器，成本在 15 至 30 万元起步，且需要与商场现有停车系统深度对接，周期长、协调难度大。更重要的是，这些方案解决的都是"系统知道车在哪"，而不是"<strong>人记得车在哪</strong>"。</p>
+<p>而"帮人记住东西、帮人检索记忆、帮人把冷信息翻译成人话"，恰恰是今天的大模型最擅长的事。这是一个用软件和 AI 就能吃掉的问题，不需要动一颗螺丝。</p>
+<hr style="border:none;border-top:var(--border-divider-w) solid var(--color-divider);margin:var(--hr-margin);">
+<h2>四、我们的解法：三个动作</h2>
+<p>「车记得」的全部交互被压缩成三个动作，每个动作都不超过五秒。</p>
+<div style="border-left:var(--border-heading-w) solid var(--color-primary);background:var(--color-surface);padding:var(--callout-pad);margin:var(--callout-margin);"><p style="margin:0;">&nbsp;&nbsp;<strong>定位说明</strong>：当车库监控覆盖完善时，以下三个动作由系统自动完成，用户零操作。这三个动作主要作为<strong>监控未覆盖楼层的兜底交互</strong>，以及<strong>体验增强入口</strong>——即使在监控覆盖区，用户也可以选择"拍一下"获得更丰富的人话描述和对话式检索体验。</p></div>
+<table><thead><tr><th>动作</th><th>时刻</th><th>用户做什么</th><th>AI 做什么</th></tr></thead><tbody><tr><td><strong>拍一下</strong></td><td>停好车、下车前</td><td>对着车位的柱子或环境随手拍一张照片</td><td>识别车位信息，生成结构化记录</td></tr><tr><td><strong>看一眼</strong></td><td>拍完后</td><td>瞄一眼屏幕上的卡片（可选）</td><td>把车位翻译成一句人能记住的话</td></tr><tr><td><strong>说一句</strong></td><td>逛完、准备取车</td><td>说"我车在哪"，或者描述任何记得的细节</td><td>定位车位，给出步行指引，可语音播报</td></tr></tbody></table>
+<p><strong>设计原则只有一条：不要求用户做任何"额外的事"。</strong> 停车的人此刻手里拎着东西、心里想着接下来的安排，是最没有耐心操作手机的时刻。任何需要用户"扫码""输入""确认"的设计，都会在这一刻流失。所以我们把一切准确性要求从人身上移开，交给系统——监控能覆盖的交给监控，监控覆盖不到的交给 AI。</p>
+<hr style="border:none;border-top:var(--border-divider-w) solid var(--color-divider);margin:var(--hr-margin);">
+<h2>五、AI 在其中发挥的作用</h2>
+<p>在「车记得」里，AI 不是助手，<strong>AI 就是那份记忆本身</strong>。以下五项能力构成方案的骨架，按实现优先级排列。</p>
+<div style="border-left:var(--border-heading-w) solid var(--color-primary);background:var(--color-surface);padding:var(--callout-pad);margin:var(--callout-margin);"><p style="margin:0;">&nbsp;&nbsp;<strong>定位说明</strong>：监控主链路负责"自动识别车牌绑定车位"（OCR），AI 五项能力负责<strong>兜底链路与体验增强</strong>——监控未覆盖时的拍照识别、把编码翻译成人话的生成式表达、说人话就能找到车的语义检索、把停车并回逛商圈的行程规划。去掉 AI，车记得只剩下监控覆盖区的机械绑定，体验退回到传统寻车机。</p></div>
+<h3>5.1 多模态视觉理解：把一张随手拍变成一条精确记录</h3>
+<p>用户下车时随手拍一张照片——不需要对准任何特定目标，拍到柱面编号、柱子颜色、区域字母、店铺导视牌、地面标识中的任何几样即可。多模态视觉模型自动从照片中提取：</p>
+<ul><li>柱面/地面编号（如 B2-A056）</li><li>柱子颜色与区域标识（如红色柱、A 区）</li><li>周边可辨识的店铺导视或商户招牌（如"茶百道后门"）</li><li>楼层与建筑归属（万象汇 / 假日广场）</li></ul>
+<p>这一步彻底取代了传统方案中的"用户手动录入车位号"。用户零输入、零学习成本，识别准确率由 AI 而非用户的耐心决定。在监控未覆盖的楼层，这是兜底链路的核心入口。</p>
+<h3>5.2 生成式表达：把编码翻译成人话</h3>
+<p><code>WXH-B2-A056</code> 是机器的语言，人记不住也复述不出。「车记得」用生成式模型把每一条停车记录翻译成一句人话：</p>
+<div style="border-left:var(--border-heading-w) solid var(--color-primary);background:var(--color-surface);padding:var(--callout-pad);margin:var(--callout-margin);"><p style="margin:0;">&nbsp;&nbsp;"停在一个红色柱子旁边的车位，正对面是茶百道的后门。"</p></div>
+<p>这句话出现在拍照后的确认卡片上，也出现在取车时的检索结果里。人记不住编码，但记得住画面——当用户想不起车位号时，这句话本身就是最好的检索线索。这一能力同时服务于监控主链路（把监控识别的车位翻译成人话）和兜底链路。</p>
+<h3>5.3 对话式语义检索 Agent：说人话就能找到车</h3>
+<p>取车时，用户不需要提供任何准确信息。以下每一句话都能定位到车位：</p>
+<ul><li>"我车旁边有个红柱子"</li><li>"对面好像是家奶茶店"</li><li>"我在万象汇这边，车可能停在假日那边"</li></ul>
+<p>当用户完全想不起来时，Agent 会主动追问、逐步收敛："您最后逛的是哪家店？""是从哪个门进来的？""买的什么东西？"——像一位记得你行程的朋友帮你一起回忆。结果支持语音播报，用户边走边听，不需要低头看手机（这在地下车库也是一条安全设计）。</p>
+<h3>5.4 行程级规划：把停车并回"逛商圈"本身</h3>
+<p>停车不该是一个孤立的功能。「车记得」把停车嵌入商圈导览的完整链路。用户出发前说一句需求，AI 一次性输出整段行程：</p>
+<div style="border-left:var(--border-heading-w) solid var(--color-primary);background:var(--color-surface);padding:var(--callout-pad);margin:var(--callout-margin);"><p style="margin:0 0 var(--callout-para-gap) 0;">&nbsp;&nbsp;"带娃去假日广场的书店，顺便吃个午饭。"</p><p style="margin:0;">&nbsp;&nbsp;——建议停在万象汇 B2 层 A 区，从连廊步行至书店约 5 分钟；沿途经过母婴室与卫生间；午餐推荐三家适合带孩子的餐厅并附排队参考；返程取车路线已为您备好。</p></div>
+<p>这一层让「车记得」从一个停车工具，升维成商圈 AI 导览助手的入口。</p>
+<h3>5.5 主动记忆推断：你什么都不做，它也记得（进阶）</h3>
+<p>更进一步，Agent 可以从用户在商圈内的数字足迹——停车缴费时间、消费时间线、相册照片——主动推断车位并生成停车卡片，用户只需点一下"是这个"确认。把记录动作从"必须主动做"降级为"点一下确认"，确认率远高于任何录入率。此项为进阶能力，列入二期。</p>
+<h3>5.6 一句话总结</h3>
+<p><strong>去掉 AI，「车记得」只剩下监控覆盖区的机械绑定。</strong> 多模态识别、生成式描述、语义检索、行程规划，每一环都以大模型能力为前提——AI 是这个方案的骨架，不是装饰。</p>
+<hr style="border:none;border-top:var(--border-divider-w) solid var(--color-divider);margin:var(--hr-margin);">
+<h2>六、运营与推广建议</h2>
+<p>产品能否落地，取决于能否被商场低成本地"跑起来"。本章给出从单点试点到规模复制的推广路径，核心思路是<strong>先用最低成本证明价值、再让商场为升级买单</strong>。</p>
+<h3>6.1 单点试点</h3>
+<p>选择 1-2 个区域商场，在监控覆盖完善的 1 个主力楼层启用模式 B（监控自动识别），跑通"入场自动识别 → 云端绑定 → 输入车牌寻车 → 数据回收"闭环；其余楼层先用二维码物料 + 拍照兜底过渡，形成同场 AB 对照，用两种模式的使用率、识别绑定准确率与好评度决定是否全场推广，同时打磨定位点密度与路径体验。</p>
+<h3>6.2 会员联动</h3>
+<p>与商场会员小程序/积分体系打通，记录车位送积分、充电消费返券，把停车工具变成商场私域运营入口。</p>
+<h3>6.3 充电运营商合作</h3>
+<p>为充电桩带来精准导流，探索"充电服务费分成"收入模式。</p>
+<h3>6.4 数据增值</h3>
+<p>沉淀车位周转、停车时长、新能源占比等经营数据，反哺商场招商与运营决策。</p>
+<hr style="border:none;border-top:var(--border-divider-w) solid var(--color-divider);margin:var(--hr-margin);">
+<h2>七、风险与应对</h2>
+<h3>7.1 范围边界：我们不做什么</h3>
+<p>明确不做的部分与做什么是同等重要的产品决策：</p>
+<table><thead><tr><th>不做</th><th>理由</th></tr></thead><tbody><tr><td>新增硬件改造（专用 LPR 相机/信标/传感器）</td><td>复用已有 CCTV 即可，成本高、周期长，且解决的是"系统知道"而非"人记得"</td></tr><tr><td>对接商场停车系统与道闸</td><td>保持零改造接入，试点不受系统对接进度制约</td></tr><tr><td>实时车位数据</td><td>冷启动阶段数据不足且易造成误导，二期再评估</td></tr><tr><td>收集未授权车牌的精确位置</td><td>个人信息合规负担，非本人车牌仅返回楼层</td></tr></tbody></table>
+<h3>7.2 七类风险与应对</h3>
+<p>本章识别项目实施中最可能遇到的七类风险。整体判断：<strong>技术类风险可通过工程冗余与兜底路径化解，真正需要前置处置的是隐私合规风险</strong>，应在立项阶段而非上线阶段解决。</p>
+<table><thead><tr><th>风险</th><th>说明</th><th>应对</th></tr></thead><tbody><tr><td>CCTV 覆盖不足/角度受限</td><td>已有安防监控非为 LPR 设计，车位深处、盲区识别率低</td><td>双轨兜底：未覆盖楼层启用模式 A（扫码+拍照）；置信度低于 92% 不自动绑定；用户可"拍一下"兜底</td></tr><tr><td>定位精度依赖二维码密度</td><td>扫码定位只能精确到电梯口/分区</td><td>合理加密定位点布设；路径指引采用"参照物+距离"双描述</td></tr><tr><td>数据冷启动</td><td>车位坐标需人工采集建库</td><td>提供采集工具与模板；单楼层数百车位可 1-2 人日完成</td></tr><tr><td>巨头下沉竞争</td><td>头部方案降价或推出轻量版</td><td>深耕区域商场私域诉求与快速交付能力，绑定会员体系形成迁移成本</td></tr><tr><td>订阅消息触达限制</td><td>微信订阅消息需用户逐次授权</td><td>记录成功时即时引导授权；提供公众号/短信兜底通道（二期）</td></tr><tr><td>监控识别错误绑定</td><td>车牌污损、遮挡或相似字符导致绑错车位</td><td>置信度阈值 92% 以上自动绑定，低置信度转人工复核；保留手动修改车位入口；识别错误一键纠错并计入复盘</td></tr><tr><td>车牌信息合规风险</td><td>车牌属个人信息，采集与展示不当存在合规隐患</td><td>授权绑定后才推送；非本人车牌仅返回楼层；全链路脱敏展示；图片 30-90 天清理；现场设置采集告示</td></tr></tbody></table>
+<div style="border-left:var(--border-heading-w) solid var(--color-primary);background:var(--color-surface);padding:var(--callout-pad);margin:var(--callout-margin);"><p style="margin:0;">&nbsp;&nbsp;风险集中在两类——一类是技术可用性（CCTV 覆盖、识别准确率、定位精度、数据冷启动），靠双轨兜底、置信度阈值与人工复核化解；另一类是合规与运营（车牌信息合规、错误绑定），靠授权、脱敏、留存清理与纠错机制化解。建议在项目立项时同步完成个人信息影响评估（PIA）。</p></div>
+<h3>7.3 弱网与离线兜底</h3>
+<p>地下车库普遍弱网甚至无网，而用户最需要答案的时刻恰恰在地下。三条兜底：</p>
+<ol><li><strong>柱面二维码采用纯文本内容</strong>（如 <code>B2-A056</code>），微信原生扫一扫可离线读出，不依赖联网</li><li><strong>停车记录本地缓存</strong>，网络恢复后异步同步</li><li><strong>静态分区图随小程序包内置</strong>，不依赖实时下载</li></ol>
+<hr style="border:none;border-top:var(--border-divider-w) solid var(--color-divider);margin:var(--hr-margin);">
+<h2>八、发展规划</h2>
+<p>版本规划遵循"先跑通闭环、再提升体验、最后平台化"的顺序，每个版本都以可交付、可验收为标准。</p>
+<h3>V1（MVP，当前已完成 Demo）</h3>
+<p>车位记录三通道（监控自动识别 / 扫码 / 拍照兜底）+ 输入车牌号一键寻车 + 电梯口扫码定位 + A* 室内导航 + 新能源筛选 + 防遗忘提醒 + 隐私分级查询。</p>
+<div style="border-left:var(--border-heading-w) solid var(--color-primary);background:var(--color-surface);padding:var(--callout-pad);margin:var(--callout-margin);"><p style="margin:0;">&nbsp;&nbsp;网页版 Demo（<code>index.html</code>）已端到端演示监控识别 → 云端绑定 → 输入车牌寻车 → A* 导航全链路。</p></div>
+<h3>V2</h3>
+<p>接入商场真实收费规则与无感支付；充电桩实时状态对接（运营商 API）；优化 CCTV 覆盖与监控识别率（补点、调角度、算法迭代）；基于监控与视频数据的空闲车位实时占用；把监控自动识别由试点楼层扩展至更多覆盖完善的车库。</p>
+<h3>V3</h3>
+<p>车位预约；AR 步行导航；多商场平台化与商场经营数据看板。</p>
+<hr style="border:none;border-top:var(--border-divider-w) solid var(--color-divider);margin:var(--hr-margin);">
+<h2>九、技术实现与"一天原型"计划</h2>
+<h3>9.1 极简架构</h3>
+<table><thead><tr><th>层</th><th>选型</th><th>说明</th></tr></thead><tbody><tr><td>前端</td><td>微信小程序（原生 + Canvas 2D）</td><td>无需下载，扫码即用，覆盖成本最低；三 Tab（首页/找车/我的）</td></tr><tr><td>模型层</td><td>现成多模态与语言模型 API + OCR</td><td>视觉理解、描述生成、语义检索、行程规划全部调用云端现成能力；监控车牌识别用 OCR</td></tr><tr><td>数据层</td><td>结构化车位知识库 + 轻量后端</td><td>车位分区、柱面编号、店铺导视关联关系；8 个数据库集合（含 parking_records / lpr_events / vehicle_bindings）</td></tr><tr><td>后端</td><td>微信云开发（15 个云函数）</td><td>免服务器运维，按量付费；核心函数 lprCallback / findCarByPlate / bindVehicle / planRoute(A*)</td></tr><tr><td>监控接入</td><td>复用商场已有 CCTV 视频流</td><td>零新增硬件；通过视频流 API 接入既有安防监控</td></tr></tbody></table>
+<p><strong>零新增硬件、零施工、零道闸对接。</strong> 不动一颗螺丝，不改一行道闸代码。复用商场已有的 CCTV 监控系统做车牌识别，未覆盖区域回落到二维码+拍照+AI 兜底。</p>
+<h3>9.2 车位知识库：现场拍照即可构建</h3>
+<p>方案的唯一数据依赖是一个结构化的车位知识库（车位分区、柱面编号、颜色、周边店铺关联）。它不需要 CAD 图纸，也不需要测绘：</p>
+<ul><li>决赛当天，在真实地库用手机拍摄 30 至 50 张柱面与导视照片，即可建立当天可用的样本库</li><li>车位分区信息可复用商圈现有的车库分区资料</li><li>每个区域只需一个中心点坐标，步行导航到区域差十几米，肉眼一秒解决——不需要逐车位测绘</li></ul>
+<h3>9.3 决赛一天原型计划</h3>
+<p>本次大赛决赛为"一天线下决赛、现场集中开发"。「车记得」的核心链路恰好可以在一天内做出可运行原型——这是我们选择这条技术路线的重要原因。</p>
+<table><thead><tr><th>时段</th><th>任务</th><th>产出</th></tr></thead><tbody><tr><td>09:00–10:00</td><td>在真实地库采集样本 + 对接已有 CCTV 视频流</td><td>30–50 张柱面与导视照片；监控视频流接入</td></tr><tr><td>10:00–11:30</td><td>打通监控识别 + 多模态识别链路</td><td>"监控/照片 → 结构化字段（楼层/区/编号/柱色/邻店）"</td></tr><tr><td>11:30–13:00</td><td>人话描述生成调优</td><td>输出听起来像人说的描述，多组对照</td></tr><tr><td>13:00–15:00</td><td>对话式检索 Agent + 输入车牌寻车</td><td>语义匹配 + 主动追问收敛 + 语音播报 + 车牌查询</td></tr><tr><td>15:00–16:30</td><td>前端三屏</td><td>拍照页 / 车位卡片页 / 对话找车页 / 车牌搜索页</td></tr><tr><td>16:30–17:30</td><td><strong>现场真人测试</strong></td><td>请评委或路人上手试一次，记录失败案例</td></tr><tr><td>17:30–18:00</td><td>路演脚本排练</td><td>以真实场景开场</td></tr></tbody></table>
+<p><strong>在主办方自己的车库里跑通一次真实的"输入车牌号 → 找到车"，比任何 PPT 都有说服力。</strong></p>
+<hr style="border:none;border-top:var(--border-divider-w) solid var(--color-divider);margin:var(--hr-margin);">
+<h2>十、如何在商圈落地</h2>
+<h3>10.1 为什么是完美金鹰·假日商圈</h3>
+<p>这里是中山唯一同时具备三个条件的场景：<strong>双场物理连通</strong>（跨场停车认知断层真实存在）、<strong>会员权益与停车优惠已互认</strong>（身份体系现成，无需新建）、<strong>年客流超 3000 万</strong>（痛点密度足够高）。换句话说，这个问题的"另一半答案"——基础设施、身份体系、真实客流——主办方已经建好了，缺的只是把 AI 记忆层接上去。</p>
+<h3>10.2 试点路径</h3>
+<table><thead><tr><th>阶段</th><th>范围</th><th>目标</th></tr></thead><tbody><tr><td>第一阶段（赛后 2 周内）</td><td>万象汇 B1 或 B2 监控覆盖完善的单层试点</td><td>跑通"监控识别 → 输入车牌寻车 → 拍照兜底"完整闭环，实测寻车时长与使用率</td></tr><tr><td>第二阶段（1–2 个月）</td><td>扩展至两个商场全部车库</td><td>上线跨场导航（连廊路径），接入行程级规划；优化 CCTV 覆盖</td></tr><tr><td>第三阶段（视情况）</td><td>并入商圈会员体系</td><td>与现有会员权益、停车优惠联动，开放主动记忆推断</td></tr></tbody></table>
+<h3>10.3 与现有体系协同</h3>
+<p>商圈已实现会员权益互认与停车优惠互通，「车记得」直接复用这一身份体系，不新增注册流程、不增加用户负担。用户绑定车牌后，系统以微信身份 + 车牌为主键完成全部闭环。</p>
+<h3>10.4 可扩展为商圈通用 AI 能力</h3>
+<p>同一套"多模态识别 + 生成式描述 + 语义检索"能力，可以平移到大赛征集方向中的多个场景：<strong>适老服务</strong>（语音寻车导航、大字版界面）、<strong>活动体验</strong>（拍照打卡点识别与引导）、<strong>空间运营</strong>（停车与逛逛行为数据分析）。「车记得」是这套能力在停车场景上的第一个应用，不是唯一应用。</p>
+<hr style="border:none;border-top:var(--border-divider-w) solid var(--color-divider);margin:var(--hr-margin);">
+<h2>十一、市场调研与数据</h2>
+<div style="border-left:var(--border-heading-w) solid var(--color-primary);background:var(--color-surface);padding:var(--callout-pad);margin:var(--callout-margin);"><p style="margin:0;">&nbsp;&nbsp;以下数据来自 2026 年 9 月公开网络检索，不同机构统计口径差异较大，引用处均标注来源与口径；对外发布前建议以原始报告复核。</p></div>
+<h3>11.1 汽车保有量持续攀升，车位缺口是结构性的</h3>
+<ul><li>截至 2026 年 6 月，<strong>全国汽车保有量已达 3.71 亿辆</strong>（公安部数据），中国已是全球最大单一汽车市场</li><li>全国停车位与汽车配比仅 <strong>1:0.55</strong>，而国际通行标准为 1:1.3——按国际标准测算，<strong>车位缺口约 1.15 亿个</strong></li><li>"停车之后找不到车"是同等量级的第二大痛点：未配备引导系统的大型车库，<strong>车主平均寻车时间长达 12 分钟</strong>，约 30% 的车主表示"经常找不到自己的车"</li><li>高峰时段车主"停车 + 反向找车"的合计时长约 <strong>40 分钟</strong>，其中找车位与找车两个环节占七至八成</li></ul>
+<h3>11.2 智慧停车市场：千亿赛道</h3>
+<ul><li>2025 年中国智慧停车行业规模约 <strong>638.7 亿元</strong>，增速 22.3%；预计 2030 年将超过 1325 亿元</li><li>"智慧停车空间运营"赛道预计由 2025 年 336 亿元增至 2029 年 919 亿元，复合增速 28.6%——软件平台与运营服务是增长最快的环节</li></ul>
+<h3>11.3 反向寻车渗透率三年翻倍</h3>
+<ul><li>商业综合体反向寻车渗透率 <strong>41.7%</strong>（2022 年仅 18.4%，三年翻倍），已从亮点功能转为基础预期</li></ul>
+<h3>11.4 结构性错配</h3>
+<p>全国车位总缺口超 8000 万个的同时，<strong>存量泊位平均利用率不足 50%</strong>。一边是车主"一位难求"，一边是大量车场"有位无车"——信息不对称与场内寻车困难，是比绝对数量更贴近用户痛点的矛盾。</p>
+<hr style="border:none;border-top:var(--border-divider-w) solid var(--color-divider);margin:var(--hr-margin);">
+<h2>十二、竞品分析</h2>
+<p>本章选取智慧停车赛道代表性玩家——平台型龙头（ETCP）、硬件起家的全链路平台（捷停车）、全栈运营服务商（科拓股份），从规模数据、功能能力与商业模式三个维度进行对比，并研判本产品的差异化切入口。</p>
+<h3>12.1 头部竞品概览</h3>
+<table><thead><tr><th>竞品</th><th>背景</th><th>规模数据</th><th>核心模式</th></tr></thead><tbody><tr><td>ETCP</td><td>北京悦畅科技，2012 年成立，"互联网+停车"开创者</td><td>连接 230 城 7000+ 停车场，注册用户超 9000 万</td><td>平台型：查询/预约/无感支付</td></tr><tr><td>捷停车</td><td>A 股捷顺科技（002609）旗下，硬件基因</td><td>累计用户超 1.5 亿，覆盖 400 城，联网车位超 1750 万</td><td>"人-车-场-位-桩"全链路平台</td></tr><tr><td>科拓股份</td><td>厦门科拓，2006 年成立，2026 年 6 月港交所上市</td><td>智慧停车空间运营行业第二（份额 3.3%），在服停车场超 3 万个</td><td>硬件+平台+运营全栈，主打商业综合体车位引导</td></tr></tbody></table>
+<h3>12.2 差异化定位</h3>
+<p>四类玩家的共同点是"重资产 + 平台化"——都以硬件铺设或平台绑定为前提，单商场投入门槛高、切换成本大。这决定了它们的覆盖半径集中在大型城市节点与头部商业体，<strong>中小商场难以被自然覆盖，这正是车记得的切入空间</strong>。</p>
+<p>车记得的差异化四要点：</p>
+<ol><li><strong>复用已有 CCTV，零新增硬件</strong>——车位相机方案需单层投入 8-12 万，车记得复用商场已有监控，零硬件成本</li><li><strong>商场私域归属</strong>——不属于任何停车平台，数据归属商场</li><li><strong>AI 兜底增强</strong>——监控未覆盖时有拍照+多模态 AI 兜底，体验优于纯硬件方案</li><li><strong>可演进路径</strong>——从零硬件兜底到监控识别到主动记忆推断，平滑升级</li></ol>
+<hr style="border:none;border-top:var(--border-divider-w) solid var(--color-divider);margin:var(--hr-margin);">
+<h2>十三、预期效果与度量</h2>
+<p><strong>北极星指标：每周完成的"找到车"次数</strong>——无论来自监控主链路还是拍照兜底，它直接代表核心价值被真实交付的次数。</p>
+<table><thead><tr><th>指标</th><th>定义</th><th>目标</th></tr></thead><tbody><tr><td>平均寻车时长</td><td>从"开始找车"到"到达车位"</td><td>由数分钟级降至 2–3 分钟以内</td></tr><tr><td>监控识别覆盖率</td><td>监控主链路成功绑定车位占到场停车的比例</td><td>≥ 60%（第一阶段，监控覆盖完善楼层）</td></tr><tr><td>拍照兜底完成率</td><td>监控未覆盖用户中完成"拍一下"的比例</td><td>≥ 25%（第一阶段试点）</td></tr><tr><td>找车使用留存</td><td>记录过的用户中，7 日内再次使用找车的比例</td><td>≥ 40%</td></tr><tr><td>弱网可用率</td><td>地下各层成功加载记录与指引的比例</td><td>≥ 95%</td></tr></tbody></table>
+<p>数据基线将在试点期实测建立，所有指标上线前后对照汇报。</p>
+<hr style="border:none;border-top:var(--border-divider-w) solid var(--color-divider);margin:var(--hr-margin);">
+<h2>十四、团队与结语</h2>
+<h3>14.1 团队与分工</h3>
+<table><thead><tr><th>角色</th><th>职责</th><th>成员</th></tr></thead><tbody><tr><td>产品 / 负责人</td><td>方案设计、需求定义、路演</td><td>【待填】</td></tr><tr><td>AI / 开发</td><td>监控识别链路、多模态 Agent、小程序前端</td><td>【待填，或申请 ATOX 技术导师配对】</td></tr><tr><td>运营 / 现场</td><td>样本采集、CCTV 对接、试点落地、用户反馈</td><td>【待填】</td></tr></tbody></table>
+<div style="border-left:var(--border-heading-w) solid var(--color-primary);background:var(--color-surface);padding:var(--callout-pad);margin:var(--callout-margin);"><p style="margin:0;">&nbsp;&nbsp;我们认同大赛"想法遇见技术"的理念。如团队暂缺开发力量，希望申请 ATOX 提供的组队式技术支持，由技术导师协助把"监控识别 → 输入车牌寻车 → 拍照兜底"这条链路在决赛当天变成可运行的实物。</p></div>
+<h3>14.2 结语：三个问题的直接回答</h3>
+<p><strong>解决什么商圈问题？</strong> 商圈物理打通后，跨场消费者的"车的记忆"断层——一个每天在 3000 万年客流中重复发生、却始终没人接住的真实现象。</p>
+<p><strong>AI 发挥什么作用？</strong> AI 就是那份记忆本身：监控未覆盖时，多模态识别让用户随手一拍即成精确记录；生成式表达把编码翻译成人话；语义检索 Agent 让"说一句模糊的回忆"就能找到车；行程级规划把停车并回逛商圈的完整链路。去掉 AI，只剩监控覆盖区的机械绑定。</p>
+<p><strong>如何在商圈落地？</strong> 复用已有 CCTV 监控、零新增硬件、零道闸对接；决赛一天可在主办方真实车库做出可运行原型；赛后两周内单层试点实测，两个月扩展至双场全车库。</p>
+<p><strong>你负责逛，车的位置，交给我记。</strong></p>
+    </main>
+
+    <div class="appendix">
+<h3>附：数据来源</h3><ul><li>完美金鹰·假日商圈启幕相关报道（中山日报、中山Plus、中山新闻网，2026 年 8 月）</li><li>公安部机动车保有量数据（2026 年 6 月）</li><li>新浪财经：全国车位配比 1:0.55（2025 年 9 月）</li><li>博研咨询：停车泊位供需与缺口率报告（2025—2026 年）</li><li>IIM《全球及中国智慧停车系统产业咨询报告（2026）》</li><li>灼识咨询（科拓股份港交所招股书援引，2026 年）</li><li>完美金鹰·假日商圈 AI 大赛官方宣发材料</li></ul>
+<div style="border-left:var(--border-heading-w) solid var(--color-primary);background:var(--color-surface);padding:var(--callout-pad);margin:var(--callout-margin);"><p style="margin:0;">&nbsp;&nbsp;文中"寻车时长"为待试点实测的基线目标，非已验证数据。</p></div>
+    </div>
+  </section>
+</body>
+</html>

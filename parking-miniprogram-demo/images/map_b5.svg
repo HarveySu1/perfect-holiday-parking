@@ -1,0 +1,27 @@
+<?xml version="1.0" ?>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000" style="background-color:#D6E4F0">
+  <rect x="0" y="0" width="800" height="1000" fill="#4A5568"/>
+  <polygon points="60,60 740,60 740,420 420,420 420,940 60,940" fill="#5A8F6A"/>
+  <polygon points="120,120 680,120 680,360 360,360 360,880 120,880" fill="#4A5568"/>
+  <rect x="200" y="200" width="32" height="32" fill="#F5A623" rx="4" ry="4"/>
+  <rect x="206" y="205" width="20" height="22" fill="none" stroke="#FFFFFF" stroke-width="2" rx="1"/>
+  <path d="M216.0,205 V227" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="216.0" y="246" fill="#333333" font-size="11" font-weight="600" text-anchor="middle" font-family="PingFang SC, Microsoft YaHei, sans-serif">1号电梯厅</text>
+  <rect x="560" y="200" width="32" height="32" fill="#F5A623" rx="4" ry="4"/>
+  <path d="M567,225 L585,207" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M567,207 L567,225" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="576.0" y="246" fill="#333333" font-size="11" font-weight="600" text-anchor="middle" font-family="PingFang SC, Microsoft YaHei, sans-serif">8号电梯厅</text>
+  <rect x="200" y="760" width="32" height="32" fill="#F5A623" rx="4" ry="4"/>
+  <rect x="206" y="765" width="20" height="22" fill="none" stroke="#FFFFFF" stroke-width="2" rx="1"/>
+  <path d="M216.0,765 V787" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="216.0" y="806" fill="#333333" font-size="11" font-weight="600" text-anchor="middle" font-family="PingFang SC, Microsoft YaHei, sans-serif">9号电梯厅</text>
+  <text x="100" y="100" fill="#FFFFFF" font-size="10" font-weight="600" text-anchor="middle" font-family="PingFang SC, Microsoft YaHei, sans-serif">B5-001</text>
+  <text x="140" y="100" fill="#FFFFFF" font-size="10" font-weight="600" text-anchor="middle" font-family="PingFang SC, Microsoft YaHei, sans-serif">B5-002</text>
+  <text x="180" y="100" fill="#FFFFFF" font-size="10" font-weight="600" text-anchor="middle" font-family="PingFang SC, Microsoft YaHei, sans-serif">B5-003</text>
+  <text x="700" y="100" fill="#FFFFFF" font-size="10" font-weight="600" text-anchor="middle" font-family="PingFang SC, Microsoft YaHei, sans-serif">B5-101</text>
+  <text x="700" y="140" fill="#FFFFFF" font-size="10" font-weight="600" text-anchor="middle" font-family="PingFang SC, Microsoft YaHei, sans-serif">B5-102</text>
+  <text x="100" y="900" fill="#FFFFFF" font-size="10" font-weight="600" text-anchor="middle" font-family="PingFang SC, Microsoft YaHei, sans-serif">B5-201</text>
+  <text x="140" y="900" fill="#FFFFFF" font-size="10" font-weight="600" text-anchor="middle" font-family="PingFang SC, Microsoft YaHei, sans-serif">B5-202</text>
+  <text x="60" y="60" fill="#E24B4B" font-size="14" font-weight="bold" text-anchor="middle" font-family="PingFang SC, Microsoft YaHei, sans-serif">N</text>
+  <path d="M 60 64 L 54 90 L 60 84 L 66 90 Z" fill="#4A90E2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

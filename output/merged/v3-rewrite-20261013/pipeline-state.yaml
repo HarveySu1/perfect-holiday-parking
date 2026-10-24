@@ -1,0 +1,64 @@
+request_id: v3-rewrite-20261013
+entry_type: beautify_only
+created_at: 2026-10-13T16:00:00
+current_stage: 3
+output_docx_path: C:\Users\Su\Desktop\完美假日\output\merged\车记得_v3_参赛方案.docx
+output_docx_user_specified: true
+
+stages:
+  stage_1:
+    status: skipped
+    note: 内容源由用户确认的 v3 正文直接提供，非本轮创作
+  stage_2:
+    status: completed
+    executor: doc-formatter
+    stage2_flow: standalone
+    output_format: html
+    output_path: C:\Users\Su\Desktop\完美假日\output\merged\v3-rewrite-20261013\stage2\formatted-车记得v3.html
+    design_tokens: C:\Users\Su\Desktop\完美假日\output\merged\v3-rewrite-20261013\stage2\design_tokens.json
+    notes:复用 v2-merge business-modern 版式；新增围栏代码块<pre> 支持
+  stage_3:
+    status: completed
+    executor: doc-converter
+    input_format: html
+    output_path: C:\Users\Su\Desktop\完美假日\output\merged\车记得_v3_参赛方案.docx
+    skill_used:
+      - html-to-docx
+    present_files_opened: true
+    fallback: false
+    fallback_reason: null
+    verified:
+      paragraphs: 265
+      tables: 13
+
+consistency_check:
+  md_chars_cjk: 7609
+  html_bytes: 55422
+  docx_bytes: 63541
+  conversion_warnings: 0
+  notes: 围栏代码块由 v2 脚本扩展支持，新增 <pre> 分支
+
+  slim_variant:
+    md_chars_cjk: 6075
+    html_bytes: 46346
+    html_path: C:\Users\Su\Desktop\完美假日\output\merged\v3-rewrite-20261013\stage2\formatted-车记得v3-精简版.html
+    docx_path: C:\Users\Su\Desktop\完美假日\output\merged\车记得_v3_参赛方案_精简版.docx
+    compression: 79.8%
+    tables: 13
+    placeholders: 6
+    section_order_unchanged: true
+    deleted_sections: 3.3 / 9.5 / 10.4（纯重复表述，并入相邻节）
+    md_source: C:\Users\Su\Desktop\完美假日\output\merged\车记得_v3_参赛方案_精简版.md
+    notes: 仅删除冗余表述，未新增内容、未改动结论与逻辑顺序
+
+toolchain_issue:
+  symptom: setup-html-to-docx.sh 在已就绪时重建 venv，导致 click 等依赖丢失
+  workaround: python -m ensurepip --upgrade 后以 --index-url https://pypi.org/simple 重装（清华镜像源取不到包）
+
+convert_options:
+  page_size: A4
+  orientation: portrait
+  margin_top: 2.54
+  margin_bottom: 2.54
+  margin_left: 3.17
+  margin_right: 3.17

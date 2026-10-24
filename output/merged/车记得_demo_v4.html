@@ -1,0 +1,2579 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>完美假日停车 · 网页版 Demo v3 · 车牌自动识别</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    background: #14181F;
+    font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    display: flex; align-items: center; justify-content: center; gap: 24px;
+    padding: 20px; color: #1F2733; min-height: 100vh;
+  }
+  .side { color: #9AA4B2; font-size: 12px; line-height: 1.95; width: 206px; flex-shrink: 0; }
+  .side h1 { color: #E8ECF2; font-size: 16px; margin-bottom: 10px; }
+  .side b { color: #C9D2DE; }
+  .side .k { display: inline-block; background: #262B35; border-radius: 5px; padding: 0 7px; margin-right: 4px; font-size: 11px; color: #8FB4FF; }
+  .side .hl { color: #7BD8A5; }
+  @media (max-width: 1280px) { .side { display: none; } }
+
+  /* 云端控制台 */
+  .cloud { width: 268px; flex-shrink: 0; color: #9AA4B2; font-size: 11px; }
+  .cloud h2 { color: #E8ECF2; font-size: 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .cloud-box { background: #1B2029; border: 1px solid #2B323D; border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; }
+  .cloud-stats { display: flex; justify-content: space-between; text-align: center; }
+  .cloud-stats div b { display: block; color: #8FB4FF; font-size: 14px; margin-bottom: 2px; }
+  .ev { display: flex; gap: 6px; padding: 6px 0; border-bottom: 1px solid #252B34; line-height: 1.5; }
+  .ev:last-child { border-bottom: none; }
+  .ev-t { color: #5A6577; width: 42px; flex-shrink: 0; }
+  .ev-b { flex: 1; }
+  .ev-plate { color: #E8ECF2; font-family: Consolas, monospace; }
+  .ev-sub { color: #6B7484; }
+  .badge { display: inline-block; padding: 0 5px; border-radius: 4px; font-size: 10px; margin-left: 4px; }
+  .b-ok { background: #16352A; color: #4CD08A; }
+  .b-warn { background: #3A2E15; color: #E8B44A; }
+  .b-err { background: #3A1E1E; color: #E86A6A; }
+  .pulse { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #4CD08A; animation: blink 1.2s infinite; }
+  @keyframes blink { 0%,100% { opacity: 1 } 50% { opacity: .25 } }
+  @media (max-width: 1120px) { .cloud { display: none; } }
+
+  /* 手机框架 */
+  .phone {
+    width: 375px; height: 780px; max-height: calc(100vh - 40px);
+    background: #F4F6FA; border-radius: 40px; overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,.5), 0 0 0 10px #262B35, 0 0 0 12px #3A414E;
+    position: relative; display: flex; flex-direction: column; flex-shrink: 0;
+  }
+  .notch { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 120px; height: 24px; background: #262B35; border-radius: 14px; z-index: 60; }
+  .navbar { background: #0B1F3A; color: #fff; text-align: center; padding: 38px 0 12px; font-size: 16px; font-weight: 600; flex-shrink: 0; z-index: 50; }
+  .screen { flex: 1; overflow: hidden; position: relative; display: flex; flex-direction: column; }
+  .page { position: absolute; inset: 0; display: none; flex-direction: column; overflow-y: auto; padding-bottom: 8px; }
+  .page.active { display: flex; }
+  .find-page.page { overflow: hidden; }
+
+  /* 通用 */
+  .card { background: #fff; border-radius: 14px; padding: 16px; margin: 10px 12px; box-shadow: 0 2px 8px rgba(11,31,58,.06); }
+  .btn-primary { background: #1A6DFF; color: #fff; border: none; border-radius: 999px; padding: 12px; font-size: 14px; width: 100%; cursor: pointer; font-weight: 500; }
+  .btn-primary:active { opacity: .85; }
+  .btn-ghost { background: #EEF3FF; color: #1A6DFF; border: none; border-radius: 999px; padding: 12px; font-size: 14px; width: 100%; cursor: pointer; font-weight: 500; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 5px; font-size: 11px; }
+  .tag-green { background: #E6F7EE; color: #0FA958; }
+  .tag-orange { background: #FFF3E2; color: #E8830C; }
+  .tag-red { background: #FDECEC; color: #D4380D; }
+  .tag-blue { background: #EAF0FF; color: #1A6DFF; }
+  .sec-title { font-size: 15px; font-weight: 600; margin-bottom: 10px; }
+  .row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; font-size: 13px; }
+  .row .k { color: #8A94A6; }
+  .empty-tip { color: #8A94A6; text-align: center; font-size: 13px; padding: 16px 0; }
+
+  /* 首页 */
+  .quick-grid { display: flex; justify-content: space-between; flex-wrap: wrap; margin-top: 4px; }
+  .quick-item { width: 19%; text-align: center; font-size: 11px; color: #5A6577; cursor: pointer; transition: transform .1s; }
+  .quick-item:active { transform: scale(.94); }
+  .quick-item .qi { font-size: 21px; margin-bottom: 4px; }
+  .mall-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; font-size: 14px; }
+  .mall-btn { background: #1A6DFF; color: #fff; border: none; border-radius: 999px; padding: 4px 12px; font-size: 11px; cursor: pointer; font-weight: 500; }
+  .mall-btn:active { opacity: .8; }
+  /* v4 新增：车位平面图页 */
+  .lot-top { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px 6px; font-size: 15px; font-weight: 600; }
+  .lot-back { color: #1A6DFF; font-size: 13px; font-weight: 500; cursor: pointer; width: 44px; }
+  .lot-map-wrap { position: relative; flex: 1; margin: 0 12px 12px; border: 1px solid #E3E9F0; border-radius: 12px; background: #232A33; overflow: hidden; min-height: 0; }
+  .lot-map-wrap canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  /* 左侧竖排楼层切换（仿官方平面图：总览 + B1/B3/B4/B5） */
+  .lot-floors { position: absolute; left: 8px; top: 46%; transform: translateY(-50%); background: rgba(255,255,255,.96); border-radius: 10px; padding: 6px 4px; display: flex; flex-direction: column; gap: 2px; box-shadow: 0 2px 8px rgba(0,0,0,.28); z-index: 5; }
+  .lot-f-title { font-size: 10px; color: #8A94A6; text-align: center; padding: 2px 0 4px; border-bottom: 1px solid #EEF1F5; margin-bottom: 2px; }
+  .lot-floor-item { font-size: 11px; color: #3A4450; text-align: center; padding: 5px 9px; border-radius: 7px; cursor: pointer; font-weight: 600; }
+  .lot-floor-item.on { background: #1A6DFF; color: #fff; }
+  /* 假日广场室内/室外切换 */
+  .lot-area-toggle { position: absolute; left: 50%; transform: translateX(-50%); top: 10px; display: none; gap: 4px; background: rgba(255,255,255,.96); border-radius: 999px; padding: 3px; z-index: 6; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
+  .lot-area-item { padding: 5px 16px; border-radius: 999px; font-size: 11px; color: #5A6472; cursor: pointer; font-weight: 600; }
+  .lot-area-item.on { background: #1A6DFF; color: #fff; }
+  /* 新能源充电查询页 */
+  .nev-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; padding: 7px 0; border-bottom: 1px solid #F0F3F7; color: #3A4450; }
+  .nev-row b, .nev-sum b { color: #1A6DFF; }
+  .nev-sum { font-size: 11px; color: #5A6577; margin-top: 8px; }
+  /* 结束停车一键缴费弹窗 */
+  .pay-fee { text-align: center; font-size: 36px; font-weight: 700; color: #0B1F3A; margin: 8px 0 2px; }
+  .pay-fee small { font-size: 16px; font-weight: 600; margin-right: 2px; color: #5A6577; }
+  .pay-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 12px; color: #5A6577; padding: 8px 0; border-bottom: 1px dashed #E8ECF2; }
+  .pay-row b { color: #1F2933; font-weight: 600; text-align: right; }
+  .lot-legend { position: absolute; right: 10px; top: 10px; background: rgba(255,255,255,.95); border-radius: 9px; padding: 7px 10px; font-size: 10px; color: #3A4450; display: flex; flex-direction: column; gap: 4px; z-index: 5; line-height: 1.4; }
+  .lot-legend .lg-dot { display: inline-block; width: 9px; height: 9px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+  .lot-tip { position: absolute; left: 10px; right: 10px; bottom: 10px; background: rgba(11,31,58,.92); color: #fff; border-radius: 9px; padding: 8px 12px; font-size: 11px; line-height: 1.6; pointer-events: none; }
+  .lot-tip b { color: #7BD8A5; }
+  .pcard-row { display: flex; justify-content: space-between; align-items: center; }
+  .pcard .plate { font-size: 16px; font-weight: 600; }
+  .pcard .space { font-size: 28px; font-weight: 700; margin: 8px 0 4px; color: #0B1F3A; cursor: pointer; }
+  .pcard .meta { color: #8A94A6; font-size: 12px; margin-top: 3px; }
+  .pcard .duration { color: #1A6DFF; font-size: 14px; font-weight: 600; margin-top: 8px; }
+  .pcard .fee { color: #E8830C; font-weight: 500; font-size: 12px; }
+  .pcard .actions { display: flex; gap: 10px; margin-top: 14px; }
+  .pcard .actions button { flex: 1; width: auto; }
+  .demo-banner { margin: 10px 12px 0; background: #EDF4FF; border: 1px dashed #9DC0FF; color: #3D6FC4; font-size: 11px; line-height: 1.7; border-radius: 10px; padding: 8px 12px; }
+  .lpr-src { margin-top: 8px; background: #F0FBF5; border: 1px solid #BCE6CF; border-radius: 8px; padding: 7px 10px; font-size: 11px; color: #0B7A48; line-height: 1.6; }
+  .lpr-src .cam { color: #4A8C6B; }
+
+  /* 找车页 */
+  .plate-search { display: flex; gap: 8px; background: #fff; padding: 10px 12px; box-shadow: 0 1px 4px rgba(11,31,58,.08); flex-shrink: 0; }
+  .plate-search input { flex: 1; background: #F0F3F8; border: none; border-radius: 9px; padding: 9px 12px; font-size: 13px; outline: none; }
+  .plate-search button { width: 62px; background: #1A6DFF; color: #fff; border: none; border-radius: 9px; font-size: 13px; cursor: pointer; }
+  .plate-search button:active { opacity: .85; }
+  .my-plates { display: flex; gap: 6px; padding: 6px 12px 8px; background: #fff; flex-wrap: wrap; flex-shrink: 0; }
+  .mp { padding: 4px 10px; background: #EEF3FF; color: #1A6DFF; border-radius: 999px; font-size: 11px; cursor: pointer; }
+  .target-bar { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 10px 14px; box-shadow: 0 1px 4px rgba(11,31,58,.08); flex-shrink: 0; }
+  .t-space { font-size: 18px; font-weight: 700; }
+  .t-space .custom { font-size: 10px; color: #E8830C; font-weight: 500; margin-left: 4px; }
+  .t-meta { font-size: 11px; color: #8A94A6; margin-top: 2px; }
+  .t-duration { color: #1A6DFF; font-weight: 600; font-size: 13px; white-space: nowrap; }
+  .map-wrap { flex: 1; position: relative; background: #F8FAFD; overflow: hidden; }
+  #mapCanvas { width: 100%; height: 100%; display: block; cursor: grab; }
+  #mapCanvas.dragging { cursor: grabbing; }
+  .map-empty { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; color: #8A94A6; font-size: 13px; gap: 8px; background: #F8FAFD; z-index: 5; }
+  .map-empty.show { display: flex; }
+  .map-legend { position: absolute; top: 8px; left: 10px; background: rgba(255,255,255,.88); border-radius: 8px; padding: 6px 10px; font-size: 10px; color: #5A6577; line-height: 1.8; pointer-events: none; }
+  .lg-dot { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
+  .zoom-btns { position: absolute; right: 10px; top: 10px; z-index: 10; }
+  .zoom-btn { width: 32px; height: 32px; margin-bottom: 6px; background: #fff; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #1A6DFF; box-shadow: 0 2px 8px rgba(11,31,58,.15); cursor: pointer; user-select: none; }
+  .zoom-btn.reset { font-size: 13px; color: #5A6577; }
+  .zoom-btn:active { transform: scale(.92); }
+  .float-panel { position: absolute; left: 10px; right: 10px; bottom: 10px; background: #fff; border-radius: 14px; padding: 12px; box-shadow: 0 6px 20px rgba(11,31,58,.15); z-index: 20; }
+  .chip-row { overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
+  .chip-row::-webkit-scrollbar { display: none; }
+  .chip { display: inline-block; padding: 5px 12px; margin-right: 6px; border-radius: 999px; background: #F0F3F8; color: #5A6577; font-size: 11px; cursor: pointer; }
+  .chip.on { background: #1A6DFF; color: #fff; }
+  .guide { margin-top: 10px; font-size: 12px; color: #1F2733; background: #F4F8FF; border-radius: 8px; padding: 8px 10px; line-height: 1.6; }
+  .scan-btn { margin-top: 10px; }
+
+  /* 弹窗 */
+  .mask { position: absolute; inset: 0; background: rgba(11,31,58,.45); opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 90; }
+  .mask.show { opacity: 1; pointer-events: auto; }
+  .sheet { position: absolute; left: 0; right: 0; bottom: 0; background: #fff; border-radius: 18px 18px 0 0; padding: 18px 16px 24px; transform: translateY(105%); transition: transform .25s; z-index: 99; max-height: 82%; overflow-y: auto; }
+  .sheet.show { transform: translateY(0); }
+  .sheet-title { font-size: 16px; font-weight: 600; margin-bottom: 14px; display: flex; justify-content: space-between; }
+  .sheet-title .close { color: #B0B8C4; cursor: pointer; font-size: 18px; }
+  .input { background: #F0F3F8; border: none; border-radius: 9px; padding: 10px 12px; margin: 6px 0; font-size: 14px; width: 100%; outline: none; }
+  .candidate { padding: 10px 4px; border-bottom: 1px solid #EEF1F5; font-size: 13px; cursor: pointer; }
+  .candidate:hover { background: #F7FAFF; }
+  .photo-entry { color: #1A6DFF; font-size: 11px; margin: 8px 0; cursor: pointer; }
+  .radio-row { display: flex; margin: 10px 0; font-size: 13px; }
+  .radio-row label { margin-right: 24px; cursor: pointer; }
+  .recent-label { font-size: 11px; color: #8A94A6; margin: 8px 0 6px; }
+  .recent-chip { display: inline-block; padding: 5px 12px; margin: 0 6px 6px 0; background: #F0F3F8; border-radius: 999px; font-size: 12px; color: #1A6DFF; cursor: pointer; }
+  .popup { position: absolute; left: 16px; right: 16px; bottom: 110px; background: #fff; border-radius: 16px; padding: 18px; z-index: 99; box-shadow: 0 8px 32px rgba(11,31,58,.25); }
+  .popup .title { font-size: 15px; font-weight: 600; margin-bottom: 10px; }
+  .popup .tip { font-size: 11px; color: #B0B8C4; margin: 8px 0 14px; }
+
+  /* AI 决策入口（v4.1 新增） */
+  .ai-banner { background: linear-gradient(135deg, #EEF2FF 0%, #F5F0FF 100%); border: 1px solid #D8D3FF; border-radius: 14px; padding: 12px 13px; margin-bottom: 14px; }
+  .ai-banner-h { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .ai-logo { width: 32px; height: 32px; border-radius: 9px; background: linear-gradient(135deg, #5C7CFA, #7B61FF); display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; color: #fff; }
+  .ai-title { font-size: 13px; font-weight: 600; color: #1F2733; }
+  .ai-subtitle { font-size: 10px; color: #8A94A6; margin-top: 1px; }
+  .ai-input-wrap { position: relative; }
+  .ai-input { background: #fff; border: 1px solid #DCE3EC; border-radius: 10px; padding: 10px 36px 10px 12px; font-size: 13px; width: 100%; outline: none; }
+  .ai-input:focus { border-color: #7B61FF; }
+  .ai-input-icon { position: absolute; right: 11px; top: 50%; transform: translateY(-50%); color: #7B61FF; font-size: 15px; pointer-events: none; }
+  .ai-suggest { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+  .ai-sug-chip { font-size: 11px; padding: 4px 10px; background: #fff; border: 1px solid #D8D3FF; color: #5C3FBF; border-radius: 999px; cursor: pointer; }
+  .ai-sug-chip:active { background: #EEE9FF; }
+  .ai-btn { background: linear-gradient(90deg, #5C7CFA 0%, #7B61FF 100%); color: #fff; border: none; border-radius: 999px; padding: 11px; font-size: 13.5px; width: 100%; cursor: pointer; font-weight: 500; margin-top: 9px; }
+  .ai-btn:active { opacity: .85; }
+  .ai-raw { background: #F0F3F8; border-radius: 8px; padding: 9px 12px; font-size: 12.5px; color: #5A6577; margin-bottom: 12px; font-style: italic; }
+  .ai-step { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #5A6577; padding: 5px 0; transition: opacity .3s; }
+  .ai-step .dot { width: 13px; height: 13px; border-radius: 50%; background: #7B61FF; flex-shrink: 0; animation: aiBlink 1.2s infinite; }
+  .ai-step .dot.ok { background: #0FA958; animation: none; }
+  @keyframes aiBlink { 0%,100% { opacity: 1 } 50% { opacity: .3 } }
+  .ai-result { margin-top: 10px; }
+  .ai-constraint-card { background: #F7F8FF; border: 1px solid #E0DDFF; border-radius: 12px; padding: 12px 13px; margin-top: 8px; }
+  .ai-c-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 12px; border-bottom: 1px dashed #E5E8EE; }
+  .ai-c-row:last-child { border-bottom: none; }
+  .ai-c-k { color: #8A94A6; }
+  .ai-c-v { color: #1F2733; font-weight: 500; }
+  .ai-tag { display: inline-block; padding: 1px 7px; border-radius: 4px; font-size: 10px; background: #EAF0FF; color: #1A6DFF; margin-left: 5px; vertical-align: 1px; }
+  .ai-disclaimer { font-size: 10px; color: #B0B8C4; line-height: 1.55; margin-top: 12px; background: #F0F3F8; border-radius: 8px; padding: 8px 10px; }
+
+  /* 首页 AI 入口卡（v4.1 新增） */
+  .ai-home-entry { display: flex; align-items: center; gap: 12px; background: linear-gradient(120deg, #EEF2FF 0%, #F5F0FF 100%); border: 1px solid #D8D3FF; border-radius: 14px; padding: 12px 14px; margin-bottom: 12px; cursor: pointer; }
+  .ai-home-entry:active { transform: scale(.99); }
+
+  /* LPR 摄像头面板 */
+  .lpr-panel { position: absolute; inset: 0; background: #0E1219; z-index: 120; display: none; flex-direction: column; color: #E8ECF2; }
+  .lpr-panel.show { display: flex; }
+  .lpr-head { display: flex; justify-content: space-between; align-items: center; padding: 44px 16px 12px; font-size: 15px; font-weight: 600; flex-shrink: 0; }
+  .lpr-head .close { color: #8A94A6; cursor: pointer; font-size: 18px; }
+  .cam-view { margin: 0 12px; height: 196px; border-radius: 12px; overflow: hidden; position: relative; background: #1A1F28; flex-shrink: 0; }
+  #camCanvas { width: 100%; height: 100%; display: block; }
+  .scanline { position: absolute; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, rgba(76,208,138,.9), transparent); animation: scan 2.4s linear infinite; }
+  @keyframes scan { 0% { top: 4% } 100% { top: 96% } }
+  .cam-meta { display: flex; justify-content: space-between; padding: 8px 14px 0; font-size: 11px; color: #6B7484; flex-shrink: 0; }
+  .steps { margin: 10px 12px 0; background: #161B24; border-radius: 12px; padding: 10px 12px; flex-shrink: 0; }
+  .step { display: flex; align-items: center; gap: 8px; padding: 5px 0; font-size: 12px; color: #5A6577; }
+  .step .dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid #39424F; flex-shrink: 0; }
+  .step .st { flex: 1; }
+  .step .sr { color: #4CD08A; font-size: 11px; }
+  .step.run { color: #E8ECF2; }
+  .step.run .dot { border-color: #E8B44A; box-shadow: 0 0 0 3px rgba(232,180,74,.18); }
+  .step.done { color: #9AA4B2; }
+  .step.done .dot { background: #4CD08A; border-color: #4CD08A; }
+  .lpr-form { margin: 10px 12px 16px; flex: 1; overflow-y: auto; }
+  .lpr-form .lbl { font-size: 11px; color: #6B7484; margin: 8px 0 4px; }
+  .lpr-form input, .lpr-form select { width: 100%; background: #1A2029; border: 1px solid #2B323D; color: #E8ECF2; border-radius: 9px; padding: 9px 12px; font-size: 13px; outline: none; }
+  .lpr-btns { display: flex; gap: 8px; margin-top: 12px; }
+  .lpr-btns button { flex: 1; padding: 11px; border: none; border-radius: 999px; font-size: 13px; cursor: pointer; }
+  .lpr-btns .b1 { background: #1A6DFF; color: #fff; }
+  .lpr-btns .b2 { background: #262C37; color: #9AA4B2; }
+  .lpr-note { font-size: 10px; color: #5A6577; line-height: 1.7; margin-top: 10px; }
+
+  /* 我的页 */
+  .user-card { display: flex; align-items: center; }
+  .avatar { width: 48px; height: 48px; border-radius: 50%; background: #EEF3FF; margin-right: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+  .u-name { font-size: 16px; font-weight: 600; }
+  .u-sub { color: #8A94A6; font-size: 12px; margin-top: 3px; }
+  .stats { display: flex; }
+  .stat { flex: 1; text-align: center; }
+  .s-num { font-size: 16px; font-weight: 700; color: #0B1F3A; }
+  .s-label { font-size: 11px; color: #8A94A6; margin-top: 3px; }
+  .rec { padding: 10px 0; border-bottom: 1px solid #EEF1F5; cursor: pointer; }
+  .r-top { display: flex; justify-content: space-between; font-size: 13px; }
+  .r-plate { font-weight: 600; }
+  .r-space { color: #1A6DFF; font-weight: 600; }
+  .r-meta { font-size: 11px; color: #8A94A6; margin-top: 3px; }
+  .r-detail { margin-top: 8px; padding-top: 8px; border-top: 1px dashed #EEF1F5; }
+  .del-btn { margin-top: 8px; font-size: 12px; padding: 8px 0; }
+  .switch { position: relative; width: 42px; height: 24px; background: #D9DEE7; border-radius: 999px; cursor: pointer; transition: background .2s; flex-shrink: 0; }
+  .switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: #fff; border-radius: 50%; transition: left .2s; }
+  .switch.on { background: #1A6DFF; }
+  .switch.on::after { left: 20px; }
+  .link-arrow { color: #C0C7D2; }
+  .plate-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; font-size: 13px; border-bottom: 1px solid #F2F5F9; }
+  .plate-item .pnum { font-weight: 600; font-family: Consolas, monospace; }
+  .cam-log { padding: 8px 0; border-bottom: 1px solid #F2F5F9; font-size: 12px; }
+  .cam-log .cl-top { display: flex; justify-content: space-between; }
+  .cam-log .cl-sub { color: #8A94A6; font-size: 11px; margin-top: 3px; }
+
+  /* TabBar */
+  .tabbar { flex-shrink: 0; display: flex; background: #fff; border-top: 1px solid #EEF1F5; padding: 6px 0 18px; z-index: 80; }
+  .tab-item { flex: 1; text-align: center; font-size: 11px; color: #8A94A6; cursor: pointer; }
+  .tab-item .ti { font-size: 20px; }
+  .tab-item.on { color: #1A6DFF; font-weight: 600; }
+
+  /* Toast */
+  .toast { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); background: rgba(11,31,58,.9); color: #fff; border-radius: 10px; padding: 10px 18px; font-size: 13px; z-index: 200; opacity: 0; transition: opacity .25s; pointer-events: none; max-width: 82%; text-align: center; line-height: 1.6; }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="side">
+  <h1>完美假日停车 · Demo v3</h1>
+  <div style="color:#7BD8A5;margin-bottom:8px">★ 新增：车位相机自动识别车牌</div>
+  <div><span class="k">识别</span>车辆驶入 → 相机抓拍 → OCR 车牌 → 绑定车位 → 入库</div>
+  <div><span class="k">寻车</span>用户<b>只需输入车牌号</b>，无需拍照/记录</div>
+  <div><span class="k">隐私</span>非本人车牌仅返回<b>所在楼层</b></div>
+  <div style="height:8px"></div>
+  <div><span class="k">流程</span>模拟抓拍 → 自动记录 → 车牌寻车 → A* 导航</div>
+  <div><span class="k">地图</span><b>滚轮缩放 / 拖拽平移 / 双击复位</b></div>
+  <div><span class="k">地图</span>点击<b>车位</b>切换目标，点击 <b>⚡</b> 看充电桩</div>
+  <div style="margin-top:10px;color:#5A6577">左侧为小程序；右侧为云端 LPR 事件流。云函数逻辑（OCR 回调、车牌索引查询、A* 寻路）均在浏览器内模拟。</div>
+</div>
+
+<div class="phone">
+  <div class="notch"></div>
+  <div class="navbar">完美假日停车</div>
+
+  <div class="screen">
+    <!-- ============ 首页 ============ -->
+    <div class="page active" id="page-home">
+      <div class="demo-banner">当前停车已由<b>车位相机自动识别</b>生成，无需手动记录。试试：首页 → 输入车牌号 → 一键寻车。</div>
+
+      <!-- v4.1 AI 决策入口（首页醒目位） -->
+      <div class="ai-home-entry" onclick="openDestSheet();setTimeout(function(){$('aiInput').focus()},360)">
+        <div class="ai-logo">🤖</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:600;color:#1F2733">和 AI 说一句，停对车走对楼</div>
+          <div style="font-size:11px;color:#7B61FF;margin-top:2px">"去海底捞+充电+婴儿车" → AI 解析意图 → 推荐车位</div>
+        </div>
+        <span style="color:#7B61FF;font-size:20px;font-weight:300">›</span>
+      </div>
+
+      <div class="card">
+        <div class="sec-title">快捷入口</div>
+        <div class="quick-grid">
+          <div class="quick-item" onclick="openDestSheet()"><div class="qi">🎯</div><div>去哪儿</div></div>
+          <div class="quick-item" onclick="switchTab('find');$('plateSearch').focus()"><div class="qi">🔍</div><div>车牌寻车</div></div>
+          <div class="quick-item" onclick="openLpr()"><div class="qi">📹</div><div>模拟抓拍</div></div>
+          <div class="quick-item" onclick="openNev()"><div class="qi">🔋</div><div>新能源</div></div>
+          <div class="quick-item" onclick="switchTab('profile')"><div class="qi">🧾</div><div>停车记录</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="sec-title">商场车位概况</div>
+        <div class="mall-row"><span>万象汇</span><span style="display:flex;gap:8px;align-items:center"><span class="tag tag-green">充足</span><button class="mall-btn" onclick="openLotMap('wanxianghui')">万象汇</button></span></div>
+        <div class="mall-row"><span>假日广场</span><span style="display:flex;gap:8px;align-items:center"><span class="tag tag-orange">紧张</span><button class="mall-btn" onclick="openLotMap('holiday_plaza')">假日广场</button></span></div>
+        <div style="font-size:10px;color:#B0B8C4;margin-top:4px">占用率由相机检测 + 用户上报推算，仅供参考</div>
+      </div>
+      <div class="card pcard" id="homeCard"></div>
+      <div class="card" id="lprStatCard"></div>
+    </div>
+
+    <!-- ============ 找车页 ============ -->
+    <div class="page find-page" id="page-find">
+      <div class="plate-search">
+        <input id="plateSearch" placeholder="输入车牌号找车，如 粤T12345" onkeydown="if(event.key==='Enter')findByPlate()">
+        <button onclick="findByPlate()">找车</button>
+      </div>
+      <div class="my-plates" id="myPlates"></div>
+      <div class="target-bar" id="targetBar" style="display:none">
+        <div>
+          <div class="t-space"><span id="tSpace">--</span><span class="custom" id="tCustom" style="display:none">自定义目标</span></div>
+          <div class="t-meta" id="tMeta">--</div>
+        </div>
+        <div class="t-duration" id="tDur">--</div>
+      </div>
+      <div class="map-wrap">
+        <canvas id="mapCanvas"></canvas>
+        <div class="map-legend">
+          <div><span class="lg-dot" style="background:#C9D2DE"></span>普通车位</div>
+          <div><span class="lg-dot" style="background:#7BD8A5"></span>新能源 ⚡充电桩</div>
+          <div><span class="lg-dot" style="background:#9BB8FF"></span>无障碍</div>
+          <div><span class="lg-dot" style="background:#E5484D;border-radius:50%"></span>目标 &nbsp;<span class="lg-dot" style="background:#1A6DFF;border-radius:50%"></span>当前位置</div>
+        </div>
+        <div class="zoom-btns">
+          <div class="zoom-btn" onclick="zoomBy(0.3)">＋</div>
+          <div class="zoom-btn" onclick="zoomBy(-0.3)">－</div>
+          <div class="zoom-btn reset" onclick="resetView()">⤾</div>
+        </div>
+        <div class="map-empty" id="mapEmpty">
+          <div style="font-size:30px">🔍</div>
+          <div>输入车牌号，或扫码定位开始寻车</div>
+          <button class="btn-primary" style="width:170px;padding:8px" onclick="openSheet()">手动记录车位</button>
+        </div>
+        <div class="float-panel">
+          <div class="guide" id="guideBox" style="display:none"></div>
+          <button class="btn-primary scan-btn" onclick="scanLocation()">🧭 导航</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ 我的 ============ -->
+    <div class="page" id="page-profile">
+      <div class="card user-card">
+        <div class="avatar">🚗</div>
+        <div>
+          <div class="u-name">Demo 用户</div>
+          <div class="u-sub" id="uPlate">粤T12345</div>
+        </div>
+      </div>
+      <div class="card" id="vehicleCard"></div>
+      <div class="card">
+        <div class="sec-title">我的车辆（车牌绑定）</div>
+        <div id="plateList"></div>
+        <div style="font-size:10px;color:#B0B8C4;margin-top:8px;line-height:1.6">已授权绑定的车牌才能被相机自动识别并推送停车通知；未绑定车牌仅用于找车时的隐私保护校验。</div>
+      </div>
+      <div class="card">
+        <div class="sec-title">我的数据</div>
+        <div class="stats">
+          <div class="stat"><div class="s-num" id="stCount">0</div><div class="s-label">累计停车</div></div>
+          <div class="stat"><div class="s-num" id="stTotal">0分钟</div><div class="s-label">累计时长</div></div>
+          <div class="stat"><div class="s-num" id="stFee">¥0</div><div class="s-label">累计停车费</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="sec-title">相机识别记录</div>
+        <div id="camLog"></div>
+      </div>
+      <div class="card">
+        <div class="sec-title">停车记录</div>
+        <input class="input" placeholder="搜索车牌 / 车位号 / 商场" oninput="onRecSearch(this.value)">
+        <div id="recList"></div>
+        <div class="empty-tip" id="recEmpty">暂无停车记录</div>
+      </div>
+      <div class="card">
+        <div class="sec-title">设置</div>
+        <div class="row"><span class="k">相机自动识别授权</span><div class="switch on" id="swLpr" onclick="toggleLpr(this)"></div></div>
+        <div class="row"><span class="k">停车提醒</span><div class="switch on" onclick="toggleSwitch(this)"></div></div>
+        <div class="row" style="cursor:pointer"><span class="k">意见反馈</span><span class="link-arrow">›</span></div>
+        <div class="row" style="cursor:pointer"><span class="k">关于我们</span><span class="link-arrow">›</span></div>
+      </div>
+    </div>
+
+    <!-- v4 新增：新能源充电查询页 -->
+    <div class="page" id="page-nev">
+      <div class="lot-top">
+        <span class="lot-back" onclick="closeNev()">‹ 返回</span>
+        <span>新能源充电 · 充电车位查询</span>
+        <span style="width:44px"></span>
+      </div>
+      <div id="nevList" style="padding:2px 12px 12px"></div>
+      <div style="margin:0 12px 12px;font-size:10px;color:#B0B8C4;line-height:1.6">橙色⚡为快充（60kW），黄色⚡为慢充（7kW）；点击对应停车场可查看充电车位在平面图中的位置。</div>
+    </div>
+
+    <!-- v4 新增：车位平面图页 -->
+    <div class="page" id="page-lotmap">
+      <div class="lot-top">
+        <span class="lot-back" onclick="closeLotMap()">‹ 返回</span>
+        <span id="lotMallName">停车场</span>
+        <span style="width:44px"></span>
+      </div>
+      <div class="lot-map-wrap">
+        <canvas id="lotCanvas"></canvas>
+        <div class="lot-area-toggle" id="lotAreaToggle">
+          <span class="lot-area-item on" id="lotArea-indoor" onclick="switchLotArea('indoor')">室内</span>
+          <span class="lot-area-item" id="lotArea-outdoor" onclick="switchLotArea('outdoor')">室外</span>
+        </div>
+        <div class="lot-floors">
+          <div class="lot-f-title">总览</div>
+          <div class="lot-floor-item on" id="lotFloor-B1" onclick="switchLotFloor('B1')">B1</div>
+          <div class="lot-floor-item" id="lotFloor-B3" onclick="switchLotFloor('B3')">B3</div>
+          <div class="lot-floor-item" id="lotFloor-B4" onclick="switchLotFloor('B4')">B4</div>
+          <div class="lot-floor-item" id="lotFloor-B5" onclick="switchLotFloor('B5')">B5</div>
+        </div>
+        <div class="lot-legend">
+          <div><span class="lg-dot" style="background:#4E9E57"></span>空闲</div>
+          <div><span class="lg-dot" style="background:#5A646E"></span>已占用</div>
+          <div><span class="lg-dot" style="background:#FF8A00;border-radius:50%"></span>快充 60kW</div>
+          <div><span class="lg-dot" style="background:#F2C230;border-radius:50%"></span>慢充 7kW</div>
+        </div>
+        <div class="lot-tip" id="lotTip">滚轮缩放 · 拖拽平移 · 悬停/点击车位查看编号</div>
+      </div>
+    </div>
+
+    <!-- 记录车位弹窗 -->
+    <div class="mask" id="sheetMask" onclick="closeSheet()"></div>
+    <div class="sheet" id="recordSheet">
+      <div class="sheet-title">手动记录车位 <span class="close" onclick="closeSheet()">✕</span></div>
+      <div style="background:#F0FBF5;border:1px solid #BCE6CF;border-radius:9px;padding:9px 11px;font-size:11px;color:#0B7A48;line-height:1.6;margin-bottom:12px">
+        📹 车位相机已覆盖 96% 车位，通常无需手动记录。仅在相机漏识别或车牌被遮挡时使用。
+      </div>
+      <button class="btn-primary" onclick="simScanSpace()">📷 扫码录入（推荐）</button>
+      <div id="recentBox"></div>
+      <div style="text-align:center;color:#8A94A6;font-size:11px;margin:8px 0 4px">— 或手动输入 —</div>
+      <input class="input" id="kwInput" placeholder="例如 B2-A056 或 056" oninput="onKeyword(this.value)">
+      <div id="candList"></div>
+      <div class="photo-entry" onclick="toast('已拍照存档（Demo 模拟）')">车位号看不清？拍照存档（可选）</div>
+      <input class="input" id="plateInput" placeholder="车牌号" value="粤T12345">
+      <div class="radio-row">
+        <label><input type="radio" name="vtype" value="fuel" checked> 燃油车</label>
+        <label><input type="radio" name="vtype" value="new_energy"> 新能源车</label>
+      </div>
+      <button class="btn-primary" onclick="confirmRecord()">确认记录</button>
+    </div>
+
+    <!-- 车牌查询结果弹窗 -->
+    <div class="mask" id="findMask" onclick="closeFind()"></div>
+    <div class="popup" id="findPopup" style="display:none"></div>
+
+    <!-- 结束停车一键缴费弹窗 -->
+    <div class="mask" id="payMask" onclick="closePay()"></div>
+    <div class="popup" id="payPopup" style="display:none"></div>
+
+    <!-- 充电桩弹窗 -->
+    <div class="mask" id="pileMask" onclick="closePile()"></div>
+    <div class="popup" id="pilePopup" style="display:none"></div>
+
+    <!-- v4 新增：目的地选择 sheet -->
+    <div class="mask" id="destMask" onclick="closeDestSheet()"></div>
+    <div class="sheet" id="destSheet">
+      <div class="sheet-title">选择目的地 🎯 <span class="close" onclick="closeDestSheet()">✕</span></div>
+
+      <!-- v4.1 新增：AI 自然语言决策入口 -->
+      <div class="ai-banner">
+        <div class="ai-banner-h">
+          <div class="ai-logo">🤖</div>
+          <div>
+            <div class="ai-title">说出你的需求，AI 替你决策</div>
+            <div class="ai-subtitle">由 AI 解析意图 → 生成结构化约束 → 调用推荐引擎</div>
+          </div>
+        </div>
+        <div class="ai-input-wrap">
+          <input class="ai-input" id="aiInput" placeholder="如：去海底捞，要充电，婴儿车能走" onkeydown="if(event.key==='Enter')runAIParse()">
+          <span class="ai-input-icon">✨</span>
+        </div>
+        <div class="ai-suggest">
+          <span class="ai-sug-chip" onclick="fillAIExample('去万象汇海底捞，要充电')">海底捞+充电</span>
+          <span class="ai-sug-chip" onclick="fillAIExample('带娃逛西西弗书店，要无障碍')">书店+无障碍</span>
+          <span class="ai-sug-chip" onclick="fillAIExample('去万象影院，停近点')">影院+近位</span>
+        </div>
+        <button class="ai-btn" onclick="runAIParse()">🚀 让 AI 解析</button>
+      </div>
+
+      <input class="input" id="destSearch" placeholder="搜索店名或品类，如 书店、海底捞" oninput="onDestKeyword(this.value)">
+      <div class="chip-row" id="destCatRow" style="margin:8px 0"></div>
+      <div id="destList" style="max-height:320px;overflow-y:auto"></div>
+    </div>
+
+    <!-- v4 新增：推荐结果弹窗 -->
+    <div class="mask" id="recMask" onclick="closeRec()"></div>
+    <div class="popup" id="recPopup" style="display:none"></div>
+
+    <!-- v4.1 新增：AI 决策解析弹窗 -->
+    <div class="mask" id="aiMask" onclick="closeAIParse()"></div>
+    <div class="sheet" id="aiParse" style="z-index:110">
+      <div class="sheet-title">🤖 AI 决策助手 <span class="close" onclick="closeAIParse()">✕</span></div>
+      <div id="aiParseBody"></div>
+    </div>
+
+    <!-- LPR 摄像头面板 -->
+    <div class="lpr-panel" id="lprPanel">
+      <div class="lpr-head">📹 车位相机识别（模拟）<span class="close" onclick="closeLpr()">✕</span></div>
+      <div class="cam-view">
+        <canvas id="camCanvas"></canvas>
+        <div class="scanline"></div>
+      </div>
+      <div class="cam-meta"><span id="camOsd">CAM-WXH-B2-03 · 万象汇 B2层 A区</span><span id="camTime"></span></div>
+      <div class="steps" id="lprSteps"></div>
+      <div class="lpr-form">
+        <div class="lbl">车牌号（可修改为你想模拟的车辆）</div>
+        <input id="lprPlate" value="粤T12345">
+        <div class="lbl">相机点位</div>
+        <select id="lprCam" onchange="onCamChange()"></select>
+        <div class="lbl">识别结果预览</div>
+        <div style="background:#161B24;border-radius:9px;padding:10px 12px;font-size:12px;color:#6B7484;line-height:1.8" id="lprPreview">等待抓拍…</div>
+        <div class="lpr-btns">
+          <button class="b1" onclick="startCapture()">▶ 模拟车辆入场</button>
+          <button class="b2" onclick="randomCapture()">🎲 随机车辆</button>
+        </div>
+        <div class="lpr-note">
+          真实链路：车位相机（400 万像素 + 补光）检测到车位由空变占用 → 触发抓拍 → 边缘盒子/云端 OCR 识别车牌 → 与相机覆盖车位绑定 → 写入 parking_records 并通过订阅消息推送给用户。Demo 中上述环节均在浏览器内模拟。
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+  </div>
+
+  <div class="tabbar">
+    <div class="tab-item on" id="tab-home" onclick="switchTab('home')"><div class="ti">🏠</div><div>首页</div></div>
+    <div class="tab-item" id="tab-find" onclick="switchTab('find')"><div class="ti">🧭</div><div>找车</div></div>
+    <div class="tab-item" id="tab-profile" onclick="switchTab('profile')"><div class="ti">👤</div><div>我的</div></div>
+  </div>
+</div>
+
+<!-- 云端 LPR 事件流 -->
+<div class="cloud">
+  <h2><span class="pulse"></span> 云端 · 车牌识别事件流</h2>
+  <div class="cloud-box">
+    <div class="cloud-stats">
+      <div><b id="cToday">0</b>今日识别</div>
+      <div><b id="cBind">0%</b>自动绑定率</div>
+      <div><b id="cCam">0</b>在线相机</div>
+      <div><b id="cPark">0</b>在停车辆</div>
+    </div>
+  </div>
+  <div class="cloud-box" style="padding:6px 12px">
+    <div style="color:#6B7484;padding:4px 0 6px">实时识别事件（lpr_events）</div>
+    <div id="eventList"></div>
+  </div>
+  <div class="cloud-box">
+    <div style="color:#6B7484;margin-bottom:6px">云端在停索引（按车牌查询）</div>
+    <div id="cloudIndex"></div>
+  </div>
+  <div style="color:#4A5361;line-height:1.7;margin-top:8px">他人车牌已脱敏展示；只有用户授权绑定的车牌才会推送精确车位。</div>
+</div>
+
+<script>
+/* ================= 模拟云数据库 ================= */
+var MALL_CODE = { wanxianghui: 'WXH', holiday_plaza: 'HLP' };
+var MALL_NAME = { wanxianghui: '万象汇', holiday_plaza: '假日广场' };
+var spaces = [], piles = [], points = [], cameras = [];
+var lprEvents = [];      // 云端识别事件流
+var cloudParking = [];   // 云端在停车辆索引（parking_records，status=parking）
+var TODAY_BASE = 1286;   // 今日累计识别基数
+
+function pad3(n) { return ('00' + n).slice(-3); }
+
+(function genData() {
+  Object.keys(MALL_CODE).forEach(function (mid) {
+    ['B1', 'B2'].forEach(function (floor) {
+      var rows = [25, 45, 65, 85, 105], n = 0;
+      rows.forEach(function (y, ri) {
+        for (var x = 20; x <= 180; x += 5) {
+          n++;
+          var zone = 'ABCDE'.charAt(ri);
+          var sid = MALL_CODE[mid] + '-' + floor + '-' + zone + pad3(n);
+          var type = 'standard';
+          if (n % 7 === 0) type = 'new_energy';
+          if (n % 29 === 0) type = 'accessible';
+          var s = {
+            space_id: sid, mall_id: mid, mall_name: MALL_NAME[mid],
+            floor: floor, zone: zone, space_number: pad3(n),
+            space_type: type, coord_x: x, coord_y: y,
+            has_charging: type === 'new_energy' && n % 2 === 0,
+            charging_pile_id: null
+          };
+          spaces.push(s);
+          if (s.has_charging) {
+            var fast = (n / 2) % 2 === 0;
+            var pid = 'CP-' + MALL_CODE[mid] + '-' + floor + '-' + pad3(Math.floor(n / 2));
+            s.charging_pile_id = pid;
+            piles.push({
+              pile_id: pid, space_id: sid, mall_id: mid, floor: floor,
+              connector_type: fast ? 'fast' : 'slow',
+              power_kw: fast ? 60 : 7,
+              operator: fast ? '云快充' : '特来电',
+              status: 'unknown',
+              price_electric: 1.2, price_service: 0.8,
+              coord_x: x, coord_y: y
+            });
+          }
+        }
+      });
+      var elevs = [['1号电梯口', 30, 14], ['2号电梯口', 100, 14], ['3号电梯口', 170, 14], ['北入口', 8, 60]];
+      elevs.forEach(function (e) {
+        points.push({
+          point_id: 'LP-' + MALL_CODE[mid] + '-' + floor + '-' + e[0],
+          mall_id: mid, floor: floor, name: e[0], type: 'elevator',
+          coord_x: e[1], coord_y: e[2]
+        });
+      });
+      // 相机：每层每区一台
+      ['A', 'B', 'C', 'D', 'E'].forEach(function (z, i) {
+        cameras.push({
+          camera_id: 'CAM-' + MALL_CODE[mid] + '-' + floor + '-' + pad3(i + 1),
+          mall_id: mid, floor: floor, zone: z,
+          name: MALL_NAME[mid] + ' ' + floor + '层 ' + z + '区车位相机',
+          type: 'space', status: 'online'
+        });
+      });
+    });
+  });
+})();
+
+/* ================= 目的地/店铺数据 + 连廊（v4 新增） ================= */
+var STORE_CATEGORIES = ['全部','餐饮','书店','服装','超市','影院','亲子','美妆'];
+var stores = [
+  // 假日广场
+  { id:'S001', name:'西西弗书店', mall:'holiday_plaza', floor:'F1', category:'书店', entry:'北入口', zones:['A','B'], desc:'近北门，步行约2分钟' },
+  { id:'S002', name:'海底捞', mall:'holiday_plaza', floor:'F2', category:'餐饮', entry:'2号电梯口', zones:['C'], desc:'近南电梯，步行约3分钟' },
+  { id:'S003', name:'星巴克', mall:'holiday_plaza', floor:'F1', category:'餐饮', entry:'北入口', zones:['A'], desc:'近北门，步行约1分钟' },
+  { id:'S004', name:'ZARA', mall:'holiday_plaza', floor:'F1', category:'服装', entry:'3号电梯口', zones:['D'], desc:'近南门，步行约3分钟' },
+  { id:'S005', name:'沃尔玛超市', mall:'holiday_plaza', floor:'B1', category:'超市', entry:'1号电梯口', zones:['B'], desc:'近1号电梯，步行约2分钟' },
+  { id:'S006', name:'喜茶', mall:'holiday_plaza', floor:'F1', category:'餐饮', entry:'北入口', zones:['A'], desc:'近北门，步行约1分钟' },
+  { id:'S007', name:'屈臣氏', mall:'holiday_plaza', floor:'F1', category:'美妆', entry:'3号电梯口', zones:['E'], desc:'近南门，步行约4分钟' },
+  // 万象汇
+  { id:'S008', name:'优衣库', mall:'wanxianghui', floor:'F1', category:'服装', entry:'北入口', zones:['A','E'], desc:'近北门，步行约2分钟' },
+  { id:'S009', name:'万象影院', mall:'wanxianghui', floor:'F3', category:'影院', entry:'2号电梯口', zones:['D'], desc:'近2号电梯，步行约3分钟' },
+  { id:'S010', name:'孩子王', mall:'wanxianghui', floor:'F2', category:'亲子', entry:'北入口', zones:['A'], desc:'近北门，步行约2分钟' },
+  { id:'S011', name:'盒马鲜生', mall:'wanxianghui', floor:'B1', category:'超市', entry:'1号电梯口', zones:['B'], desc:'近1号电梯，步行约2分钟' },
+  { id:'S012', name:'奈雪的茶', mall:'wanxianghui', floor:'F1', category:'餐饮', entry:'北入口', zones:['A'], desc:'近北门，步行约1分钟' },
+  { id:'S013', name:'苹果授权店', mall:'wanxianghui', floor:'F1', category:'美妆', entry:'3号电梯口', zones:['D'], desc:'近南门，步行约3分钟' },
+  { id:'S014', name:'海底捞', mall:'wanxianghui', floor:'F3', category:'餐饮', entry:'2号电梯口', zones:['C'], desc:'近2号电梯，步行约3分钟' },
+  { id:'S015', name:'乐高乐园', mall:'wanxianghui', floor:'F2', category:'亲子', entry:'3号电梯口', zones:['D'], desc:'近南门，步行约3分钟' }
+];
+
+// 连廊：两场 F2 层连通
+var corridors = [
+  { id:'C01', name:'2F连廊', from:{mall:'wanxianghui',floor:'F2',x:200,y:60}, to:{mall:'holiday_plaza',floor:'F2',x:0,y:60}, walkSeconds:300, desc:'万象汇F2 → 假日广场F2，步行约5分钟' }
+];
+
+// 按区域聚合空位
+function zoneAvailability(mallId, floor, zone) {
+  var total = 0, occupied = 0;
+  spaces.forEach(function(s) {
+    if (s.mall_id !== mallId) return;
+    if (floor && s.floor !== floor) return;
+    if (zone && s.zone !== zone) return;
+    total++;
+    var isOcc = cloudParking.some(function(c) { return c.space_id === s.space_id; });
+    if (isOcc) occupied++;
+  });
+  return { total: total, occupied: occupied, available: total - occupied, rate: total > 0 ? Math.round(occupied / total * 100) : 0 };
+}
+
+// 查找区域内可用车位（preferType：优先返回该类型车位，无则返回区域内任意空位）
+function findAvailableInZone(mallId, floor, zone, preferType) {
+  var first = null;
+  for (var i = 0; i < spaces.length; i++) {
+    var s = spaces[i];
+    if (s.mall_id !== mallId) continue;
+    if (floor && s.floor !== floor) continue;
+    if (zone && s.zone !== zone) continue;
+    var occ = cloudParking.some(function(c) { return c.space_id === s.space_id; });
+    if (occ) continue;
+    if (preferType && s.space_type === preferType) return s;
+    if (!first) first = s;
+  }
+  return first;
+}
+
+// 查找商场内任意可用车位
+function findAvailableInMall(mallId) {
+  for (var i = 0; i < spaces.length; i++) {
+    var s = spaces[i];
+    if (s.mall_id !== mallId) continue;
+    var occ = cloudParking.some(function(c) { return c.space_id === s.space_id; });
+    if (!occ) return s;
+  }
+  return null;
+}
+
+function findStore(id) {
+  for (var i = 0; i < stores.length; i++) if (stores[i].id === id) return stores[i];
+  return null;
+}
+
+function otherMall(mallId) {
+  return mallId === 'wanxianghui' ? 'holiday_plaza' : 'wanxianghui';
+}
+
+/* ================= 状态 ================= */
+var MY_PLATES = [
+  { plate: '粤T12345', authorized: true, model: '凯美瑞 · 燃油' },
+  { plate: '粤B6688X', authorized: true, model: '比亚迪汉 · 新能源' }
+];
+
+var state = {
+  record: null,
+  plate: '粤T12345', vtype: 'fuel',
+  plates: MY_PLATES,
+  lprAuth: true,
+  activeMall: 'all', activeFloor: 'all', activeFilter: 'all',
+  current: null,
+  path: [],
+  walkCells: null,
+  walkAnim: null,
+  lastPoint: null,
+  customTarget: false,
+  targetSpace: null,
+  pendingSpace: null,
+  recent: ['WXH-B2-A016', 'HLP-B1-B045'],
+  recKeyword: '', expandedIdx: null,
+  lprOpen: false,
+  carEnter: 0,
+  capStage: -1,        // 抓拍流水线阶段 -1=未开始
+  capResult: null,
+  records: [
+    { license_plate: '粤T12345', space_id: 'WXH-B1-A033', mall_id: 'wanxianghui', floor: 'B1', vehicle_type: 'fuel', entry: '2026-09-20 14:30', exit: '2026-09-20 17:05' },
+    { license_plate: '粤T12345', space_id: 'HLP-B2-D041', mall_id: 'holiday_plaza', floor: 'B2', vehicle_type: 'fuel', entry: '2026-09-18 10:12', exit: '2026-09-18 12:48' }
+  ],
+  // v4 新增：目的地选择相关
+  destKeyword: '',
+  destCategory: '全部',
+  recommendation: null  // 当前推荐结果
+};
+var view = { zoom: 1, panX: 0, panY: 0 };
+var dashOffset = 0;
+
+/* ================= 工具 ================= */
+function $(id) { return document.getElementById(id); }
+var toastTimer = null;
+function toast(msg) {
+  var t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function () { t.classList.remove('show'); }, 1900);
+}
+function fmtDur(ms) {
+  var m = Math.max(0, Math.floor(ms / 60000));
+  var h = Math.floor(m / 60), mm = m % 60;
+  if (h >= 24) return Math.floor(h / 24) + '天' + (h % 24) + '小时';
+  if (h > 0) return h + '小时' + mm + '分';
+  return mm + '分钟';
+}
+// 费用估算：前30分钟免费，之后5元/小时，单日封顶40元
+function calcFee(ms) {
+  var FREE = 30 * 60000;
+  if (ms == null || isNaN(ms) || ms <= FREE) return { fee: 0, text: '免费时段内' };
+  var hours = Math.ceil((ms - FREE) / 3600000);
+  var fee = Math.min(hours * 5, 40);
+  return { fee: fee, text: '约 ¥' + fee };
+}
+function nowStr(offsetMs) {
+  var d = new Date(Date.now() - (offsetMs || 0));
+  function p(n) { return n < 10 ? '0' + n : '' + n; }
+  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+}
+function hhmm(offsetMs) {
+  var d = new Date(Date.now() - (offsetMs || 0));
+  function p(n) { return n < 10 ? '0' + n : '' + n; }
+  return p(d.getHours()) + ':' + p(d.getMinutes());
+}
+function parseTime(s) { return new Date(s.replace(' ', 'T')).getTime(); }
+function findSpace(sid) {
+  for (var i = 0; i < spaces.length; i++) if (spaces[i].space_id === sid) return spaces[i];
+  return null;
+}
+function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+// 车牌脱敏：粤T12345 -> 粤T***45
+function maskPlate(p) {
+  if (!p || p.length < 3) return p;
+  return p.slice(0, 2) + '***' + p.slice(-2);
+}
+function isMyPlate(p) {
+  for (var i = 0; i < state.plates.length; i++) if (state.plates[i].plate === p) return true;
+  return false;
+}
+function validPlate(p) { return /^[\u4e00-\u9fa5][A-Za-z][A-Za-z0-9]{4,6}$/.test(p); }
+
+/* ================= 云端种子数据 ================= */
+(function seedCloud() {
+  var seeds = [
+    { plate: '粤T12345', sid: 'WXH-B2-A016', mins: 95, conf: 98.6, camIdx: 0, mine: true },
+    { plate: '粤B6688X', sid: 'HLP-B1-A012', mins: 42, conf: 97.2, camIdx: 5, mine: true },
+    { plate: '粤A88888', sid: 'WXH-B1-C067', mins: 130, conf: 99.1, camIdx: 2, mine: false },
+    { plate: '粤S5Y23', sid: 'HLP-B2-D108', mins: 18, conf: 95.4, camIdx: 8, mine: false },
+    { plate: '粤C9966Q', sid: 'WXH-B2-B034', mins: 61, conf: 98.0, camIdx: 1, mine: false },
+    { plate: '粤E12345', sid: 'HLP-B1-C078', mins: 210, conf: 93.7, camIdx: 7, mine: false }
+  ];
+  seeds.forEach(function (sd) {
+    var s = findSpace(sd.sid);
+    if (!s) return;
+    var cam = cameras[sd.camIdx] || cameras[0];
+    var rec = {
+      plate: sd.plate, license_plate: sd.plate, space_id: sd.sid, mall_id: s.mall_id, floor: s.floor,
+      entry: nowStr(sd.mins * 60000), entryTs: Date.now() - sd.mins * 60000,
+      source: 'lpr', camera_id: cam.camera_id, camera_name: cam.name,
+      confidence: sd.conf, vehicle_type: sd.plate === '粤B6688X' ? 'new_energy' : 'fuel'
+    };
+    cloudParking.push(rec);
+    lprEvents.push({
+      time: hhmm(sd.mins * 60000), plate: sd.plate, space_id: sd.sid,
+      camera_id: cam.camera_id, confidence: sd.conf, status: 'bound', mine: sd.mine
+    });
+    if (sd.mine && sd.plate === '粤T12345') state.record = rec;
+  });
+  lprEvents.sort(function (a, b) { return b.time.localeCompare(a.time); });
+})();
+
+/* ================= Tab 切换 ================= */
+function switchTab(tab) {
+  if ($('page-lotmap')) $('page-lotmap').classList.remove('active'); // 平面图/充电页无底部 tab，切主 tab 时关闭
+  if ($('page-nev')) $('page-nev').classList.remove('active');
+  ['home', 'find', 'profile'].forEach(function (t) {
+    $('page-' + t).classList.toggle('active', t === tab);
+    $('tab-' + t).classList.toggle('on', t === tab);
+  });
+  if (tab === 'find') { renderChips(); requestAnimationFrame(resize); }
+  if (tab === 'profile') renderProfile();
+}
+
+/* ================= 首页 ================= */
+function renderHome() {
+  var el = $('homeCard');
+  if (state.record) {
+    var r = state.record;
+    var s = findSpace(r.space_id) || {};
+    var auto = r.source === 'lpr';
+    el.innerHTML =
+      '<div class="pcard-row"><span class="plate">' + r.license_plate + '</span>' +
+      '<span>' + (auto ? '<span class="tag tag-green">相机自动识别</span>' : '<span class="tag tag-blue">手动记录</span>') + '</span></div>' +
+      '<div class="space" title="点击前往找车" onclick="switchTab(\'find\')">' + r.space_id + '</div>' +
+      '<div class="meta">' + (s.mall_name || '') + ' · ' + r.floor + '层 · ' + (s.zone ? s.zone + '区' : '') + '</div>' +
+      '<div class="meta">入场时间 ' + r.entry + '</div>' +
+      '<div class="duration"><span id="homeDur"></span> <span class="fee" id="homeFee"></span></div>' +
+      (auto ? '<div class="lpr-src">📹 由 <span class="cam">' + (r.camera_name || r.camera_id) + '</span> 自动识别绑定 · 置信度 ' + r.confidence + '%' +
+        '<br>无需手动拍照或记录，直接输入车牌号即可寻车</div>' : '') +
+      '<div class="actions"><button class="btn-primary" onclick="switchTab(\'find\')">🧭 去寻车</button>' +
+      '<button class="btn-ghost" onclick="openPay()">结束停车</button></div>';
+    tickDuration();
+  } else {
+    el.innerHTML =
+      '<div style="text-align:center;color:#8A94A6;margin-bottom:10px">当前没有进行中的停车</div>' +
+      '<div style="background:#F4F8FF;border-radius:9px;padding:10px;font-size:12px;color:#3D6FC4;line-height:1.6;margin-bottom:14px">' +
+      '车位相机已覆盖全场，车辆停好后通常会自动记录。<br>也可以直接<b>输入车牌号</b>找车。</div>' +
+      '<div style="display:flex;gap:8px"><button class="btn-ghost" onclick="switchTab(\'find\');$(\'plateSearch\').focus()">🔍 车牌号找车</button>' +
+      '<button class="btn-primary" onclick="openSheet()">📍 手动记录</button></div>';
+  }
+}
+function renderLprStat() {
+  var online = cameras.length;
+  $('lprStatCard').innerHTML =
+    '<div class="sec-title" style="display:flex;justify-content:space-between;align-items:center">' +
+    '<span>📹 车位相机自动识别</span><span class="tag tag-green">运行中</span></div>' +
+    '<div class="row"><span class="k">在线相机</span><span>' + online + ' / ' + online + ' 台</span></div>' +
+    '<div class="row"><span class="k">今日识别车辆</span><span>' + (TODAY_BASE + lprEvents.length) + ' 辆</span></div>' +
+    '<div class="row"><span class="k">自动绑定成功率</span><span>96.8%</span></div>' +
+    '<div class="row"><span class="k">当前授权车牌</span><span>' + state.plates.length + ' 个</span></div>' +
+    '<button class="btn-ghost" style="margin-top:10px" onclick="openLpr()">模拟一次入场抓拍</button>';
+}
+function tickDuration() {
+  var r = state.record;
+  if (!r) return;
+  var elapsed = Date.now() - r.entryTs;
+  var h = $('homeDur'); if (h) h.textContent = '已停 ' + fmtDur(elapsed);
+  var f = $('homeFee'); if (f) f.textContent = '· 预估停车费 ' + calcFee(elapsed).text;
+  var t = $('tDur'); if (t) t.textContent = '已停 ' + fmtDur(elapsed);
+}
+setInterval(tickDuration, 1000);
+
+/* ================= 手动记录车位弹窗 ================= */
+function openSheet() {
+  $('plateInput').value = state.plate;
+  $('kwInput').value = '';
+  $('candList').innerHTML = '';
+  state.pendingSpace = null;
+  document.querySelector('input[name=vtype][value=' + state.vtype + ']').checked = true;
+  $('recentBox').innerHTML = state.recent.length
+    ? '<div class="recent-label">最近车位</div>' + state.recent.map(function (s) {
+        return '<span class="recent-chip" onclick="pickRecent(\'' + s + '\')">' + s + '</span>';
+      }).join('')
+    : '';
+  $('sheetMask').classList.add('show');
+  $('recordSheet').classList.add('show');
+}
+function closeSheet() {
+  $('sheetMask').classList.remove('show');
+  $('recordSheet').classList.remove('show');
+}
+function pickRecent(sid) {
+  state.pendingSpace = findSpace(sid) || { space_id: sid };
+  $('kwInput').value = sid;
+  $('candList').innerHTML = '<div class="candidate" style="background:#F0F8FF">已选择 ' + sid + '</div>';
+}
+function onKeyword(v) {
+  state.pendingSpace = null;
+  var kw = v.trim().toUpperCase();
+  if (!kw) { $('candList').innerHTML = ''; return; }
+  var hits = spaces.filter(function (s) { return s.space_id.indexOf(kw.replace(/[-\s]/g, '')) >= 0 || s.space_number.indexOf(kw) >= 0; }).slice(0, 5);
+  $('candList').innerHTML = hits.map(function (s) {
+    return '<div class="candidate" onclick="pickSpace(\'' + s.space_id + '\')">' + s.space_id + ' · ' + s.mall_name + ' ' + s.floor + '层' +
+      (s.space_type === 'new_energy' ? ' <span class="tag tag-green">新能源</span>' : '') +
+      (s.space_type === 'accessible' ? ' <span class="tag tag-orange">无障碍</span>' : '') + '</div>';
+  }).join('') || '<div class="empty-tip">未找到匹配车位</div>';
+}
+function pickSpace(sid) {
+  state.pendingSpace = findSpace(sid);
+  $('kwInput').value = sid;
+  $('candList').innerHTML = '<div class="candidate" style="background:#F0F8FF">已选择 ' + sid + '</div>';
+}
+function simScanSpace() {
+  var pool = spaces.filter(function (s) { return s.space_type === 'standard'; });
+  var s = pool[Math.floor(Math.random() * pool.length)];
+  state.pendingSpace = s;
+  $('kwInput').value = s.space_id;
+  $('candList').innerHTML = '<div class="candidate" style="background:#F0F8FF">✅ 扫码识别：' + s.space_id + '</div>';
+  toast('模拟扫码成功：' + s.space_id);
+}
+function confirmRecord() {
+  var sid = state.pendingSpace ? state.pendingSpace.space_id : $('kwInput').value.trim().toUpperCase();
+  var s = findSpace(sid);
+  if (!s) { toast('请输入正确的车位号'); return; }
+  var plate = $('plateInput').value.trim();
+  if (!plate) { toast('请输入车牌号'); return; }
+  state.plate = plate;
+  state.vtype = document.querySelector('input[name=vtype]:checked').value;
+  state.record = {
+    license_plate: plate, space_id: s.space_id, mall_id: s.mall_id,
+    floor: s.floor, entry: nowStr(), entryTs: Date.now(),
+    source: 'manual', vehicle_type: state.vtype
+  };
+  state.recent = [s.space_id].concat(state.recent.filter(function (x) { return x !== s.space_id; })).slice(0, 5);
+  state.customTarget = false; state.targetSpace = null;
+  state.current = null; state.path = []; state.walkCells = null; state.lastPoint = null;
+  $('guideBox').style.display = 'none';
+  closeSheet();
+  renderHome(); updateFindHeader(); resetView(); renderCloud();
+  toast('记录成功！已预约 5 分钟防遗忘提醒（模拟）');
+}
+/* -------- 结束停车：一键缴费弹窗 -------- */
+function endParking() { openPay(); } // 保留旧入口兼容，实际打开缴费弹窗
+function doEndParking() {
+  if (!state.record) return;
+  var r = state.record;
+  state.records.unshift({
+    license_plate: r.license_plate, space_id: r.space_id, mall_id: r.mall_id,
+    floor: r.floor, vehicle_type: r.vehicle_type || state.vtype, entry: r.entry, exit: nowStr()
+  });
+  // 云端在停索引移除
+  for (var i = 0; i < cloudParking.length; i++) {
+    if (cloudParking[i].plate === r.license_plate && cloudParking[i].space_id === r.space_id) { cloudParking.splice(i, 1); break; }
+  }
+  state.record = null;
+  state.customTarget = false; state.targetSpace = null;
+  state.current = null; state.path = []; state.walkCells = null;
+  renderHome(); updateFindHeader(); drawMap(); renderCloud(); renderProfile();
+  toast('已离场，本次停车已计入记录');
+}
+function openPay() {
+  if (!state.record) { toast('当前没有进行中的停车'); return; }
+  var r = state.record;
+  var dur = Date.now() - parseTime(r.entry);
+  var f = calcFee(dur);
+  var hours = f.fee > 0 ? Math.ceil((dur - 30 * 60000) / 3600000) : 0;
+  var s = findSpace(r.space_id) || {};
+  $('payPopup').innerHTML =
+    '<div style="font-size:15px;font-weight:700">停车缴费</div>' +
+    '<div class="pay-fee"><small>¥</small>' + f.fee + '</div>' +
+    '<div style="text-align:center;font-size:11px;color:#8A94A6;margin-bottom:10px">' + (r.license_plate || '') + ' · ' + r.space_id + '（' + (s.mall_name || r.mall_id || '') + ' ' + r.floor + '层）· 已停 ' + fmtDur(dur) + '</div>' +
+    '<div class="pay-row"><span>计费规则</span><b>前30分钟免费，后 ¥5/小时，单日封顶 ¥40</b></div>' +
+    '<div class="pay-row"><span>超时费</span><b>' + (hours ? hours + ' 小时 × ¥5' : '免费时段内') + '</b></div>' +
+    '<div class="pay-row"><span>入场时间</span><b>' + r.entry + '</b></div>' +
+    '<div class="pay-row"><span>支付方式</span><b>微信支付（模拟）</b></div>' +
+    '<button class="btn-primary" style="margin-top:12px" onclick="confirmPay()">' + (f.fee > 0 ? '⚡ 一键缴费 ¥' + f.fee : '✓ 一键结束（免费）') + '</button>' +
+    '<div style="text-align:center;font-size:10px;color:#B0B8C4;margin-top:8px">支付成功后自动抬杆出场，停车计入记录</div>';
+  $('payMask').style.display = 'block';
+  $('payPopup').style.display = 'block';
+}
+function confirmPay() {
+  if (!state.record) { closePay(); return; }
+  var feeText = calcFee(Date.now() - parseTime(state.record.entry)).fee;
+  doEndParking();
+  $('payPopup').innerHTML =
+    '<div style="text-align:center;padding:8px 0 4px">' +
+    '<div style="font-size:40px">✅</div>' +
+    '<div style="font-size:15px;font-weight:700;margin-top:6px">缴费成功' + (feeText > 0 ? ' ¥' + feeText : '') + '</div>' +
+    '<div style="font-size:11px;color:#8A94A6;margin-top:4px">闸门抬杆放行，本次停车已计入记录（模拟）</div></div>';
+  setTimeout(closePay, 1500);
+  toast('缴费成功，停车已结束');
+}
+function closePay() {
+  $('payMask').style.display = 'none';
+  $('payPopup').style.display = 'none';
+}
+function quickNE() {
+  state.activeFilter = 'new_energy';
+  switchTab('find');
+}
+
+/* ================= v4 新增：目的地选择 → 停车场推荐 → 导航引导 ================= */
+
+// 目的地选择 sheet
+function openDestSheet() {
+  state.destKeyword = '';
+  state.destCategory = '全部';
+  $('destSearch').value = '';
+  renderDestCats();
+  renderDestList();
+  $('destMask').classList.add('show');
+  $('destSheet').classList.add('show');
+}
+function closeDestSheet() {
+  $('destMask').classList.remove('show');
+  $('destSheet').classList.remove('show');
+}
+function renderDestCats() {
+  var html = '';
+  STORE_CATEGORIES.forEach(function(cat) {
+    var on = state.destCategory === cat;
+    html += '<span class="chip' + (on ? ' on' : '') + '" onclick="setDestCat(\'' + cat + '\')">' + cat + '</span>';
+  });
+  $('destCatRow').innerHTML = html;
+}
+function setDestCat(cat) {
+  state.destCategory = cat;
+  renderDestCats();
+  renderDestList();
+}
+function onDestKeyword(v) {
+  state.destKeyword = v.trim().toLowerCase();
+  renderDestList();
+}
+function renderDestList() {
+  var kw = state.destKeyword;
+  var cat = state.destCategory;
+  var list = stores.filter(function(st) {
+    if (cat !== '全部' && st.category !== cat) return false;
+    if (kw && st.name.toLowerCase().indexOf(kw) < 0 && st.category.toLowerCase().indexOf(kw) < 0) return false;
+    return true;
+  });
+  if (!list.length) { $('destList').innerHTML = '<div class="empty-tip">未找到匹配店铺</div>'; return; }
+  $('destList').innerHTML = list.map(function(st) {
+    return '<div class="candidate" onclick="selectStore(\'' + st.id + '\')" style="display:flex;align-items:center;gap:8px">' +
+      '<div style="font-size:20px">' + getStoreEmoji(st.category) + '</div>' +
+      '<div style="flex:1">' +
+        '<div style="font-weight:600;font-size:13px">' + st.name + '</div>' +
+        '<div style="font-size:11px;color:#8A94A6">' + MALL_NAME[st.mall] + ' · ' + st.floor + ' · ' + st.category + ' · ' + st.desc + '</div>' +
+      '</div>' +
+      '<span class="tag tag-blue" style="background:#E8F0FF;color:#1A6DFF">去这里</span>' +
+    '</div>';
+  }).join('');
+}
+function getStoreEmoji(cat) {
+  var m = { '餐饮':'🍜', '书店':'📚', '服装':'👕', '超市':'🛒', '影院':'🎬', '亲子':'🧸', '美妆':'💄' };
+  return m[cat] || '🏪';
+}
+function selectStore(id, constraints) {
+  var st = findStore(id);
+  if (!st) return;
+  closeDestSheet();
+  state.aiConstraints = constraints || null; // 普通选店清空 AI 约束；AI 入口传入约束
+  var rec = recommendParking(st);
+  state.recommendation = rec;
+  showRecommendation(st, rec);
+}
+
+/* ================= v4.1 新增：AI 自然语言决策入口 ================= */
+// 演示用：纯前端模拟 LLM 意图解析，识别关键词生成结构化约束 → 解析后调用既有 selectStore 路径
+// 决赛可替换为真实 LLM API；与方案书"克制 AI 在入口层"工程判断一致。
+
+function fillAIExample(text) { $('aiInput').value = text; }
+
+function runAIParse() {
+  var text = ($('aiInput').value || '').trim();
+  if (!text) { $('aiInput').focus(); return; }
+  closeDestSheet();
+  showAIParse(text);
+}
+
+function showAIParse(text) {
+  $('aiMask').classList.add('show');
+  $('aiParse').classList.add('show');
+  $('aiParseBody').innerHTML =
+    '<div class="ai-raw">「' + text + '」</div>' +
+    '<div class="ai-step" id="aiStep1"><span class="dot"></span>正在理解你的意图…</div>' +
+    '<div class="ai-step" id="aiStep2" style="opacity:.25"><span class="dot"></span>解析目的地与约束…</div>' +
+    '<div class="ai-step" id="aiStep3" style="opacity:.25"><span class="dot"></span>调用推荐引擎…</div>' +
+    '<div class="ai-result" id="aiResult"></div>';
+
+  setTimeout(function() {
+    $('aiStep1').innerHTML = '<span class="dot ok">✓</span>识别为停车决策请求';
+    $('aiStep2').style.opacity = 1;
+  }, 650);
+
+  setTimeout(function() {
+    var p = parseNLInput(text);
+    $('aiStep2').innerHTML = '<span class="dot ok">✓</span>' + (p.store ? ('目的地：' + p.store.name + ' · ' + MALL_NAME[p.store.mall] + ' ' + p.store.floor) : '就近推荐');
+    $('aiStep3').style.opacity = 1;
+    $('aiResult').innerHTML =
+      '<div class="ai-constraint-card">' +
+        '<div style="font-size:11px;color:#8A94A6;margin-bottom:6px;letter-spacing:.5px">AI 解析出的结构化约束</div>' +
+        '<div class="ai-c-row"><span class="ai-c-k">目的地</span><span class="ai-c-v">' + (p.store ? p.store.name : '未指定，按就近原则') + '</span></div>' +
+        (p.store ? '<div class="ai-c-row"><span class="ai-c-k">所属楼层</span><span class="ai-c-v">' + p.store.floor + '</span></div>' : '') +
+        '<div class="ai-c-row"><span class="ai-c-k">需要充电桩</span><span class="ai-c-v">' + (p.constraints.charging ? '✓ 是' : '— 否') + '</span></div>' +
+        '<div class="ai-c-row"><span class="ai-c-k">无障碍 / 婴儿车可达</span><span class="ai-c-v">' + (p.constraints.accessible ? '✓ 是' : '— 否') + '</span></div>' +
+        '<div class="ai-c-row"><span class="ai-c-k">跨场偏好</span><span class="ai-c-v">' + (p.constraints.crossMall ? '允许' : '同场优先') + '</span></div>' +
+      '</div>' +
+      '<button class="ai-btn" onclick="executeAIRecommend(' + (p.store ? ("'" + p.store.id + "'") : 'null') + ', ' + JSON.stringify(p.constraints).replace(/"/g, "'") + ')" style="margin-top:12px">查看推荐车位 →</button>' +
+      '<div class="ai-disclaimer">⚠️ 演示用：用关键词规则模拟 LLM 意图解析。真实链路接入多模态大模型 API，可解析更复杂的自然语言（如「今晚 7 点带老人去吃潮汕火锅但不要太远」）。</div>';
+  }, 1350);
+}
+
+function closeAIParse() {
+  $('aiMask').classList.remove('show');
+  $('aiParse').classList.remove('show');
+}
+
+// 模拟 LLM 意图解析
+function parseNLInput(text) {
+  var t = text.toLowerCase().replace(/\s+/g, '');
+  var cons = { charging: false, accessible: false, crossMall: false };
+
+  if (/充电|电车|新能源|桩/.test(t)) cons.charging = true;
+  if (/婴儿车|无障碍|轮椅|老人|带娃|推车|亲子/.test(t)) cons.accessible = true;
+  if (/对面|连廊|随便|跨场|其他商场|另外一场/.test(t)) cons.crossMall = true;
+
+  var st = null;
+  // 店名精准匹配，万象汇优先（除非允许跨场）
+  for (var i = 0; i < stores.length; i++) {
+    var s = stores[i];
+    if (t.indexOf(s.name.toLowerCase()) >= 0) {
+      if (!st) { st = s; }
+      if (s.mall === 'wanxianghui' && !cons.crossMall) { st = s; break; }
+    }
+  }
+  // 类别兜底
+  if (!st) {
+    var cateMap = {
+      '书店': '西西弗书店', '餐饮': '海底捞', '超市': '盒马鲜生',
+      '影院': '万象影院', '亲子': '孩子王'
+    };
+    for (var k in cateMap) {
+      if (t.indexOf(k) >= 0) {
+        for (var j = 0; j < stores.length; j++) {
+          if (stores[j].name === cateMap[k]) { st = stores[j]; break; }
+        }
+        break;
+      }
+    }
+  }
+
+  return { store: st, constraints: cons };
+}
+
+// 由解析结果接入既有推荐路径
+function executeAIRecommend(storeId, constraints) {
+  closeAIParse();
+  if (storeId) {
+    selectStore(storeId, constraints);
+  } else {
+    // 就近推荐：默认指向万象汇底层
+    var st = stores.filter(function (s) { return s.id === 'S014'; })[0] || stores[0];
+    selectStore(st.id, constraints);
+  }
+}
+
+// 给推荐卡里展示"AI 约束已应用"
+function renderAIConstraintLine(c) {
+  var arr = [];
+  if (c.charging) arr.push('⚡ 已筛新能源车位');
+  if (c.accessible) arr.push('♿ 无障碍可达优先');
+  if (c.crossMall) arr.push('🌉 允许跨场推荐');
+  if (!arr.length) return '';
+  return '<br>🤖 <b>AI 约束已应用</b>：' + arr.join(' · ');
+}
+
+// 推荐算法（简单版）
+function recommendParking(store) {
+  var mall = store.mall;
+  var zones = store.zones;
+  var floor = 'B2'; // 默认推荐 B2（车位最多）
+
+  // AI 解析出的约束 → 车位类型偏好（充电优先于无障碍）
+  var pt = null, ptLabel = '';
+  if (state.aiConstraints) {
+    if (state.aiConstraints.charging) { pt = 'new_energy'; ptLabel = '充电桩'; }
+    else if (state.aiConstraints.accessible) { pt = 'accessible'; ptLabel = '无障碍'; }
+  }
+
+  // 1. 优先：同场推荐区域有空位（尽量满足约束偏好）
+  for (var i = 0; i < zones.length; i++) {
+    var s = findAvailableInZone(mall, floor, zones[i], pt);
+    if (s) {
+      var av = zoneAvailability(mall, floor, zones[i]);
+      var reason = '距离' + store.name + '最近，' + zones[i] + '区空位充足';
+      if (pt && s.space_type === pt) reason += '，已优先满足' + ptLabel + '约束';
+      return { space: s, store: store, reason: reason, walkMins: 2 + i, isCrossMall: false, zoneAvail: av };
+    }
+  }
+
+  // 2. 次选：同场其他楼层推荐区域
+  var s2 = findAvailableInZone(mall, 'B1', zones[0]);
+  if (s2) {
+    return { space: s2, store: store, reason: MALL_NAME[mall] + ' ' + zones[0] + '区B1层有空位', walkMins: 4, isCrossMall: false };
+  }
+
+  // 3. 同场任意可用
+  var s3 = findAvailableInMall(mall);
+  if (s3) {
+    return { space: s3, store: store, reason: MALL_NAME[mall] + '其他区域有空位', walkMins: 5, isCrossMall: false };
+  }
+
+  // 4. 跨场推荐
+  var om = otherMall(mall);
+  var s4 = findAvailableInMall(om);
+  if (s4) {
+    return { space: s4, store: store, reason: MALL_NAME[mall] + '车位已满，' + MALL_NAME[om] + '有空位（过连廊约5分钟）', walkMins: 8, isCrossMall: true, crossMall: om };
+  }
+
+  // 5. 全满
+  return null;
+}
+
+// 推荐结果弹窗
+function showRecommendation(store, rec) {
+  var p = $('recPopup');
+  if (!rec) {
+    p.innerHTML =
+      '<div class="title" style="font-size:15px;font-weight:600;margin-bottom:10px">😕 两场车位暂时紧张</div>' +
+      '<div style="color:#5A6577;font-size:12px;line-height:1.7;margin-bottom:12px">很抱歉，' + MALL_NAME[store.mall] + '和对面商场当前均无空位。建议稍后再试，或使用其他交通方式前往。</div>' +
+      '<button class="btn-primary" onclick="closeRec()">知道了</button>';
+  } else {
+    var s = rec.space;
+    var crossTag = rec.isCrossMall ? '<span class="tag tag-orange" style="margin-left:6px">跨场推荐</span>' : '';
+    p.innerHTML =
+      '<div class="title" style="font-size:15px;font-weight:600;margin-bottom:4px">🅿️ 推荐停车位</div>' +
+      '<div style="color:#8A94A6;font-size:11px;margin-bottom:12px">目的地：' + getStoreEmoji(store.category) + ' ' + store.name + ' · ' + MALL_NAME[store.mall] + ' ' + store.floor + crossTag + '</div>' +
+      '<div style="background:#F0F8FF;border:1px solid #B3D4FF;border-radius:12px;padding:14px;margin-bottom:10px">' +
+        '<div style="display:flex;align-items:center;gap:10px">' +
+          '<div style="width:44px;height:44px;border-radius:10px;background:#1A6DFF;color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px">🅿️</div>' +
+          '<div style="flex:1">' +
+            '<div style="font-size:18px;font-weight:700;color:#1F2733">' + s.space_id + '</div>' +
+            '<div style="font-size:12px;color:#5A6577">' + s.mall_name + ' · ' + s.floor + '层 · ' + s.zone + '区' + (s.space_type === 'new_energy' ? ' · 新能源⚡' : '') + (s.space_type === 'accessible' ? ' · 无障碍' : '') + '</div>' +
+          '</div>' +
+          '<div style="text-align:right"><div style="font-size:11px;color:#8A94A6">步行</div><div style="font-size:16px;font-weight:600;color:#1A6DFF">~' + rec.walkMins + '分</div></div>' +
+        '</div>' +
+        '<div style="margin-top:10px;padding-top:10px;border-top:1px solid #E0E6EE;font-size:12px;color:#5A6577;line-height:1.6">' +
+          '💡 <b>推荐理由</b>：' + rec.reason + '<br>' +
+          (rec.zoneAvail ? '📊 ' + s.zone + '区空位 ' + rec.zoneAvail.available + '/' + rec.zoneAvail.total + '（占用率 ' + rec.zoneAvail.rate + '%）' : '') +
+          (state.aiConstraints ? renderAIConstraintLine(state.aiConstraints) : '') +
+        '</div>' +
+      '</div>' +
+      (rec.isCrossMall ? '<div style="background:#FFF8E8;border:1px solid #FFD966;border-radius:9px;padding:9px 11px;font-size:11px;color:#8A6D00;line-height:1.6;margin-bottom:10px">🌉 <b>跨场路线</b>：停车后乘电梯至F2 → 过2F连廊前往' + MALL_NAME[rec.crossMall] + ' → 乘电梯至' + store.floor + '到达' + store.name + '，全程约' + rec.walkMins + '分钟</div>' : '') +
+      '<div style="display:flex;gap:8px">' +
+        '<button class="btn-primary" style="flex:1" onclick="navToRecommended()">🧭 导航到此车位</button>' +
+        '<button style="flex:0 0 auto;padding:10px 14px;border:1px solid #E0E6EE;border-radius:10px;background:#fff;color:#5A6577;font-size:12px;cursor:pointer" onclick="closeRec();openDestSheet()">换个推荐</button>' +
+      '</div>';
+  }
+  $('recMask').classList.add('show');
+  p.style.display = 'block';
+}
+function closeRec() {
+  $('recMask').classList.remove('show');
+  $('recPopup').style.display = 'none';
+}
+
+// 导航到推荐车位
+function navToRecommended() {
+  // 从推荐弹窗读取当前推荐（存在 state.recommendation）
+  if (!state.recommendation) return;
+  var rec = state.recommendation;
+  var s = rec.space;
+  closeRec();
+  // 设为自定义目标
+  state.customTarget = true;
+  state.targetSpace = s;
+  state.activeMall = s.mall_id;
+  state.activeFloor = s.floor;
+  // 跳转找车页
+  switchTab('find');
+  updateFindHeader();
+  renderChips();
+  // 模拟扫码定位（随机电梯口作为起点）
+  var elevs = points.filter(function(p) { return p.mall_id === s.mall_id && p.floor === s.floor; });
+  var pt = elevs[Math.floor(Math.random() * elevs.length)];
+  state.lastPoint = pt;
+  state.current = { x: pt.coord_x, y: pt.coord_y };
+  toast('已定位：' + pt.name + '（' + s.floor + '层），开始导航至推荐车位 ' + s.space_id);
+  if (rec.isCrossMall) {
+    planRouteCrossMall(pt, s, rec.crossMall);
+  } else {
+    planRoute(pt);
+  }
+  drawMap();
+}
+
+/* ================= v4 新增：跨场导航（多段编排） ================= */
+function planRouteCrossMall(startPt, target, crossMallId) {
+  // 跨场分段：段1(起点场内A*) → 连廊(直线) → 段2(对面场内A*)
+  var corridor = corridors[0]; // 目前只有一条连廊
+  var fromCorridor = corridor.from;  // 万象汇F2连廊入口
+  var toCorridor = corridor.to;      // 假日广场F2连廊出口
+
+  // 确定起点场和终点场
+  var startMall = startPt.mall_id || (state.lastPoint ? state.lastPoint.mall_id : target.mall_id);
+  var targetMall = target.mall_id;
+
+  // 段1：起点场内 A*（从起点到连廊入口）
+  var blocked1 = new Uint8Array(GW * GH);
+  var s1Floor = fromCorridor.floor;
+  spaces.forEach(function(s) {
+    if (s.mall_id !== startMall || s.floor !== s1Floor) return;
+    var cx = clampCell(s.coord_x / CELL, GW), cy = clampCell(s.coord_y / CELL, GH);
+    blocked1[cy * GW + cx] = 1;
+  });
+  var start1 = { x: clampCell(startPt.coord_x / CELL, GW), y: clampCell(startPt.coord_y / CELL, GH) };
+  var goal1 = { x: clampCell(fromCorridor.x / CELL, GW), y: clampCell(fromCorridor.y / CELL, GH) };
+  blocked1[start1.y * GW + start1.x] = 0;
+  blocked1[goal1.y * GW + goal1.x] = 0;
+  var cells1 = astar(blocked1, start1, goal1);
+  var meters1 = cells1.map(function(c) { return { x: c.x * CELL, y: c.y * CELL }; });
+  var instr1 = buildInstructions(meters1, startPt.name || '当前位置');
+
+  // 段2：对面场内 A*（从连廊出口到目标车位）
+  var blocked2 = new Uint8Array(GW * GH);
+  var s2Floor = target.floor;
+  spaces.forEach(function(s) {
+    if (s.mall_id !== targetMall || s.floor !== s2Floor) return;
+    var cx = clampCell(s.coord_x / CELL, GW), cy = clampCell(s.coord_y / CELL, GH);
+    blocked2[cy * GW + cx] = 1;
+  });
+  var start2 = { x: clampCell(toCorridor.x / CELL, GW), y: clampCell(toCorridor.y / CELL, GH) };
+  var goal2 = { x: clampCell(target.coord_x / CELL, GW), y: clampCell(target.coord_y / CELL, GH) };
+  blocked2[start2.y * GW + start2.x] = 0;
+  blocked2[goal2.y * GW + goal2.x] = 0;
+  var cells2 = astar(blocked2, start2, goal2);
+  var meters2 = cells2.map(function(c) { return { x: c.x * CELL, y: c.y * CELL }; });
+  var instr2 = buildInstructions(meters2, '连廊出口');
+
+  // 合并指引
+  var allInstr = instr1.concat([
+    { x: fromCorridor.x, y: fromCorridor.y, instruction: '过2F连廊前往' + MALL_NAME[targetMall] + '（步行约5分钟）' }
+  ]).concat(instr2);
+
+  // 合并路径点（连廊段用直线连接）
+  state.walkCells = meters1.concat([{ x: toCorridor.x, y: toCorridor.y }]).concat(meters2);
+  state.path = allInstr;
+  state.activeMall = targetMall;
+  state.activeFloor = target.floor;
+
+  var gb = $('guideBox');
+  gb.style.display = 'block';
+  gb.textContent = '🧭 ' + allInstr.map(function(p) { return p.instruction; }).join('，');
+  renderChips();
+  startWalk();
+  drawMap();
+}
+
+/* ================= 车牌寻车（核心） ================= */
+function renderMyPlates() {
+  $('myPlates').innerHTML = '<span style="font-size:11px;color:#8A94A6;align-self:center">我的车牌：</span>' +
+    state.plates.map(function (p) {
+      return '<span class="mp" onclick="quickFind(\'' + p.plate + '\')">' + p.plate + '</span>';
+    }).join('') +
+    '<span class="mp" style="background:#F6F8FB;color:#8A94A6" onclick="quickFind(\'粤A88888\')">粤A88888（他人车）</span>';
+}
+function quickFind(plate) {
+  $('plateSearch').value = plate;
+  findByPlate();
+}
+// 云端：按车牌查询在停索引
+function cloudQueryByPlate(plate) {
+  var hit = null;
+  for (var i = 0; i < cloudParking.length; i++) {
+    if (cloudParking[i].plate === plate) { hit = cloudParking[i]; break; }
+  }
+  return hit;
+}
+function findByPlate() {
+  var plate = $('plateSearch').value.trim().toUpperCase();
+  if (!plate) { toast('请输入车牌号'); return; }
+  if (!validPlate(plate)) { toast('车牌号格式不正确，例如 粤T12345'); return; }
+
+  var hit = cloudQueryByPlate(plate);
+  if (!hit) {
+    showFindPopup(
+      '🔍 未查询到在停记录',
+      '<div class="row"><span class="k">车牌号</span><span>' + plate + '</span></div>' +
+      '<div class="tip">云端未检索到该车辆的在停记录，可能尚未入场、已离场，或相机漏识别（可尝试手动记录车位）。</div>' +
+      '<button class="btn-primary" onclick="closeFind()">知道了</button>'
+    );
+    return;
+  }
+  var mine = isMyPlate(plate);
+  if (!mine) {
+    // 隐私保护：非绑定车牌只给楼层
+    showFindPopup(
+      '🔒 隐私保护',
+      '<div class="row"><span class="k">车牌号</span><span>' + maskPlate(plate) + '</span></div>' +
+      '<div class="row"><span class="k">所在商场</span><span>' + MALL_NAME[hit.mall_id] + '</span></div>' +
+      '<div class="row"><span class="k">所在楼层</span><span>' + hit.floor + ' 层</span></div>' +
+      '<div class="row"><span class="k">精确车位</span><span style="color:#D4380D">不展示</span></div>' +
+      '<div class="tip">该车牌未与你的账号绑定。为保护车主隐私，仅返回所在楼层；绑定本人车辆后可查看精确车位并导航。</div>' +
+      '<button class="btn-ghost" onclick="bindPlate(\'' + plate + '\')">这是我的车，去绑定</button>'
+    );
+    return;
+  }
+
+  // 本人车辆：返回精确车位并设为导航目标
+  var s = findSpace(hit.space_id);
+  state.plate = plate;
+  if (!state.record || state.record.license_plate !== plate) {
+    state.record = hit;           // 云端记录即当前停车（无需用户手动记录）
+  }
+  state.customTarget = false; state.targetSpace = null;
+  state.activeMall = hit.mall_id; state.activeFloor = hit.floor;
+  state.current = null; state.path = []; state.walkCells = null; state.lastPoint = null;
+  $('guideBox').style.display = 'none';
+  renderHome(); updateFindHeader(); renderChips(); resetView(); renderCloud();
+  toast('已定位：' + plate + ' 停在 ' + MALL_NAME[hit.mall_id] + ' ' + hit.floor + '层 ' + s.zone + '区');
+  showFindPopup(
+    '✅ 已找到你的车',
+    '<div class="row"><span class="k">车牌号</span><span>' + plate + '</span></div>' +
+    '<div class="row"><span class="k">车位号</span><span style="color:#1A6DFF;font-weight:600">' + hit.space_id + '</span></div>' +
+    '<div class="row"><span class="k">位置</span><span>' + MALL_NAME[hit.mall_id] + ' ' + hit.floor + '层 ' + s.zone + '区</span></div>' +
+    '<div class="row"><span class="k">入场时间</span><span>' + hit.entry + '</span></div>' +
+    '<div class="row"><span class="k">识别来源</span><span>' + (hit.camera_name || hit.camera_id) + ' · ' + hit.confidence + '%</span></div>' +
+    '<div class="tip">全程未拍照、未手动记录——车位由相机自动识别绑定。</div>' +
+    '<button class="btn-primary" onclick="closeFind();scanLocation()">🧭 导航</button>'
+  );
+}
+function showFindPopup(title, html) {
+  $('findPopup').style.display = 'block';
+  $('findMask').classList.add('show');
+  $('findPopup').innerHTML = '<div class="title">' + title + '</div>' + html;
+}
+function closeFind() {
+  $('findPopup').style.display = 'none';
+  $('findMask').classList.remove('show');
+}
+function bindPlate(plate) {
+  state.plates.push({ plate: plate, authorized: true, model: '待完善' });
+  closeFind();
+  renderMyPlates(); renderProfile(); renderLprStat();
+  toast('已绑定 ' + plate + '，现在可以查看精确车位');
+}
+function toggleLpr(el) {
+  el.classList.toggle('on');
+  state.lprAuth = el.classList.contains('on');
+  toast(state.lprAuth ? '已授权相机自动识别' : '已关闭自动识别，需手动记录车位');
+}
+function toggleSwitch(el) { el.classList.toggle('on'); toast(el.classList.contains('on') ? '已开启停车提醒' : '已关闭停车提醒'); }
+
+/* ================= 找车页 ================= */
+var FLOOR_W = 200, FLOOR_H = 120;
+
+function activeMallFloor() {
+  var m = state.activeMall, f = state.activeFloor;
+  var t = currentTargetSpace();
+  if (m === 'all' && t) m = t.mall_id;
+  if (f === 'all' && t) f = t.floor;
+  return { m: m || 'all', f: f || 'all' };
+}
+function visibleSpaces() {
+  var mf = activeMallFloor();
+  return spaces.filter(function (s) {
+    if (mf.m !== 'all' && s.mall_id !== mf.m) return false;
+    if (mf.f !== 'all' && s.floor !== mf.f) return false;
+    if (state.activeFilter === 'new_energy' && s.space_type !== 'new_energy') return false;
+    if ((state.activeFilter === 'fast' || state.activeFilter === 'slow') && !s.has_charging) return false;
+    return true;
+  });
+}
+function visiblePiles() {
+  var mf = activeMallFloor();
+  return piles.filter(function (p) {
+    if (mf.m !== 'all' && p.mall_id !== mf.m) return false;
+    if (mf.f !== 'all' && p.floor !== mf.f) return false;
+    if (state.activeFilter === 'fast' && p.connector_type !== 'fast') return false;
+    if (state.activeFilter === 'slow' && p.connector_type !== 'slow') return false;
+    return true;
+  });
+}
+function renderChips() { /* 筛选按钮已按要求移除 */ }
+function currentTargetSpace() {
+  if (state.customTarget && state.targetSpace) return state.targetSpace;
+  return state.record ? findSpace(state.record.space_id) : null;
+}
+function updateFindHeader() {
+  var r = state.record;
+  var ts = currentTargetSpace();
+  var bar = $('targetBar'), empty = $('mapEmpty');
+  if (r) {
+    var s = findSpace(r.space_id) || {};
+    bar.style.display = 'flex';
+    empty.classList.remove('show');
+    $('tSpace').textContent = r.space_id;
+    $('tCustom').style.display = state.customTarget ? 'inline' : 'none';
+    $('tMeta').textContent = (s.mall_name || '') + ' · ' + r.floor + '层 · 入场 ' + r.entry + (r.source === 'lpr' ? ' · 相机识别' : '');
+    tickDuration();
+  } else if (ts) {
+    bar.style.display = 'flex';
+    empty.classList.remove('show');
+    $('tSpace').textContent = ts.space_id;
+    $('tCustom').style.display = 'inline';
+    $('tMeta').textContent = ts.mall_name + ' · ' + ts.floor + '层 · 自定义目标';
+    $('tDur').textContent = '--';
+  } else {
+    bar.style.display = 'none';
+    empty.classList.add('show');
+    $('guideBox').style.display = 'none';
+  }
+}
+
+/* -------- Canvas：视图变换 + 手势 -------- */
+var canvas, ctx, baseT;
+function setupCanvas() {
+  canvas = $('mapCanvas');
+  ctx = canvas.getContext('2d');
+  resize();
+  window.addEventListener('resize', function () { if ($('page-find').classList.contains('active')) resize(); });
+  bindGestures();
+  requestAnimationFrame(animLoop);
+}
+function resize() {
+  var parent = canvas.parentElement;
+  var w = parent.clientWidth, h = parent.clientHeight;
+  if (!w || !h) return;
+  var dpr = window.devicePixelRatio || 1;
+  canvas.width = w * dpr; canvas.height = h * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  var scale = Math.min(w / FLOOR_W, h / FLOOR_H);
+  baseT = {
+    scale: scale, w: w, h: h,
+    offsetX: (w - FLOOR_W * scale) / 2,
+    offsetY: (h - FLOOR_H * scale) / 2
+  };
+  drawMap();
+}
+function sx(mx) { return baseT.offsetX + mx * baseT.scale; }
+function sy(my) { return baseT.offsetY + my * baseT.scale; }
+function vx(px) { return (px - view.panX - baseT.w / 2) / view.zoom + baseT.w / 2; }
+function vy(py) { return (py - view.panY - baseT.h / 2) / view.zoom + baseT.h / 2; }
+function toMeters(px, py) {
+  return { x: (vx(px) - baseT.offsetX) / baseT.scale, y: (vy(py) - baseT.offsetY) / baseT.scale };
+}
+function zoomBy(delta, cx, cy) {
+  var nz = clamp(view.zoom + delta, 0.5, 3);
+  if (cx === undefined) { cx = baseT.w / 2; cy = baseT.h / 2; }
+  view.panX = cx - baseT.w / 2 - (cx - baseT.w / 2 - view.panX) * (nz / view.zoom);
+  view.panY = cy - baseT.h / 2 - (cy - baseT.h / 2 - view.panY) * (nz / view.zoom);
+  view.zoom = nz;
+  clampPan();
+  drawMap();
+}
+function resetView() { view = { zoom: 1, panX: 0, panY: 0 }; drawMap(); }
+function clampPan() {
+  view.panX = clamp(view.panX, -baseT.w, baseT.w);
+  view.panY = clamp(view.panY, -baseT.h, baseT.h);
+}
+function bindGestures() {
+  var drag = null;
+  canvas.addEventListener('wheel', function (e) {
+    e.preventDefault();
+    var rect = canvas.getBoundingClientRect();
+    zoomBy(e.deltaY < 0 ? 0.15 : -0.15, e.clientX - rect.left, e.clientY - rect.top);
+  }, { passive: false });
+  canvas.addEventListener('mousedown', function (e) {
+    drag = { x: e.clientX, y: e.clientY, panX: view.panX, panY: view.panY, moved: false };
+    canvas.classList.add('dragging');
+  });
+  window.addEventListener('mousemove', function (e) {
+    if (!drag) return;
+    var dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+    if (Math.abs(dx) + Math.abs(dy) > 4) drag.moved = true;
+    view.panX = drag.panX + dx; view.panY = drag.panY + dy;
+    clampPan();
+    drawMap();
+  });
+  window.addEventListener('mouseup', function (e) {
+    canvas.classList.remove('dragging');
+    if (drag && !drag.moved) handleMapClick(e);
+    drag = null;
+  });
+  canvas.addEventListener('dblclick', resetView);
+}
+function handleMapClick(e) {
+  var rect = canvas.getBoundingClientRect();
+  var m = toMeters(e.clientX - rect.left, e.clientY - rect.top);
+  var vp = visiblePiles();
+  for (var i = 0; i < vp.length; i++) {
+    if (Math.abs(vp[i].coord_x - m.x) < 3 && Math.abs(vp[i].coord_y - m.y) < 3) { showPile(vp[i]); return; }
+  }
+  var vs = visibleSpaces();
+  for (var j = 0; j < vs.length; j++) {
+    var s = vs[j];
+    if (Math.abs(s.coord_x - m.x) < 2.5 && Math.abs(s.coord_y - m.y) < 3.5) { switchTarget(s); return; }
+  }
+}
+function switchTarget(s) {
+  if (!state.record && !state.customTarget) {
+    // 无停车记录时，点击车位也可作为查询目标
+    state.customTarget = true; state.targetSpace = s;
+  } else {
+    var cur = state.record ? state.record.space_id : null;
+    if (s.space_id === cur) { state.customTarget = false; state.targetSpace = null; }
+    else { state.customTarget = true; state.targetSpace = s; }
+  }
+  updateFindHeader();
+  $('tSpace').textContent = s.space_id;
+  $('tCustom').style.display = state.customTarget ? 'inline' : 'none';
+  toast('已切换目标：' + s.space_id);
+  if (state.lastPoint) planRoute(state.lastPoint);
+  else drawMap();
+}
+
+/* -------- 绘制 -------- */
+function drawMap() {
+  if (!ctx || !baseT) return;
+  var w = baseT.w, h = baseT.h;
+  ctx.save();
+  ctx.clearRect(0, 0, w, h);
+  ctx.translate(view.panX + w / 2, view.panY + h / 2);
+  ctx.scale(view.zoom, view.zoom);
+  ctx.translate(-w / 2, -h / 2);
+  // 网格
+  ctx.strokeStyle = '#E8ECF2'; ctx.lineWidth = 1;
+  for (var gx = 0; gx <= FLOOR_W; gx += 10) { ctx.beginPath(); ctx.moveTo(sx(gx), sy(0)); ctx.lineTo(sx(gx), sy(FLOOR_H)); ctx.stroke(); }
+  for (var gy = 0; gy <= FLOOR_H; gy += 10) { ctx.beginPath(); ctx.moveTo(sx(0), sy(gy)); ctx.lineTo(sx(FLOOR_W), sy(gy)); ctx.stroke(); }
+  // 相机视野示意（已按要求移除对角虚线）
+  // 车位
+  visibleSpaces().forEach(function (s) {
+    ctx.fillStyle = s.space_type === 'new_energy' ? '#7BD8A5' : (s.space_type === 'accessible' ? '#9BB8FF' : '#C9D2DE');
+    ctx.fillRect(sx(s.coord_x - 2), sy(s.coord_y - 3), 4 * baseT.scale, 6 * baseT.scale);
+  });
+  // 充电桩
+  ctx.font = Math.max(10, 4 * baseT.scale) + 'px sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  visiblePiles().forEach(function (p) { ctx.fillText('⚡', sx(p.coord_x), sy(p.coord_y)); });
+  // 路径（流动虚线）
+  if (state.path.length > 1) {
+    ctx.strokeStyle = '#1A6DFF'; ctx.lineWidth = 3; ctx.setLineDash([8, 6]);
+    ctx.lineDashOffset = -dashOffset;
+    ctx.beginPath();
+    ctx.moveTo(sx(state.path[0].x), sy(state.path[0].y));
+    for (var i = 1; i < state.path.length; i++) ctx.lineTo(sx(state.path[i].x), sy(state.path[i].y));
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+  // 目标车位
+  var ts = currentTargetSpace();
+  if (ts) drawMarker(ts.coord_x, ts.coord_y, '#E5484D', 'P');
+  // 当前位置
+  if (state.current) drawMarker(state.current.x, state.current.y, '#1A6DFF', '我');
+  ctx.restore();
+}
+function drawMarker(mx, my, color, label) {
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.arc(sx(mx), sy(my), 9, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 9px sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(label, sx(mx), sy(my));
+}
+function animLoop() {
+  dashOffset = (dashOffset + 0.6) % 14;
+  if (state.walkAnim) stepWalk();
+  if ($('page-find').classList.contains('active') && (state.path.length > 1 || state.walkAnim)) drawMap();
+  if (state.lprOpen) drawCam();
+  requestAnimationFrame(animLoop);
+}
+
+/* -------- A*（与云函数 planRoute 同逻辑） -------- */
+var CELL = 2, GW = 100, GH = 60;
+function clampCell(v, max) { return clamp(Math.round(v), 0, max - 1); }
+function astar(blocked, start, goal) {
+  var key = function (x, y) { return y * GW + x; };
+  var open = [{ x: start.x, y: start.y, g: 0, f: 0 }];
+  var gScore = {}; gScore[key(start.x, start.y)] = 0;
+  var came = {}, closed = {};
+  var dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+  while (open.length) {
+    var bi = 0;
+    for (var i = 1; i < open.length; i++) if (open[i].f < open[bi].f) bi = i;
+    var cur = open.splice(bi, 1)[0];
+    var ck = key(cur.x, cur.y);
+    if (closed[ck]) continue;
+    closed[ck] = 1;
+    if (cur.x === goal.x && cur.y === goal.y) {
+      var cells = [{ x: cur.x, y: cur.y }];
+      var k = ck;
+      while (came[k] !== undefined) { var p = came[k]; cells.unshift({ x: p.x, y: p.y }); k = key(p.x, p.y); }
+      return cells;
+    }
+    for (var d = 0; d < 4; d++) {
+      var nx = cur.x + dirs[d][0], ny = cur.y + dirs[d][1];
+      if (nx < 0 || ny < 0 || nx >= GW || ny >= GH) continue;
+      var nk = key(nx, ny);
+      if (blocked[nk] || closed[nk]) continue;
+      var g = cur.g + 1;
+      if (gScore[nk] === undefined || g < gScore[nk]) {
+        gScore[nk] = g;
+        came[nk] = { x: cur.x, y: cur.y };
+        open.push({ x: nx, y: ny, g: g, f: g + Math.abs(nx - goal.x) + Math.abs(ny - goal.y) });
+      }
+    }
+  }
+  return [start, goal];
+}
+function mdist(a, b) { return Math.abs(a.x - b.x) + Math.abs(a.y - b.y); }
+function buildInstructions(meters, fromName) {
+  if (!meters || meters.length < 2) return [];
+  var pts = [{ x: meters[0].x, y: meters[0].y, instruction: '起点：' + fromName }];
+  var dir = { x: Math.sign(meters[1].x - meters[0].x), y: Math.sign(meters[1].y - meters[0].y) };
+  var d = 0;
+  for (var i = 1; i < meters.length; i++) {
+    var nd = { x: Math.sign(meters[i].x - meters[i - 1].x), y: Math.sign(meters[i].y - meters[i - 1].y) };
+    if (nd.x === dir.x && nd.y === dir.y) { d += mdist(meters[i], meters[i - 1]); continue; }
+    if (d > 0) pts.push({ x: meters[i - 1].x, y: meters[i - 1].y, instruction: '直行 ' + Math.round(d) + ' 米' });
+    var cross = dir.x * nd.y - dir.y * nd.x;
+    pts.push({ x: meters[i - 1].x, y: meters[i - 1].y, instruction: cross > 0 ? '右转' : '左转' });
+    dir = nd;
+    d = mdist(meters[i], meters[i - 1]);
+  }
+  if (d > 0) pts.push({ x: meters[meters.length - 1].x, y: meters[meters.length - 1].y, instruction: '直行 ' + Math.round(d) + ' 米' });
+  pts.push({ x: meters[meters.length - 1].x, y: meters[meters.length - 1].y, instruction: '到达目标车位' });
+  return pts;
+}
+function planRoute(pt) {
+  var target = currentTargetSpace();
+  if (!target) { toast('暂无目标车位'); return; }
+  var mallId = target.mall_id, floor = target.floor;
+  var blocked = new Uint8Array(GW * GH);
+  spaces.forEach(function (s) {
+    if (s.mall_id !== mallId || s.floor !== floor) return;
+    // 只标记车位所在格：留出车位间缝隙与车道，保证 A* 连通
+    var cx = clampCell(s.coord_x / CELL, GW), cy = clampCell(s.coord_y / CELL, GH);
+    blocked[cy * GW + cx] = 1;
+  });
+  var start = { x: clampCell(pt.coord_x / CELL, GW), y: clampCell(pt.coord_y / CELL, GH) };
+  var goal = { x: clampCell(target.coord_x / CELL, GW), y: clampCell(target.coord_y / CELL, GH) };
+  blocked[start.y * GW + start.x] = 0;
+  blocked[goal.y * GW + goal.x] = 0;
+  var cells = astar(blocked, start, goal);
+  var meters = cells.map(function (c) { return { x: c.x * CELL, y: c.y * CELL }; });
+  state.walkCells = meters;
+  state.path = buildInstructions(meters, pt.name || '当前位置');
+  var gb = $('guideBox');
+  gb.style.display = 'block';
+  gb.textContent = '🧭 ' + state.path.map(function (p) { return p.instruction; }).join('，');
+  state.activeMall = mallId; state.activeFloor = floor;
+  renderChips();
+  startWalk();
+  drawMap();
+}
+function startWalk() {
+  if (!state.walkCells || state.walkCells.length < 2) { drawMap(); return; }
+  state.walkAnim = { seg: 0, t: 0, speed: 0.06 };
+}
+function stepWalk() {
+  var a = state.walkAnim, cells = state.walkCells;
+  if (a.seg >= cells.length - 1) {
+    state.walkAnim = null;
+    state.current = { x: cells[cells.length - 1].x, y: cells[cells.length - 1].y };
+    toast('已到达目标车位 🎉');
+    return;
+  }
+  a.t += a.speed;
+  if (a.t >= 1) { a.seg++; a.t = 0; if (a.seg >= cells.length - 1) return; }
+  var p0 = cells[a.seg], p1 = cells[a.seg + 1];
+  state.current = { x: p0.x + (p1.x - p0.x) * a.t, y: p0.y + (p1.y - p0.y) * a.t };
+}
+// 扫码定位
+function scanLocation() {
+  var target = currentTargetSpace();
+  if (!target) { toast('请先输入车牌号定位车辆，或手动记录车位'); return; }
+  var elevs = points.filter(function (p) { return p.mall_id === target.mall_id && p.floor === target.floor; });
+  var pt = elevs[Math.floor(Math.random() * elevs.length)];
+  state.lastPoint = pt;
+  state.current = { x: pt.coord_x, y: pt.coord_y };
+  toast('模拟扫码定位成功：' + pt.name + '（' + pt.floor + '层）');
+  planRoute(pt);
+}
+
+/* -------- 充电桩弹窗 -------- */
+function showPile(p) {
+  $('pilePopup').style.display = 'block';
+  $('pileMask').classList.add('show');
+  $('pilePopup').innerHTML =
+    '<div class="title">⚡ 充电桩详情</div>' +
+    '<div class="row"><span class="k">车位号</span><span>' + p.space_id + '</span></div>' +
+    '<div class="row"><span class="k">类型</span><span>' + (p.connector_type === 'fast' ? '快充' : '慢充') + '</span></div>' +
+    '<div class="row"><span class="k">功率</span><span>' + p.power_kw + ' kW</span></div>' +
+    '<div class="row"><span class="k">运营商</span><span>' + p.operator + '</span></div>' +
+    '<div class="row"><span class="k">收费标准</span><span>电费 ¥' + p.price_electric + '/度 + 服务费 ¥' + p.price_service + '/度</span></div>' +
+    '<div class="row"><span class="k">状态</span><span>未知（仅供参考）</span></div>' +
+    '<div class="tip">MVP 阶段实时状态统一为“未知”</div>' +
+    '<button class="btn-primary" onclick="closePile()">知道了</button>';
+}
+function closePile() {
+  $('pilePopup').style.display = 'none';
+  $('pileMask').classList.remove('show');
+}
+
+/* ================= LPR 摄像头抓拍（模拟） ================= */
+var camCanvas, camCtx, camW = 350, camH = 196;
+var STEPS = [
+  { t: '车位状态检测', r: '空 → 占用' },
+  { t: '车牌区域定位', r: '检测框 0.97' },
+  { t: '字符 OCR 识别', r: '' },
+  { t: '车位绑定匹配', r: '' },
+  { t: '云端入库 + 推送', r: 'parking_records' }
+];
+var OTHER_PLATES = ['粤A88888', '粤S5Y23', '粤C9966Q', '粤E12345', '粤D77K09', '粤H3M21'];
+
+function openLpr() {
+  state.lprOpen = true;
+  $('lprPanel').classList.add('show');
+  if (!camCanvas) {
+    camCanvas = $('camCanvas');
+    camCtx = camCanvas.getContext('2d');
+    var dpr = window.devicePixelRatio || 1;
+    var r = camCanvas.getBoundingClientRect();
+    camW = r.width || 350; camH = r.height || 196;
+    camCanvas.width = camW * dpr; camCanvas.height = camH * dpr;
+    camCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  if (!$('lprCam').options.length) {
+    $('lprCam').innerHTML = cameras.map(function (c, i) {
+      return '<option value="' + i + '">' + c.name + '</option>';
+    }).join('');
+    $('lprCam').selectedIndex = 0;
+  }
+  onCamChange();
+  renderSteps(-1);
+  state.carEnter = 0;
+  $('lprPreview').innerHTML = '等待抓拍…';
+}
+function closeLpr() {
+  state.lprOpen = false;
+  $('lprPanel').classList.remove('show');
+}
+function onCamChange() {
+  var c = cameras[+$('lprCam').value];
+  $('camOsd').textContent = c.camera_id + ' · ' + c.name;
+}
+function renderSteps(cur) {
+  var html = '';
+  STEPS.forEach(function (s, i) {
+    var cls = i < cur ? 'done' : (i === cur ? 'run' : '');
+    var res = i < cur ? (s.r || '') : (i === cur ? '处理中…' : '');
+    if (i === 2 && i < cur && state.capResult) res = state.capResult.plate + ' · ' + state.capResult.confidence + '%';
+    if (i === 3 && i < cur && state.capResult) res = state.capResult.space_id;
+    html += '<div class="step ' + cls + '"><span class="dot"></span><span class="st">' + (i + 1) + '. ' + s.t + '</span><span class="sr">' + res + '</span></div>';
+  });
+  $('lprSteps').innerHTML = html;
+}
+// 绘制模拟监控画面
+function drawCam() {
+  if (!camCtx) return;
+  var w = camW, h = camH, t = Date.now();
+  var c = cameras[+$('lprCam').value] || cameras[0];
+  camCtx.clearRect(0, 0, w, h);
+  // 地面
+  camCtx.fillStyle = '#20252E';
+  camCtx.fillRect(0, 0, w, h);
+  var gTop = h * 0.28, gBot = h * 0.96;
+  var tx0 = w * 0.30, tx1 = w * 0.70, bx0 = w * 0.02, bx1 = w * 0.98;
+  camCtx.fillStyle = '#2C323C';
+  camCtx.beginPath();
+  camCtx.moveTo(tx0, gTop); camCtx.lineTo(tx1, gTop); camCtx.lineTo(bx1, gBot); camCtx.lineTo(bx0, gBot);
+  camCtx.closePath(); camCtx.fill();
+  // 车位线（3 个车位）
+  camCtx.strokeStyle = 'rgba(230,236,245,.35)'; camCtx.lineWidth = 1.6;
+  for (var i = 0; i <= 3; i++) {
+    var tv = tx0 + (tx1 - tx0) * i / 3, bv = bx0 + (bx1 - bx0) * i / 3;
+    camCtx.beginPath(); camCtx.moveTo(tv, gTop); camCtx.lineTo(bv, gBot); camCtx.stroke();
+  }
+  camCtx.beginPath(); camCtx.moveTo(tx0, gTop); camCtx.lineTo(bx0, gBot); camCtx.stroke();
+  camCtx.beginPath(); camCtx.moveTo(tx1, gTop); camCtx.lineTo(bx1, gBot); camCtx.stroke();
+  // 车位编号
+  camCtx.fillStyle = 'rgba(230,236,245,.32)';
+  camCtx.font = '9px sans-serif'; camCtx.textAlign = 'center';
+  ['A', 'B', 'C'].forEach(function (z, i) {
+    var tv = tx0 + (tx1 - tx0) * (i + 0.5) / 3, bv = bx0 + (bx1 - bx0) * (i + 0.5) / 3;
+    camCtx.fillText(c.zone + pad3(i + 1), (tv + bv) / 2, (gTop + gBot) / 2 - 2);
+  });
+  // 车身（中间车位，驶入动画）
+  var enter = state.carEnter; // 0=未入场 1=停好
+  var e = clamp(enter, 0, 1);
+  var shift = (1 - e) * w * 0.55;
+  var carTop = gTop + (gBot - gTop) * 0.10 + (1 - e) * 6;
+  var carBot = gBot - (gBot - gTop) * 0.06;
+  var ctv = tx0 + (tx1 - tx0) * (1.5 / 3) + shift * 0.35;
+  var cbv = bx0 + (bx1 - bx0) * (1.5 / 3) + shift;
+  var halfTop = (tx1 - tx0) / 3 * 0.36, halfBot = (bx1 - bx0) / 3 * 0.40;
+  if (enter > 0) {
+    camCtx.fillStyle = '#3E4A5C';
+    camCtx.beginPath();
+    camCtx.moveTo(ctv - halfTop, carTop); camCtx.lineTo(ctv + halfTop, carTop);
+    camCtx.lineTo(cbv + halfBot, carBot); camCtx.lineTo(cbv - halfBot, carBot);
+    camCtx.closePath(); camCtx.fill();
+    // 车顶
+    camCtx.fillStyle = '#4E5B70';
+    var rTop = 0.30, rBot = 0.72;
+    var mixT = carTop + (carBot - carTop) * rTop, mixB = carTop + (carBot - carTop) * rBot;
+    var mtv = ctv - halfTop + halfTop * 2 * rTop * 0 + (0);
+    camCtx.beginPath();
+    var lt = ctv - halfTop * 0.7, rt = ctv + halfTop * 0.7;
+    var lb = cbv - halfBot * 0.75, rb = cbv + halfBot * 0.75;
+    function mix(a, b, k) { return a + (b - a) * k; }
+    camCtx.moveTo(mix(lt, lb, rTop), mixT); camCtx.lineTo(mix(rt, rb, rTop), mixT);
+    camCtx.lineTo(mix(rt, rb, rBot), mixB); camCtx.lineTo(mix(lt, lb, rBot), mixB);
+    camCtx.closePath(); camCtx.fill();
+    // 车灯
+    camCtx.fillStyle = '#FFE9B0';
+    camCtx.beginPath(); camCtx.arc(mix(lt, lb, 0.94), mix(carTop, carBot, 0.94), 2.4, 0, 6.3); camCtx.fill();
+    camCtx.beginPath(); camCtx.arc(mix(rt, rb, 0.94), mix(carTop, carBot, 0.94), 2.4, 0, 6.3); camCtx.fill();
+    // 车牌区域
+    var plateBox = { x: mix(ctv, cbv, 0.88) - 17, y: mix(carTop, carBot, 0.86) - 6, w: 34, h: 13 };
+    var detected = state.capResult && state.capStage >= 2;
+    camCtx.fillStyle = detected ? '#F2F6FF' : '#8A94A6';
+    camCtx.fillRect(plateBox.x, plateBox.y, plateBox.w, plateBox.h);
+    camCtx.fillStyle = '#1F2733';
+    camCtx.font = 'bold 9px sans-serif';
+    camCtx.textAlign = 'center'; camCtx.textBaseline = 'middle';
+    camCtx.fillText(detected ? state.capResult.plate : '██████', plateBox.x + plateBox.w / 2, plateBox.y + plateBox.h / 2);
+    // 识别框
+    if (state.capStage >= 1) {
+      var pulse = 0.6 + 0.4 * Math.sin(t / 160);
+      camCtx.strokeStyle = state.capStage >= 2 ? 'rgba(76,208,138,' + pulse + ')' : 'rgba(232,180,74,' + pulse + ')';
+      camCtx.lineWidth = 1.8;
+      var pad = 3;
+      camCtx.strokeRect(plateBox.x - pad, plateBox.y - pad, plateBox.w + pad * 2, plateBox.h + pad * 2);
+    }
+  }
+  // OSD
+  camCtx.fillStyle = 'rgba(0,0,0,.35)';
+  camCtx.fillRect(0, 0, w, 16);
+  camCtx.fillStyle = (Math.floor(t / 500) % 2) ? '#E5484D' : '#6B3030';
+  camCtx.beginPath(); camCtx.arc(10, 8, 3.2, 0, 6.3); camCtx.fill();
+  camCtx.fillStyle = '#C9D2DE'; camCtx.font = '9px monospace'; camCtx.textAlign = 'left'; camCtx.textBaseline = 'middle';
+  camCtx.fillText('REC ' + c.camera_id, 18, 8);
+  camCtx.textAlign = 'right';
+  camCtx.fillText(new Date().toLocaleTimeString('zh-CN', { hour12: false }), w - 6, 8);
+  $('camTime').textContent = new Date().toLocaleTimeString('zh-CN', { hour12: false });
+  // 抓拍快门白闪
+  if (state.capStage === 0 && t - (state.capFlash || 0) < 220) {
+    camCtx.fillStyle = 'rgba(255,255,255,' + (0.5 * (1 - (t - state.capFlash) / 220)) + ')';
+    camCtx.fillRect(0, 0, w, h);
+  }
+}
+// 抓拍流水线
+function startCapture() {
+  var plate = $('lprPlate').value.trim().toUpperCase();
+  if (!validPlate(plate)) { toast('车牌号格式不正确，例如 粤T12345'); return; }
+  if (!state.lprAuth) { toast('已关闭相机自动识别授权，请在「我的」中开启'); return; }
+  var cam = cameras[+$('lprCam').value];
+  // 选择该相机覆盖区域内的一个空车位
+  var pool = spaces.filter(function (s) {
+    return s.mall_id === cam.mall_id && s.floor === cam.floor && s.zone === cam.zone && s.space_type === 'standard';
+  });
+  var occupied = {};
+  cloudParking.forEach(function (r) { occupied[r.space_id] = 1; });
+  var free = pool.filter(function (s) { return !occupied[s.space_id]; });
+  var s = (free.length ? free : pool)[Math.floor(Math.random() * (free.length ? free.length : pool.length))];
+  var conf = (92 + Math.random() * 7.9);
+  conf = Math.round(conf * 10) / 10;
+
+  state.capResult = { plate: plate, space_id: s.space_id, cam: cam, confidence: conf, mall_id: s.mall_id, floor: s.floor };
+  state.capStage = -1; state.carEnter = 0; state.capFlash = 0;
+  $('lprPreview').innerHTML = '车辆驶入中…';
+
+  // 阶段 0：车辆驶入动画 + 抓拍
+  var enterTimer = setInterval(function () {
+    state.carEnter += 0.08;
+    if (state.carEnter >= 1) {
+      state.carEnter = 1;
+      clearInterval(enterTimer);
+      state.capStage = 0; state.capFlash = Date.now();
+      renderSteps(0);
+      $('lprPreview').innerHTML = '📸 抓拍成功 → 车位状态：空 → 占用';
+      runPipeline();
+    }
+  }, 40);
+}
+function runPipeline() {
+  var r = state.capResult;
+  var delays = [700, 800, 700, 800];
+  var i = 1;
+  function next() {
+    if (i > 4) { finishCapture(); return; }
+    state.capStage = i;
+    renderSteps(i);
+    if (i === 2) $('lprPreview').innerHTML = '🔤 OCR 识别结果：<b style="color:#4CD08A">' + r.plate + '</b> · 置信度 ' + r.confidence + '%';
+    if (i === 3) $('lprPreview').innerHTML = '🔗 已与车位 <b style="color:#8FB4FF">' + r.space_id + '</b> 绑定（相机 ' + r.cam.camera_id + ' 覆盖 ' + r.cam.zone + '区）';
+    if (i === 4) $('lprPreview').innerHTML = '☁️ 写入 parking_records（status=parking）并推送订阅消息…';
+    i++;
+    setTimeout(next, delays[i - 2] || 800);
+  }
+  setTimeout(next, delays[0]);
+}
+function finishCapture() {
+  var r = state.capResult;
+  renderSteps(5);
+  var mine = isMyPlate(r.plate);
+  // 云端事件
+  lprEvents.unshift({
+    time: hhmm(0), plate: r.plate, space_id: r.space_id,
+    camera_id: r.cam.camera_id, confidence: r.confidence, status: 'bound', mine: mine
+  });
+  // 云端在停索引
+  var existing = null;
+  for (var i = 0; i < cloudParking.length; i++) if (cloudParking[i].plate === r.plate) { existing = cloudParking[i]; break; }
+  var rec = {
+    plate: r.plate, license_plate: r.plate, space_id: r.space_id, mall_id: r.mall_id, floor: r.floor,
+    entry: nowStr(), entryTs: Date.now(), source: 'lpr',
+    camera_id: r.cam.camera_id, camera_name: r.cam.name, confidence: r.confidence,
+    vehicle_type: (mine && r.plate === '粤B6688X') ? 'new_energy' : 'fuel'
+  };
+  if (existing) { for (var k in rec) existing[k] = rec[k]; }
+  else cloudParking.push(rec);
+
+  // 本人的车 → 自动成为当前停车记录
+  if (mine) {
+    state.record = rec;
+    state.plate = r.plate;
+    state.customTarget = false; state.targetSpace = null;
+    state.current = null; state.path = []; state.walkCells = null; state.lastPoint = null;
+    $('guideBox').style.display = 'none';
+    state.activeMall = rec.mall_id; state.activeFloor = rec.floor;
+    renderHome(); updateFindHeader(); renderChips(); resetView();
+  }
+  renderCloud(); renderProfile();
+  $('lprPreview').innerHTML =
+    '✅ 识别完成：<b style="color:#4CD08A">' + r.plate + '</b> → 车位 <b style="color:#8FB4FF">' + r.space_id + '</b><br>' +
+    '置信度 ' + r.confidence + '% · 相机 ' + r.cam.camera_id + '<br>' +
+    (mine ? '📲 已推送到你的小程序：无需任何操作即可寻车' : '（非你的绑定车牌，仅入库不推送）');
+  toast(mine ? '已自动记录车位 ' + r.space_id : '入库成功：' + maskPlate(r.plate));
+}
+function randomCapture() {
+  var p = OTHER_PLATES[Math.floor(Math.random() * OTHER_PLATES.length)];
+  $('lprPlate').value = p;
+  startCapture();
+}
+
+/* ================= 云端控制台 ================= */
+function renderCloud() {
+  $('cToday').textContent = TODAY_BASE + lprEvents.length;
+  var bound = 0;
+  lprEvents.forEach(function (e) { if (e.status === 'bound') bound++; });
+  $('cBind').textContent = (lprEvents.length ? Math.round(bound / lprEvents.length * 1000) / 10 : 96.8) + '%';
+  $('cCam').textContent = cameras.length;
+  $('cPark').textContent = cloudParking.length;
+
+  $('eventList').innerHTML = lprEvents.slice(0, 8).map(function (e) {
+    var bcls = e.status === 'bound' ? 'b-ok' : 'b-warn';
+    return '<div class="ev">' +
+      '<span class="ev-t">' + e.time + '</span>' +
+      '<span class="ev-b"><span class="ev-plate">' + (e.mine ? e.plate : maskPlate(e.plate)) + '</span>' +
+      '<span class="badge ' + bcls + '">' + (e.status === 'bound' ? '已绑定' : '待确认') + '</span>' +
+      '<div class="ev-sub">' + e.space_id + ' · ' + e.camera_id + ' · ' + e.confidence + '%' + (e.mine ? ' · 本人' : '') + '</div>' +
+      '</span></div>';
+  }).join('');
+
+  $('cloudIndex').innerHTML = cloudParking.slice(0, 7).map(function (r) {
+    var mine = isMyPlate(r.plate);
+    return '<div class="ev"><span class="ev-t">' + (mine ? '👤' : '🔒') + '</span>' +
+      '<span class="ev-b"><span class="ev-plate">' + (mine ? r.plate : maskPlate(r.plate)) + '</span>' +
+      '<div class="ev-sub">' + r.space_id + ' · ' + MALL_NAME[r.mall_id] + ' ' + r.floor + '层</div></span></div>';
+  }).join('');
+}
+
+/* ================= 我的页 ================= */
+function recordFee(r) {
+  if (r.exit === '停车中') return calcFee(Date.now() - parseTime(r.entry));
+  return calcFee(parseTime(r.exit) - parseTime(r.entry));
+}
+function renderProfile() {
+  $('uPlate').textContent = state.plate || '未设置车牌';
+  $('vehicleCard').innerHTML =
+    '<div class="sec-title">车辆管理</div>' +
+    '<div class="row"><span class="k">默认车牌</span><span>' + state.plate + '</span></div>' +
+    '<div class="row"><span class="k">车辆类型</span><span>' + (state.vtype === 'new_energy' ? '新能源' : '燃油车') + '</span></div>';
+
+  // 车牌绑定
+  $('plateList').innerHTML = state.plates.map(function (p, i) {
+    return '<div class="plate-item"><div><span class="pnum">' + p.plate + '</span>' +
+      '<div class="r-meta">' + p.model + '</div></div>' +
+      '<div class="switch ' + (p.authorized ? 'on' : '') + '" onclick="togglePlateAuth(' + i + ')"></div></div>';
+  }).join('');
+
+  // 相机识别记录（本人）
+  var mineEvents = lprEvents.filter(function (e) { return e.mine; }).slice(0, 6);
+  $('camLog').innerHTML = mineEvents.length ? mineEvents.map(function (e) {
+    return '<div class="cam-log"><div class="cl-top"><span>' + e.plate + '</span><span style="color:#1A6DFF">' + e.space_id + '</span></div>' +
+      '<div class="cl-sub">' + e.time + ' · ' + e.camera_id + ' · 置信度 ' + e.confidence + '% · <span style="color:#0FA958">自动绑定</span></div></div>';
+  }).join('') : '<div class="empty-tip">暂无识别记录</div>';
+
+  var list = state.records.slice();
+  if (state.record) list.unshift({ license_plate: state.record.license_plate, space_id: state.record.space_id, mall_id: state.record.mall_id, floor: state.record.floor, vehicle_type: state.record.vehicle_type || state.vtype, entry: state.record.entry, exit: '停车中' });
+  $('stCount').textContent = list.length;
+  var totalMs = list.reduce(function (s, r) {
+    return s + (r.exit === '停车中' ? Date.now() - parseTime(r.entry) : parseTime(r.exit) - parseTime(r.entry));
+  }, 0);
+  $('stTotal').textContent = fmtDur(totalMs);
+  var totalFee = list.reduce(function (s, r) { return s + recordFee(r).fee; }, 0);
+  $('stFee').textContent = '¥' + totalFee;
+
+  var kw = (state.recKeyword || '').trim().toUpperCase();
+  var view = kw ? list.filter(function (r) {
+    return (r.license_plate || '').toUpperCase().indexOf(kw) >= 0 ||
+           (r.space_id || '').toUpperCase().indexOf(kw) >= 0 ||
+           (MALL_NAME[r.mall_id] || '').indexOf(kw) >= 0;
+  }) : list;
+  $('recEmpty').style.display = view.length ? 'none' : 'block';
+  $('recEmpty').textContent = kw ? '没有匹配的停车记录' : '暂无停车记录';
+  $('recList').innerHTML = view.map(function (r, i) {
+    var fee = recordFee(r);
+    var open = state.expandedIdx === i;
+    return '<div class="rec" onclick="toggleRec(' + i + ')">' +
+      '<div class="r-top"><span class="r-plate">' + r.license_plate + '</span><span class="r-space">' + r.space_id + '</span></div>' +
+      '<div class="r-meta">' + MALL_NAME[r.mall_id] + ' ' + r.floor + '层 · ' + r.entry + ' ~ ' + r.exit + '</div>' +
+      (open ?
+        '<div class="r-detail">' +
+        '<div class="r-meta">车辆类型：' + (r.vehicle_type === 'new_energy' ? '新能源' : '燃油车') + '</div>' +
+        '<div class="r-meta">预估费用：' + fee.text + '（前30分钟免费）</div>' +
+        '<div class="r-meta">状态：' + (r.exit === '停车中' ? '停车中' : '已离场') + '</div>' +
+        (r.exit !== '停车中' ? '<button class="btn-ghost del-btn" onclick="event.stopPropagation();delRec(' + i + ')">删除该记录</button>' : '') +
+        '</div>' : '') +
+      '</div>';
+  }).join('');
+}
+function togglePlateAuth(i) {
+  state.plates[i].authorized = !state.plates[i].authorized;
+  renderProfile();
+  toast(state.plates[i].authorized ? state.plates[i].plate + ' 已授权自动识别' : state.plates[i].plate + ' 已取消授权');
+}
+function onRecSearch(v) { state.recKeyword = v; state.expandedIdx = null; renderProfile(); }
+function toggleRec(i) { state.expandedIdx = state.expandedIdx === i ? null : i; renderProfile(); }
+function delRec(i) {
+  var list = state.records.slice();
+  if (state.record) list.unshift(null);
+  var kw = (state.recKeyword || '').trim().toUpperCase();
+  var view = [];
+  list.forEach(function (r, idx) {
+    if (!r) return;
+    var hit = !kw || (r.license_plate || '').toUpperCase().indexOf(kw) >= 0 ||
+      (r.space_id || '').toUpperCase().indexOf(kw) >= 0 || (MALL_NAME[r.mall_id] || '').indexOf(kw) >= 0;
+    if (hit) view.push(idx - (state.record ? 1 : 0));
+  });
+  var realIdx = view[i];
+  if (realIdx === undefined || realIdx < 0) return;
+  if (!confirm('删除后不可恢复，确认删除该条停车记录？')) return;
+  state.records.splice(realIdx, 1);
+  state.expandedIdx = null;
+  renderProfile();
+  toast('已删除');
+}
+
+/* ================= v4 新增：车位平面图页（仿官方平面图：深色路网 + 绿色车位块） ================= */
+var LOT_FLOORS = ['B1', 'B3', 'B4', 'B5'];          // 共 4 层停车场
+function lotFloorsOf(mallId) { return mallId === 'holiday_plaza' ? ['B1'] : LOT_FLOORS; } // 假日广场仅 B1 一层
+var LOT_FLOOR_BASE = { B1: 100, B3: 300, B4: 400, B5: 800 }; // 各层编号段（对应截图 B5-835 风格）
+var lotCanvas, lotCtx, lotT = null, lotRects = [], lotSel = null, lotHover = null, lotFrom = 'home';
+var baseLotTile = 1, lotOrigin = { x: 0, y: 0 }, lotView = { zoom: 1, panX: 0, panY: 0 };
+var lotLayoutCache = {};   // mallId:floor -> 布局（车位块簇 + 电梯厅）
+var lotStatusCache = {};   // mallId:floor -> {space_id: free/occupied}
+
+/* -------- 楼层布局生成：车位块簇 + 电梯厅，假日广场分室内/室外（室内比室外大50%） -------- */
+function genLotLayout(mallId, floor, area) {
+  area = area || (mallId === 'holiday_plaza' ? 'indoor' : 'all');
+  var key = mallId + ':' + floor + ':' + area;
+  if (lotLayoutCache[key]) return lotLayoutCache[key];
+  var fIdx = LOT_FLOORS.indexOf(floor);
+  var jit = mallId === 'holiday_plaza' ? 3 : 0;
+  var blocks, elevators, base;
+  if (area === 'outdoor') {
+    // 假日广场·室外（约 61 车位）
+    blocks = [
+      { x: 14, y: 16, cols: 8, rows: 2 }, { x: 22, y: 44, cols: 6, rows: 2 },
+      { x: 14, y: 86, cols: 7, rows: 1 }, { x: 92, y: 12, cols: 6, rows: 2 },
+      { x: 118, y: 52, cols: 7, rows: 2 }
+    ];
+    base = 500; // 室外编号段 B1-5xx
+    elevators = [{ x: 20, y: 8, name: '1号入口' }, { x: 150, y: 82, name: '2号入口' }];
+  } else if (area === 'indoor') {
+    // 假日广场·室内（约 98 车位，比室外大约 50%）
+    blocks = [
+      { x: 12, y: 16, cols: 12, rows: 2 }, { x: 22, y: 44, cols: 8, rows: 3 },
+      { x: 14, y: 86, cols: 10, rows: 2 }, { x: 92, y: 12, cols: 8, rows: 2 },
+      { x: 118, y: 52, cols: 7, rows: 2 }
+    ];
+    base = 100; // 室内编号段 B1-1xx
+    elevators = [
+      { x: 16, y: 9, name: '1号电梯厅' }, { x: 58, y: 10, name: '2号电梯厅' },
+      { x: 102, y: 7, name: '3号电梯厅' }, { x: 152, y: 40, name: '4号电梯厅' },
+      { x: 64, y: 76, name: '5号电梯厅' }, { x: 144, y: 78, name: '6号电梯厅' }
+    ];
+  } else {
+    // 万象汇各层（8 簇，含 B3/B4/B5）
+    blocks = [
+      { x: 12 + jit, y: 16 + fIdx * 2, cols: 12, rows: 2 },
+      { x: 22 - jit, y: 44, cols: 10, rows: 3 },
+      { x: 14 + jit, y: 88 - fIdx, cols: 14, rows: 2 },
+      { x: 92, y: 12 + jit, cols: 9, rows: 3 },
+      { x: 118 - jit, y: 52, cols: 11, rows: 2 },
+      { x: 128 + jit, y: 84, cols: 9, rows: 2 },
+      { x: 160, y: 18 + fIdx * 2, cols: 6, rows: 4 },
+      { x: 66 + jit, y: 100, cols: 8, rows: 1 }
+    ];
+    base = LOT_FLOOR_BASE[floor];
+    elevators = [
+      { x: 16, y: 9, name: '1号电梯厅' }, { x: 58, y: 10 + fIdx, name: '2号电梯厅' },
+      { x: 102, y: 7, name: '3号电梯厅' }, { x: 152, y: 42 - jit, name: '4号电梯厅' },
+      { x: 64, y: 74 + jit, name: '5号电梯厅' }, { x: 144, y: 76, name: '6号电梯厅' }
+    ];
+  }
+  var spacesArr = [], n = 0;
+  blocks.forEach(function (b) {
+    for (var r = 0; r < b.rows; r++) {
+      for (var c = 0; c < b.cols; c++) {
+        n++;
+        spacesArr.push({
+          space_id: floor + '-' + (base + n), floor: floor,
+          coord_x: b.x + c * 5, coord_y: b.y + r * 8, charging: null
+        });
+      }
+    }
+  });
+  // 每个区域 10 个新能源充电装置：前 5 个快充（60kW），后 5 个慢充（7kW）
+  var step = Math.floor(spacesArr.length / 10);
+  for (var i = 0; i < 10; i++) {
+    spacesArr[Math.min(i * step + 3, spacesArr.length - 1)].charging = i < 5 ? 'fast' : 'slow';
+  }
+  var layout = { area: area, spaces: spacesArr, elevators: elevators };
+  lotLayoutCache[key] = layout;
+  return layout;
+}
+
+/* ===== 接口对接位置：真实环境替换此函数 =====
+ * 预期返回 { space_id: 'free' | 'occupied', ... }
+ * 例如：GET /api/parking/status?mall_id=xxx&floor=B1&area=indoor → 遍历结果填充 status 对象后 return
+ */
+function fetchSpaceStatus(mallId, floor, area, layoutSpaces) {
+  var status = {};
+  layoutSpaces.forEach(function (s) {
+    status[s.space_id] = Math.random() < 0.45 ? 'occupied' : 'free'; // 模拟约45%占用
+  });
+  return status;
+}
+function getLotStatus(mallId, floor, area) {
+  var key = mallId + ':' + floor + ':' + area;
+  if (!lotStatusCache[key]) lotStatusCache[key] = fetchSpaceStatus(mallId, floor, area, genLotLayout(mallId, floor, area).spaces);
+  return lotStatusCache[key];
+}
+
+function openLotMap(mallId, from) {
+  lotFrom = from || 'home'; // 记录来源页：home=首页概况，nev=新能源充电查询
+  lotView = { zoom: 1, panX: 0, panY: 0 }; // 进入时重置视角
+  state.lotMall = mallId;
+  state.lotFloor = 'B1';
+  state.lotArea = mallId === 'holiday_plaza' ? 'indoor' : 'all'; // 假日广场分室内/室外
+  lotSel = null; lotHover = null;
+  getLotStatus(mallId, 'B1', state.lotArea);
+  $('lotMallName').textContent = MALL_NAME[mallId] + ' · 车位平面图';
+  // 楼层栏：假日广场仅 B1，万象汇四层
+  LOT_FLOORS.forEach(function (f) {
+    var el = $('lotFloor-' + f);
+    el.style.display = lotFloorsOf(mallId).indexOf(f) >= 0 ? '' : 'none';
+    el.classList.toggle('on', f === 'B1');
+  });
+  // 室内/室外切换：仅假日广场显示
+  var showArea = mallId === 'holiday_plaza';
+  $('lotAreaToggle').style.display = showArea ? 'flex' : 'none';
+  if (showArea) {
+    ['indoor', 'outdoor'].forEach(function (a) { $('lotArea-' + a).classList.toggle('on', a === state.lotArea); });
+  }
+  document.querySelectorAll('.page').forEach(function (p) { p.classList.remove('active'); });
+  $('page-lotmap').classList.add('active');
+  requestAnimationFrame(setupLotCanvas);
+}
+function closeLotMap() {
+  $('page-lotmap').classList.remove('active');
+  if (lotFrom === 'nev') openNev(); // 从新能源充电页进入 → 返回上级充电页
+  else switchTab('home');           // 从首页进入 → 返回首页
+}
+function switchLotFloor(f) {
+  if (lotFloorsOf(state.lotMall).indexOf(f) < 0) return; // 该商场无此楼层
+  state.lotFloor = f;
+  lotView = { zoom: 1, panX: 0, panY: 0 };
+  lotSel = null; lotHover = null;
+  $('lotTip').textContent = '滚轮缩放 · 拖拽平移 · 悬停/点击车位查看编号';
+  LOT_FLOORS.forEach(function (x) { $('lotFloor-' + x).classList.toggle('on', x === f); });
+  getLotStatus(state.lotMall, f, state.lotArea);
+  setupLotCanvas();
+}
+function switchLotArea(area) {
+  state.lotArea = area;
+  lotView = { zoom: 1, panX: 0, panY: 0 };
+  lotSel = null; lotHover = null;
+  $('lotTip').textContent = '滚轮缩放 · 拖拽平移 · 悬停/点击车位查看编号';
+  ['indoor', 'outdoor'].forEach(function (a) { $('lotArea-' + a).classList.toggle('on', a === area); });
+  getLotStatus(state.lotMall, state.lotFloor, area);
+  setupLotCanvas();
+}
+function setupLotCanvas() {
+  lotCanvas = $('lotCanvas');
+  lotCtx = lotCanvas.getContext('2d');
+  var parent = lotCanvas.parentElement;
+  var w = parent.clientWidth, h = parent.clientHeight;
+  if (!w || !h) return;
+  var dpr = window.devicePixelRatio || 1;
+  lotCanvas.width = w * dpr; lotCanvas.height = h * dpr;
+  lotCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  // 等距(isometric)投影：屏幕 x=(X-Y)*0.866*t, y=(X+Y)*0.5*t - Z*0.6*t
+  var iw = (FLOOR_W + FLOOR_H) * 0.866; // iso 宽度（单位）
+  var ih = (FLOOR_W + FLOOR_H) * 0.5;   // iso 高度（单位）
+  baseLotTile = Math.min(w / iw, h / (ih + 14)) * 0.92;
+  lotOrigin = { x: w / 2, y: h * 0.30 };
+  drawLotMap();
+}
+// 3D 投影：车位坐标(x,y,z 单位) → 屏幕像素
+function projLot(x, y, z) {
+  var t = baseLotTile * lotView.zoom;
+  return {
+    x: lotOrigin.x + (x - y) * 0.866 * t + lotView.panX,
+    y: lotOrigin.y + (x + y) * 0.5 * t - z * 0.6 * t + lotView.panY
+  };
+}
+function fillPoly(pts) {
+  lotCtx.beginPath();
+  lotCtx.moveTo(pts[0].x, pts[0].y);
+  for (var i = 1; i < pts.length; i++) lotCtx.lineTo(pts[i].x, pts[i].y);
+  lotCtx.closePath(); lotCtx.fill();
+}
+function shade(hex, f) {
+  var n = parseInt(hex.slice(1), 16);
+  var r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+  return 'rgb(' + Math.round(r * f) + ',' + Math.round(g * f) + ',' + Math.round(b * f) + ')';
+}
+// 立体车位块：从 z0 到 z0+h，底面 (fx,fy) 尺寸 fw×fd
+function drawIsoBox(fx, fy, fw, fd, z0, h, base) {
+  var A = projLot(fx, fy, z0 + h), B = projLot(fx + fw, fy, z0 + h),
+      C = projLot(fx + fw, fy + fd, z0 + h), D = projLot(fx, fy + fd, z0 + h);
+  var B0 = projLot(fx + fw, fy, z0), C0 = projLot(fx + fw, fy + fd, z0), D0 = projLot(fx, fy + fd, z0);
+  lotCtx.fillStyle = shade(base, 0.60); fillPoly([B, C, C0, B0]); // 右侧面
+  lotCtx.fillStyle = shade(base, 0.78); fillPoly([C, D, D0, C0]); // 左侧面
+  lotCtx.fillStyle = shade(base, 1.00); fillPoly([A, B, C, D]);    // 顶面
+}
+function drawLotMap() {
+  if (!lotCtx || !baseLotTile) return;
+  var w = lotCanvas.clientWidth, h = lotCanvas.clientHeight;
+  lotCtx.clearRect(0, 0, w, h);
+  lotCtx.fillStyle = '#1B2027'; lotCtx.fillRect(0, 0, w, h);
+  var t = baseLotTile * lotView.zoom;
+  // 地面平台（立体基座）
+  drawIsoBox(0, 0, FLOOR_W, FLOOR_H, 0, 0, '#2C333C');
+  // 地面网格线
+  lotCtx.strokeStyle = '#333B45'; lotCtx.lineWidth = 1;
+  for (var gx = 20; gx < FLOOR_W; gx += 20) {
+    var a = projLot(gx, 0, 0), b = projLot(gx, FLOOR_H, 0);
+    lotCtx.beginPath(); lotCtx.moveTo(a.x, a.y); lotCtx.lineTo(b.x, b.y); lotCtx.stroke();
+  }
+  for (var gy = 20; gy < FLOOR_H; gy += 20) {
+    var c = projLot(0, gy, 0), d = projLot(FLOOR_W, gy, 0);
+    lotCtx.beginPath(); lotCtx.moveTo(c.x, c.y); lotCtx.lineTo(d.x, d.y); lotCtx.stroke();
+  }
+  // 结构块（中庭/设备间）立体
+  drawIsoBox(78, 0, 12, 34, 0, 3, '#3A434E');
+  drawIsoBox(150, 56, 30, 18, 0, 3, '#3A434E');
+  drawIsoBox(0, 66, 14, 10, 0, 2, '#3A434E');
+
+  var layout = genLotLayout(state.lotMall, state.lotFloor, state.lotArea);
+  var status = getLotStatus(state.lotMall, state.lotFloor, state.lotArea);
+  lotRects = [];
+  var showLabel = t > 2.4; // 放大到一定程度自动显示车位编号
+  layout.spaces.forEach(function (s) {
+    var st = status[s.space_id] || 'free';
+    var occ = st === 'occupied';
+    var cellH = occ ? 1.6 : 1.0;
+    var base = occ ? '#6A7480' : '#4E9E57';
+    drawIsoBox(s.coord_x, s.coord_y, 4, 6, 0, cellH, base); // 车位块
+    if (occ) drawIsoBox(s.coord_x + 0.6, s.coord_y + 1, 2.8, 4, cellH, 2.4, '#9AA3AD'); // 车辆
+    if (s.charging) drawIsoBox(s.coord_x + 1.4, s.coord_y + 0.4, 0.8, 0.8, 0, 3.2, s.charging === 'fast' ? '#FF8A00' : '#F2C230'); // 充电桩柱
+    var topFace = [projLot(s.coord_x, s.coord_y, cellH), projLot(s.coord_x + 4, s.coord_y, cellH), projLot(s.coord_x + 4, s.coord_y + 6, cellH), projLot(s.coord_x, s.coord_y + 6, cellH)];
+    if (lotSel === s.space_id) {
+      lotCtx.strokeStyle = '#4DA3FF'; lotCtx.lineWidth = 2;
+      lotCtx.beginPath(); lotCtx.moveTo(topFace[0].x, topFace[0].y);
+      for (var i = 1; i < 4; i++) lotCtx.lineTo(topFace[i].x, topFace[i].y);
+      lotCtx.closePath(); lotCtx.stroke();
+    }
+    var labelAt = projLot(s.coord_x + 2, s.coord_y + 3, cellH + (occ ? 2.4 : 0));
+    lotRects.push({ s: s, st: st, poly: topFace, labelAt: labelAt });
+    if (showLabel || lotSel === s.space_id || lotHover === s.space_id) drawLotLabel(s.space_id, labelAt);
+  });
+  // 电梯厅立体柱
+  layout.elevators.forEach(function (e) {
+    drawIsoBox(e.x - 2, e.y - 2, 4, 4, 0, 6, '#FF8A00');
+    var c = projLot(e.x, e.y, 6);
+    lotCtx.fillStyle = '#fff';
+    lotCtx.font = 'bold ' + Math.max(9, 3 * t) + 'px sans-serif';
+    lotCtx.textAlign = 'center'; lotCtx.textBaseline = 'middle';
+    lotCtx.fillText('🛗', c.x, c.y);
+    lotCtx.fillStyle = '#E8EDF2';
+    lotCtx.font = Math.max(8, 2.4 * t) + 'px sans-serif';
+    lotCtx.fillText(e.name, c.x, c.y + Math.max(10, 2.6 * t));
+  });
+}
+function drawLotLabel(txt, at) {
+  lotCtx.font = 'bold 9px sans-serif';
+  var tw = lotCtx.measureText(txt).width + 8;
+  var lx = at.x - tw / 2, ly = at.y - 15;
+  lotCtx.fillStyle = 'rgba(255,255,255,.96)';
+  lotCtx.fillRect(lx, ly, tw, 13);
+  lotCtx.strokeStyle = 'rgba(0,0,0,.2)'; lotCtx.lineWidth = 1; lotCtx.strokeRect(lx, ly, tw, 13);
+  lotCtx.fillStyle = '#1F2933'; lotCtx.textAlign = 'center'; lotCtx.textBaseline = 'middle';
+  lotCtx.fillText(txt, lx + tw / 2, ly + 6.5);
+}
+function pointInPoly(x, y, poly) {
+  var inside = false;
+  for (var i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    var xi = poly[i].x, yi = poly[i].y, xj = poly[j].x, yj = poly[j].y;
+    if ((yi > y) !== (yj > y)) inside = (x < (xj - xi) * (y - yi) / ((yj - yi) || 1e-9) + xi) !== inside;
+  }
+  return inside;
+}
+function hitLotSpace(px, py) {
+  for (var i = lotRects.length - 1; i >= 0; i--) {
+    if (pointInPoly(px, py, lotRects[i].poly)) return lotRects[i];
+  }
+  return null;
+}
+function lotTypeName(s) {
+  if (s.charging === 'fast') return '新能源 · 快充（60kW）';
+  if (s.charging === 'slow') return '新能源 · 慢充（7kW）';
+  return '标准车位';
+}
+function lotTipText(r) {
+  return '<b>' + r.s.space_id + '</b> · ' + r.s.floor + '层 · ' + lotTypeName(r.s) +
+    ' · 状态：<b>' + (r.st === 'occupied' ? '已占用' : '空闲') + '</b>';
+}
+function bindLotCanvas() {
+  var c = $('lotCanvas');
+  var drag = null, moved = false;
+  c.addEventListener('mousemove', function (e) {
+    var rect = c.getBoundingClientRect();
+    if (drag) {
+      var dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+      if (Math.abs(dx) + Math.abs(dy) > 4) moved = true;
+      lotView.panX = drag.px + dx; lotView.panY = drag.py + dy;
+      drawLotMap();
+      return;
+    }
+    var r = hitLotSpace(e.clientX - rect.left, e.clientY - rect.top);
+    var nh = r ? r.s.space_id : null;
+    if (nh !== lotHover) { lotHover = nh; drawLotMap(); }
+    if (r) { $('lotTip').innerHTML = lotTipText(r); c.style.cursor = 'pointer'; }
+    else { c.style.cursor = 'grab'; }
+  });
+  c.addEventListener('mouseleave', function () {
+    lotHover = null; drawLotMap();
+    if (lotSel) {
+      var r = lotRects.filter(function (x) { return x.s.space_id === lotSel; })[0];
+      if (r) { $('lotTip').innerHTML = lotTipText(r); return; }
+    }
+    $('lotTip').textContent = '滚轮缩放 · 拖拽平移 · 悬停/点击车位查看编号';
+  });
+  c.addEventListener('mousedown', function (e) {
+    drag = { x: e.clientX, y: e.clientY, px: lotView.panX, py: lotView.panY };
+    moved = false; c.style.cursor = 'grabbing';
+  });
+  window.addEventListener('mouseup', function () { if (drag) { drag = null; c.style.cursor = 'grab'; } });
+  c.addEventListener('click', function (e) {
+    if (moved) { moved = false; return; } // 拖拽后不触发选中
+    var rect = c.getBoundingClientRect();
+    var r = hitLotSpace(e.clientX - rect.left, e.clientY - rect.top);
+    if (r) { lotSel = r.s.space_id; $('lotTip').innerHTML = lotTipText(r); }
+    else { lotSel = null; $('lotTip').textContent = '滚轮缩放 · 拖拽平移 · 悬停/点击车位查看编号'; }
+    drawLotMap();
+  });
+  // 滚轮缩放（以鼠标为中心）
+  c.addEventListener('wheel', function (e) {
+    e.preventDefault();
+    var rect = c.getBoundingClientRect();
+    var cx = e.clientX - rect.left, cy = e.clientY - rect.top;
+    var old = lotView.zoom;
+    lotView.zoom = clamp(old + (e.deltaY < 0 ? 0.2 : -0.2), 0.7, 4.5);
+    var k = lotView.zoom / old;
+    lotView.panX = cx - lotOrigin.x - (cx - lotOrigin.x - lotView.panX) * k;
+    lotView.panY = cy - lotOrigin.y - (cy - lotOrigin.y - lotView.panY) * k;
+    drawLotMap();
+  }, { passive: false });
+}
+
+/* ================= v4 新增：新能源充电查询页 ================= */
+function nevAreas(mallId) {
+  if (mallId === 'wanxianghui') return LOT_FLOORS.map(function (f) { return { floor: f, area: 'all', label: f + '层' }; });
+  return [{ floor: 'B1', area: 'indoor', label: '室内' }, { floor: 'B1', area: 'outdoor', label: '室外' }]; // 假日广场仅 B1，分室内/室外
+}
+function openNev() {
+  document.querySelectorAll('.page').forEach(function (p) { p.classList.remove('active'); });
+  $('page-nev').classList.add('active');
+  renderNev();
+}
+function closeNev() {
+  $('page-nev').classList.remove('active');
+  switchTab('home');
+}
+function renderNev() {
+  var html = '';
+  Object.keys(MALL_NAME).forEach(function (mid) {
+    var rows = '', totF = 0, totS = 0, freeF = 0, freeS = 0;
+    nevAreas(mid).forEach(function (a) {
+      var layout = genLotLayout(mid, a.floor, a.area);
+      var st = getLotStatus(mid, a.floor, a.area);
+      var fT = 0, fF = 0, sT = 0, sF = 0;
+      layout.spaces.forEach(function (s) {
+        if (!s.charging) return;
+        if (s.charging === 'fast') { fT++; if (st[s.space_id] === 'free') fF++; }
+        else { sT++; if (st[s.space_id] === 'free') sF++; }
+      });
+      totF += fT; totS += sT; freeF += fF; freeS += sF;
+      rows += '<div class="nev-row"><span>' + a.label + '</span><span>⚡快充空闲 <b>' + fF + '</b>/' + fT + ' · 🔋慢充空闲 <b>' + sF + '</b>/' + sT + '</span></div>';
+    });
+    html += '<div class="card" style="margin-top:10px">' +
+      '<div class="sec-title">⚡ ' + MALL_NAME[mid] + '停车场</div>' + rows +
+      '<div class="nev-sum">合计：快充空闲 <b>' + freeF + '</b>/' + totF + ' · 慢充空闲 <b>' + freeS + '</b>/' + totS + '</div>' +
+      '<button class="btn-primary" style="margin-top:10px" onclick="openLotMap(\'' + mid + '\', \'nev\')">查看充电车位分布</button></div>';
+  });
+  $('nevList').innerHTML = html;
+}
+
+/* ================= 初始化 ================= */
+renderHome();
+renderLprStat();
+renderMyPlates();
+renderCloud();
+setupCanvas();
+bindLotCanvas();
+window.addEventListener('resize', function () { if ($('page-lotmap').classList.contains('active')) setupLotCanvas(); });
+updateFindHeader();
+renderChips();
+$('plateSearch').value = state.plate;
+</script>
+</body>
+</html>

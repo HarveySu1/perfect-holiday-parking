@@ -1,0 +1,14 @@
+{
+  "slideStyle": "minimalist",
+  "colorScheme": "Modern Tech Style",
+  "primaryColor": "#1A6DFF",
+  "accentColor1": "#7B61FF",
+  "accentColor2": "#0FA958",
+  "neutralColor": "#5F6368",
+  "background": {
+    "type": "color",
+    "value": "#FFFFFF"
+  },
+  "fontTitle": "'Inter', 'Noto Sans SC', sans-serif",
+  "fontBody": "'Inter', 'Noto Sans SC', sans-serif"
+}

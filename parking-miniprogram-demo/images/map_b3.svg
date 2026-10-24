@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000" style="background-color:#D6E4F0">
+  <rect x="0" y="0" width="800" height="1000" fill="#4A5568"/>
+  <polygon points="80,80 720,80 760,200 720,400 760,600 720,800 680,920 120,920 80,800 120,600 80,400 120,200" fill="#5A8F6A"/>
+  <polygon points="200,200 600,200 640,320 600,500 640,680 600,800 200,800 160,680 200,500 160,320" fill="#4A5568"/>
+  <rect x="240" y="240" width="32" height="32" fill="#F5A623" rx="4" ry="4"/>
+  <rect x="246" y="245" width="20" height="22" fill="none" stroke="#FFFFFF" stroke-width="2" rx="1"/>
+  <path d="M256.0,245 V267" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="256.0" y="286" fill="#333333" font-size="11" font-weight="600" text-anchor="middle" font-family="PingFang SC, Microsoft YaHei, sans-serif">3号电梯厅</text>
+  <rect x="520" y="680" width="32" height="32" fill="#F5A623" rx="4" ry="4"/>
+  <path d="M527,705 L545,687" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M527,687 L527,705" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="536.0" y="726" fill="#333333" font-size="11" font-weight="600" text-anchor="middle" font-family="PingFang SC, Microsoft YaHei, sans-serif">7号电梯厅</text>
+  <text x="140" y="140" fill="#FFFFFF" font-size="10" font-weight="600" text-anchor="middle" font-family="PingFang SC, Microsoft YaHei, sans-serif">B3-101</text>
+  <text x="180" y="140" fill="#FFFFFF" font-size="10" font-weight="600" text-anchor="middle" font-family="PingFang SC, Microsoft YaHei, sans-serif">B3-102</text>
+  <text x="220" y="140" fill="#FFFFFF" font-size="10" font-weight="600" text-anchor="middle" font-family="PingFang SC, Microsoft YaHei, sans-serif">B3-103</text>
+  <text x="620" y="260" fill="#FFFFFF" font-size="10" font-weight="600" text-anchor="middle" font-family="PingFang SC, Microsoft YaHei, sans-serif">B3-201</text>
+  <text x="660" y="260" fill="#FFFFFF" font-size="10" font-weight="600" text-anchor="middle" font-family="PingFang SC, Microsoft YaHei, sans-serif">B3-202</text>
+  <text x="140" y="860" fill="#FFFFFF" font-size="10" font-weight="600" text-anchor="middle" font-family="PingFang SC, Microsoft YaHei, sans-serif">B3-301</text>
+  <text x="180" y="860" fill="#FFFFFF" font-size="10" font-weight="600" text-anchor="middle" font-family="PingFang SC, Microsoft YaHei, sans-serif">B3-302</text>
+  <text x="60" y="60" fill="#E24B4B" font-size="14" font-weight="bold" text-anchor="middle" font-family="PingFang SC, Microsoft YaHei, sans-serif">N</text>
+  <path d="M 60 64 L 54 90 L 60 84 L 66 90 Z" fill="#4A90E2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

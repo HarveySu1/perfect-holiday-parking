@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>B5 停车场平面图 - 车记得</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+    #app { display: flex; flex-direction: column; height: 100vh; background: #F7F9FB; }
+    #toolbar { display: flex; align-items: center; gap: 10px; padding: 10px 16px; background: #fff; border-bottom: 1px solid #E5E7EB; box-shadow: 0 1px 3px rgba(0,0,0,0.04); z-index: 10; }
+    #toolbar h1 { font-size: 16px; font-weight: 600; color: #1F2937; margin-right: auto; }
+    .btn { padding: 6px 12px; font-size: 13px; border: 1px solid #D1D5DB; border-radius: 6px; background: #fff; color: #374151; cursor: pointer; transition: all 0.15s; user-select: none; }
+    .btn:hover { background: #F3F4F6; border-color: #9CA3AF; }
+    .btn.active { background: #E0F2FE; border-color: #7DD3FC; color: #0369A1; }
+    .btn-group { display: flex; gap: 6px; }
+    #canvas-container { flex: 1; position: relative; overflow: hidden; cursor: grab; }
+    #canvas-container.grabbing { cursor: grabbing; }
+    #floor-plan { display: block; width: 100%; height: 100%; }
+    .status { font-size: 12px; color: #6B7280; margin-left: 10px; }
+
+    /* SVG 样式 */
+    .outer-wall { fill: #EAF0F5; }
+    .lane { fill: #4A4A4A; }
+    .lane-center-line { stroke: #F5D76E; opacity: 0.85; }
+    .parking-slot { fill: #E3EEF7; stroke: #5A7A96; stroke-width: 1.2; }
+    .parking-slot:hover { fill: #BFDBFE; stroke: #2563EB; }
+    .slot-label { font-family: "Segoe UI", "PingFang SC", sans-serif; font-weight: 500; pointer-events: none; }
+    .column { fill: #7A7A7A; }
+    .facility { fill: #D0E6F7; }
+    .ramp { fill: #D5D5D5; }
+    .facility-label, .ramp-label { font-family: "PingFang SC", "Microsoft YaHei", sans-serif; font-weight: 600; pointer-events: none; }
+    .direction-arrow { opacity: 0.7; }
+    .scale-text, .north-label, .floor-title, .scale-note { font-family: "PingFang SC", "Microsoft YaHei", sans-serif; pointer-events: none; }
+
+    /* 隐藏图层 */
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div id="toolbar">
+      <h1>B5 停车场平面图</h1>
+      <div class="btn-group">
+        <button class="btn" id="btn-zoom-in" title="放大">+</button>
+        <button class="btn" id="btn-zoom-out" title="缩小">−</button>
+        <button class="btn" id="btn-reset" title="复位">复位</button>
+      </div>
+      <div class="btn-group">
+        <button class="btn active" id="btn-toggle-labels" title="显示/隐藏车位编号">车位编号</button>
+        <button class="btn active" id="btn-toggle-annotations" title="显示/隐藏标注">标注</button>
+        <button class="btn active" id="btn-toggle-arrows" title="显示/隐藏方向箭头">箭头</button>
+      </div>
+      <span class="status" id="zoom-status">缩放: 100%</span>
+    </div>
+    <div id="canvas-container">
+<svg id="floor-plan" viewBox="0 0 1600 1100" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <marker id='arrowhead' markerWidth='8' markerHeight='8' refX='6' refY='3' orient='auto'>
+      <path d='M0,0 L8,3 L0,6 Z' fill='#5A7A96' />
+    </marker>
+  </defs>
+  <rect id="canvas-bg" x="0" y="0" width="1600" height="1100" fill="#F7F9FB" />
+  <g id="grid-lines" opacity="0.18">
+    <line x1="0" y1="0" x2="0" y2="1100" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="50" y1="0" x2="50" y2="1100" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="100" y1="0" x2="100" y2="1100" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="150" y1="0" x2="150" y2="1100" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="200" y1="0" x2="200" y2="1100" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="250" y1="0" x2="250" y2="1100" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="300" y1="0" x2="300" y2="1100" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="350" y1="0" x2="350" y2="1100" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="400" y1="0" x2="400" y2="1100" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="450" y1="0" x2="450" y2="1100" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="500" y1="0" x2="500" y2="1100" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="550" y1="0" x2="550" y2="1100" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="600" y1="0" x2="600" y2="1100" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="650" y1="0" x2="650" y2="1100" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="700" y1="0" x2="700" y2="1100" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="750" y1="0" x2="750" y2="1100" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="800" y1="0" x2="800" y2="1100" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="850" y1="0" x2="850" y2="1100" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="900" y1="0" x2="900" y2="1100" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="950" y1="0" x2="950" y2="1100" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="1000" y1="0" x2="1000" y2="1100" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="1050" y1="0" x2="1050" y2="1100" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="1100" y1="0" x2="1100" y2="1100" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="1150" y1="0" x2="1150" y2="1100" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="1200" y1="0" x2="1200" y2="1100" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="1250" y1="0" x2="1250" y2="1100" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="1300" y1="0" x2="1300" y2="1100" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="1350" y1="0" x2="1350" y2="1100" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="1400" y1="0" x2="1400" y2="1100" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="1450" y1="0" x2="1450" y2="1100" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="1500" y1="0" x2="1500" y2="1100" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="1550" y1="0" x2="1550" y2="1100" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="1600" y1="0" x2="1600" y2="1100" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="0" y1="0" x2="1600" y2="0" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="0" y1="50" x2="1600" y2="50" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="0" y1="100" x2="1600" y2="100" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="0" y1="150" x2="1600" y2="150" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="0" y1="200" x2="1600" y2="200" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="0" y1="250" x2="1600" y2="250" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="0" y1="300" x2="1600" y2="300" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="0" y1="350" x2="1600" y2="350" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="0" y1="400" x2="1600" y2="400" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="0" y1="450" x2="1600" y2="450" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="0" y1="500" x2="1600" y2="500" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="0" y1="550" x2="1600" y2="550" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="0" y1="600" x2="1600" y2="600" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="0" y1="650" x2="1600" y2="650" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="0" y1="700" x2="1600" y2="700" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="0" y1="750" x2="1600" y2="750" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="0" y1="800" x2="1600" y2="800" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="0" y1="850" x2="1600" y2="850" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="0" y1="900" x2="1600" y2="900" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="0" y1="950" x2="1600" y2="950" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="0" y1="1000" x2="1600" y2="1000" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="0" y1="1050" x2="1600" y2="1050" stroke="#94A3B8" stroke-width="0.5" />
+    <line x1="0" y1="1100" x2="1600" y2="1100" stroke="#94A3B8" stroke-width="0.5" />
+  </g>
+  <polygon class="outer-wall" id="outer-boundary" fill="#EAF0F5" stroke="#2B2B2B" stroke-width="6" points='320,90 520,70 780,95 1020,130 1240,165 1380,195 1440,240 1460,420 1450,620 1390,760 1220,820 980,860 760,900 520,960 280,910 110,790 85,600 100,400 180,220' />
+  <g id="lanes">
+  <polygon class="lane" id="lane-main-spine" fill="#4A4A4A" stroke="#2B2B2B" stroke-width="2" points='541.21,961.21 721.21,781.21 920.66,581.75 1118.53,403.59 1336.9,254.79 1303.1,205.21 1081.47,356.41 879.34,538.25 678.79,738.79 498.79,918.79' />
+  <polygon class="lane" id="lane-left-peripheral" fill="#4A4A4A" stroke="#2B2B2B" stroke-width="2" points='205.96,829.08 275.96,629.08 345.96,429.08 415.96,229.08 364.04,210.92 294.04,410.92 224.04,610.92 154.04,810.92' />
+  <polygon class="lane" id="lane-left-connector-n" fill="#4A4A4A" stroke="#2B2B2B" stroke-width="2" points='390.0,245.0 518.08,244.93 646.2,264.71 653.8,215.29 521.92,195.07 390.0,195.0' />
+  <polygon class="lane" id="lane-left-connector-m" fill="#4A4A4A" stroke="#2B2B2B" stroke-width="2" points='319.04,444.98 577.74,454.9 755.89,484.66 764.11,435.34 582.26,405.1 320.96,395.02' />
+  <polygon class="lane" id="lane-left-connector-s" fill="#4A4A4A" stroke="#2B2B2B" stroke-width="2" points='248.15,644.93 517.08,664.83 755.89,704.66 764.11,655.34 522.92,615.17 251.85,595.07' />
+  <polygon class="lane" id="lane-right-top-traverse" fill="#4A4A4A" stroke="#2B2B2B" stroke-width="2" points='1015.68,157.16 1233.03,191.6 1430.34,265.75 1449.66,214.25 1246.97,138.4 1024.32,102.84' />
+  <polygon class="lane" id="lane-right-mid-traverse" fill="#4A4A4A" stroke="#2B2B2B" stroke-width="2" points='897.26,387.36 1097.72,407.41 1376.96,427.33 1453.33,446.68 1466.67,393.32 1383.04,372.67 1102.28,352.59 902.74,332.64' />
+  <polygon class="lane" id="lane-right-lower-traverse" fill="#4A4A4A" stroke="#2B2B2B" stroke-width="2" points='757.51,707.39 977.62,727.4 1216.02,747.21 1383.7,786.77 1396.3,733.23 1223.98,692.79 982.38,672.6 762.49,652.61' />
+  <polygon class="lane" id="lane-right-vertical-e" fill="#4A4A4A" stroke="#2B2B2B" stroke-width="2" points='1355.0,195.0 1355.0,400.44 1365.01,760.69 1414.99,759.31 1405.0,399.56 1405.0,195.0' />
+  <polygon class="lane" id="lane-right-vertical-w" fill="#4A4A4A" stroke="#2B2B2B" stroke-width="2" points='1195.0,165.0 1195.0,380.0 1195.0,720.0 1245.0,720.0 1245.0,380.0 1245.0,165.0' />
+  <polygon class="lane" id="lane-central-east-west" fill="#4A4A4A" stroke="#2B2B2B" stroke-width="2" points='760.0,485.0 905.73,484.34 1109.28,403.21 1090.72,356.79 894.27,435.66 760.0,435.0' />
+  </g>
+  <g id="lane-center-lines">
+  <line class="lane-center-line" id="lane-center-main-spine-0" stroke="#F5D76E" stroke-width="2" stroke-dasharray="8,8" x1='520' y1='940' x2='700' y2='760' />
+  <line class="lane-center-line" id="lane-center-main-spine-1" stroke="#F5D76E" stroke-width="2" stroke-dasharray="8,8" x1='700' y1='760' x2='900' y2='560' />
+  <line class="lane-center-line" id="lane-center-main-spine-2" stroke="#F5D76E" stroke-width="2" stroke-dasharray="8,8" x1='900' y1='560' x2='1100' y2='380' />
+  <line class="lane-center-line" id="lane-center-main-spine-3" stroke="#F5D76E" stroke-width="2" stroke-dasharray="8,8" x1='1100' y1='380' x2='1320' y2='230' />
+  <line class="lane-center-line" id="lane-center-left-peripheral-0" stroke="#F5D76E" stroke-width="2" stroke-dasharray="8,8" x1='180' y1='820' x2='250' y2='620' />
+  <line class="lane-center-line" id="lane-center-left-peripheral-1" stroke="#F5D76E" stroke-width="2" stroke-dasharray="8,8" x1='250' y1='620' x2='320' y2='420' />
+  <line class="lane-center-line" id="lane-center-left-peripheral-2" stroke="#F5D76E" stroke-width="2" stroke-dasharray="8,8" x1='320' y1='420' x2='390' y2='220' />
+  <line class="lane-center-line" id="lane-center-left-connector-n-0" stroke="#F5D76E" stroke-width="2" stroke-dasharray="8,8" x1='390' y1='220' x2='520' y2='220' />
+  <line class="lane-center-line" id="lane-center-left-connector-n-1" stroke="#F5D76E" stroke-width="2" stroke-dasharray="8,8" x1='520' y1='220' x2='650' y2='240' />
+  <line class="lane-center-line" id="lane-center-left-connector-m-0" stroke="#F5D76E" stroke-width="2" stroke-dasharray="8,8" x1='320' y1='420' x2='580' y2='430' />
+  <line class="lane-center-line" id="lane-center-left-connector-m-1" stroke="#F5D76E" stroke-width="2" stroke-dasharray="8,8" x1='580' y1='430' x2='760' y2='460' />
+  <line class="lane-center-line" id="lane-center-left-connector-s-0" stroke="#F5D76E" stroke-width="2" stroke-dasharray="8,8" x1='250' y1='620' x2='520' y2='640' />
+  <line class="lane-center-line" id="lane-center-left-connector-s-1" stroke="#F5D76E" stroke-width="2" stroke-dasharray="8,8" x1='520' y1='640' x2='760' y2='680' />
+  <line class="lane-center-line" id="lane-center-right-top-traverse-0" stroke="#F5D76E" stroke-width="2" stroke-dasharray="8,8" x1='1020' y1='130' x2='1240' y2='165' />
+  <line class="lane-center-line" id="lane-center-right-top-traverse-1" stroke="#F5D76E" stroke-width="2" stroke-dasharray="8,8" x1='1240' y1='165' x2='1440' y2='240' />
+  <line class="lane-center-line" id="lane-center-right-mid-traverse-0" stroke="#F5D76E" stroke-width="2" stroke-dasharray="8,8" x1='900' y1='360' x2='1100' y2='380' />
+  <line class="lane-center-line" id="lane-center-right-mid-traverse-1" stroke="#F5D76E" stroke-width="2" stroke-dasharray="8,8" x1='1100' y1='380' x2='1380' y2='400' />
+  <line class="lane-center-line" id="lane-center-right-mid-traverse-2" stroke="#F5D76E" stroke-width="2" stroke-dasharray="8,8" x1='1380' y1='400' x2='1460' y2='420' />
+  <line class="lane-center-line" id="lane-center-right-lower-traverse-0" stroke="#F5D76E" stroke-width="2" stroke-dasharray="8,8" x1='760' y1='680' x2='980' y2='700' />
+  <line class="lane-center-line" id="lane-center-right-lower-traverse-1" stroke="#F5D76E" stroke-width="2" stroke-dasharray="8,8" x1='980' y1='700' x2='1220' y2='720' />
+  <line class="lane-center-line" id="lane-center-right-lower-traverse-2" stroke="#F5D76E" stroke-width="2" stroke-dasharray="8,8" x1='1220' y1='720' x2='1390' y2='760' />
+  <line class="lane-center-line" id="lane-center-right-vertical-e-0" stroke="#F5D76E" stroke-width="2" stroke-dasharray="8,8" x1='1380' y1='195' x2='1380' y2='400' />
+  <line class="lane-center-line" id="lane-center-right-vertical-e-1" stroke="#F5D76E" stroke-width="2" stroke-dasharray="8,8" x1='1380' y1='400' x2='1390' y2='760' />
+  <line class="lane-center-line" id="lane-center-right-vertical-w-0" stroke="#F5D76E" stroke-width="2" stroke-dasharray="8,8" x1='1220' y1='165' x2='1220' y2='380' />
+  <line class="lane-center-line" id="lane-center-right-vertical-w-1" stroke="#F5D76E" stroke-width="2" stroke-dasharray="8,8" x1='1220' y1='380' x2='1220' y2='720' />
+  <line class="lane-center-line" id="lane-center-central-east-west-0" stroke="#F5D76E" stroke-width="2" stroke-dasharray="8,8" x1='760' y1='460' x2='900' y2='460' />
+  <line class="lane-center-line" id="lane-center-central-east-west-1" stroke="#F5D76E" stroke-width="2" stroke-dasharray="8,8" x1='900' y1='460' x2='1100' y2='380' />
+  </g>
+  <g id="parking-slots">
+  <polygon class="parking-slot" id="a-slot-01" points='430.0,220.0 458.3333333333333,223.33333333333334 454.22785259354976,273.16449856048075 425.89451926021644,269.83116522714744' />
+  <polygon class="parking-slot" id="a-slot-02" points='458.3333333333333,223.33333333333334 486.6666666666667,226.66666666666666 482.5611859268831,276.49783189381407 454.22785259354976,273.16449856048075' />
+  <polygon class="parking-slot" id="a-slot-03" points='486.6666666666667,226.66666666666666 515.0,230.0 510.89451926021644,279.83116522714744 482.5611859268831,276.49783189381407' />
+  <polygon class="parking-slot" id="a-slot-04" points='515.0,230.0 543.3333333333334,233.33333333333334 539.2278525935499,283.16449856048075 510.89451926021644,279.83116522714744' />
+  <polygon class="parking-slot" id="a-slot-05" points='543.3333333333334,233.33333333333334 571.6666666666667,236.66666666666666 567.5611859268832,286.49783189381407 539.2278525935499,283.16449856048075' />
+  <polygon class="parking-slot" id="a-slot-06" points='571.6666666666667,236.66666666666666 600.0,240.0 595.8945192602165,289.83116522714744 567.5611859268832,286.49783189381407' />
+  <polygon class="parking-slot" id="b-slot-01" points='360.0,420.0 386.6666666666667,422.22222222222223 384.2558693972933,472.164068969474 357.5892027306266,469.94184674725176' />
+  <polygon class="parking-slot" id="b-slot-02" points='386.6666666666667,422.22222222222223 413.3333333333333,424.44444444444446 410.9225360639599,474.3862911916962 384.2558693972933,472.164068969474' />
+  <polygon class="parking-slot" id="b-slot-03" points='413.3333333333333,424.44444444444446 440.0,426.6666666666667 437.5892027306266,476.60851341391844 410.9225360639599,474.3862911916962' />
+  <polygon class="parking-slot" id="b-slot-04" points='440.0,426.6666666666667 466.66666666666663,428.8888888888889 464.2558693972932,478.8307356361407 437.5892027306266,476.60851341391844' />
+  <polygon class="parking-slot" id="b-slot-05" points='466.66666666666663,428.8888888888889 493.33333333333337,431.1111111111111 490.92253606395997,481.05295785836284 464.2558693972932,478.8307356361407' />
+  <polygon class="parking-slot" id="b-slot-06" points='493.33333333333337,431.1111111111111 520.0,433.3333333333333 517.5892027306265,483.2751800805851 490.92253606395997,481.05295785836284' />
+  <polygon class="parking-slot" id="b-slot-07" points='520.0,433.3333333333333 546.6666666666666,435.55555555555554 544.2558693972932,485.4974023028073 517.5892027306265,483.2751800805851' />
+  <polygon class="parking-slot" id="b-slot-08" points='546.6666666666666,435.55555555555554 573.3333333333333,437.77777777777777 570.9225360639598,487.71962452502953 544.2558693972932,485.4974023028073' />
+  <polygon class="parking-slot" id="b-slot-09" points='573.3333333333333,437.77777777777777 600.0,440.0 597.5892027306265,489.94184674725176 570.9225360639598,487.71962452502953' />
+  <polygon class="parking-slot" id="c-slot-01" points='290.0,620.0 316.3636363636364,622.7272727272727 312.9575251274238,672.6111218795439 286.59388876378745,669.8838491522712' />
+  <polygon class="parking-slot" id="c-slot-02" points='316.3636363636364,622.7272727272727 342.72727272727275,625.4545454545455 339.3211614910602,675.3383946068167 312.9575251274238,672.6111218795439' />
+  <polygon class="parking-slot" id="c-slot-03" points='342.72727272727275,625.4545454545455 369.09090909090907,628.1818181818181 365.6847978546965,678.0656673340893 339.3211614910602,675.3383946068167' />
+  <polygon class="parking-slot" id="c-slot-04" points='369.09090909090907,628.1818181818181 395.45454545454544,630.9090909090909 392.0484342183329,680.7929400613621 365.6847978546965,678.0656673340893' />
+  <polygon class="parking-slot" id="c-slot-05" points='395.45454545454544,630.9090909090909 421.8181818181818,633.6363636363636 418.41207058196926,683.5202127886348 392.0484342183329,680.7929400613621' />
+  <polygon class="parking-slot" id="c-slot-06" points='421.8181818181818,633.6363636363636 448.18181818181813,636.3636363636364 444.7757069456056,686.2474855159076 418.41207058196926,683.5202127886348' />
+  <polygon class="parking-slot" id="c-slot-07" points='448.18181818181813,636.3636363636364 474.5454545454545,639.0909090909091 471.13934330924195,688.9747582431803 444.7757069456056,686.2474855159076' />
+  <polygon class="parking-slot" id="c-slot-08" points='474.5454545454545,639.0909090909091 500.9090909090909,641.8181818181819 497.5029796728783,691.702030970453 471.13934330924195,688.9747582431803' />
+  <polygon class="parking-slot" id="c-slot-09" points='500.9090909090909,641.8181818181819 527.2727272727273,644.5454545454545 523.8666160365146,694.4293036977257 497.5029796728783,691.702030970453' />
+  <polygon class="parking-slot" id="c-slot-10" points='527.2727272727273,644.5454545454545 553.6363636363636,647.2727272727273 550.230252400151,697.1565764249984 523.8666160365146,694.4293036977257' />
+  <polygon class="parking-slot" id="c-slot-11" points='553.6363636363636,647.2727272727273 580.0,650.0 576.5938887637874,699.8838491522712 550.230252400151,697.1565764249984' />
+  <polygon class="parking-slot" id="d-slot-01" points='220.0,820.0 247.27272727272728,823.6363636363636 242.39823453910816,873.3981895734199 215.12550726638088,869.7618259370563' />
+  <polygon class="parking-slot" id="d-slot-02" points='247.27272727272728,823.6363636363636 274.54545454545456,827.2727272727273 269.67096181183547,877.0345532097836 242.39823453910816,873.3981895734199' />
+  <polygon class="parking-slot" id="d-slot-03" points='274.54545454545456,827.2727272727273 301.8181818181818,830.9090909090909 296.9436890845627,880.6709168461472 269.67096181183547,877.0345532097836' />
+  <polygon class="parking-slot" id="d-slot-04" points='301.8181818181818,830.9090909090909 329.0909090909091,834.5454545454545 324.21641635729003,884.3072804825108 296.9436890845627,880.6709168461472' />
+  <polygon class="parking-slot" id="d-slot-05" points='329.0909090909091,834.5454545454545 356.3636363636364,838.1818181818181 351.4891436300173,887.9436441188744 324.21641635729003,884.3072804825108' />
+  <polygon class="parking-slot" id="d-slot-06" points='356.3636363636364,838.1818181818181 383.6363636363636,841.8181818181819 378.76187090274453,891.5800077552382 351.4891436300173,887.9436441188744' />
+  <polygon class="parking-slot" id="d-slot-07" points='383.6363636363636,841.8181818181819 410.9090909090909,845.4545454545455 406.0345981754718,895.2163713916018 378.76187090274453,891.5800077552382' />
+  <polygon class="parking-slot" id="d-slot-08" points='410.9090909090909,845.4545454545455 438.1818181818182,849.0909090909091 433.3073254481991,898.8527350279654 406.0345981754718,895.2163713916018' />
+  <polygon class="parking-slot" id="d-slot-09" points='438.1818181818182,849.0909090909091 465.4545454545455,852.7272727272727 460.5800527209264,902.489098664329 433.3073254481991,898.8527350279654' />
+  <polygon class="parking-slot" id="d-slot-10" points='465.4545454545455,852.7272727272727 492.7272727272727,856.3636363636364 487.8527799936536,906.1254623006927 460.5800527209264,902.489098664329' />
+  <polygon class="parking-slot" id="d-slot-11" points='492.7272727272727,856.3636363636364 520.0,860.0 515.1255072663809,909.7618259370563 487.8527799936536,906.1254623006927' />
+  <polygon class="parking-slot" id="e-slot-01" points='460.0,270.0 488.3333333333333,273.3333333333333 482.49127095496345,322.9908635494771 454.15793762163014,319.6575302161438' />
+  <polygon class="parking-slot" id="e-slot-02" points='488.3333333333333,273.3333333333333 516.6666666666666,276.6666666666667 510.82460428829677,326.3241968828105 482.49127095496345,322.9908635494771' />
+  <polygon class="parking-slot" id="e-slot-03" points='516.6666666666666,276.6666666666667 545.0,280.0 539.1579376216301,329.6575302161438 510.82460428829677,326.3241968828105' />
+  <polygon class="parking-slot" id="e-slot-04" points='545.0,280.0 573.3333333333334,283.3333333333333 567.4912709549635,332.9908635494771 539.1579376216301,329.6575302161438' />
+  <polygon class="parking-slot" id="e-slot-05" points='573.3333333333334,283.3333333333333 601.6666666666667,286.6666666666667 595.8246042882969,336.3241968828105 567.4912709549635,332.9908635494771' />
+  <polygon class="parking-slot" id="e-slot-06" points='601.6666666666667,286.6666666666667 630.0,290.0 624.1579376216301,339.6575302161438 595.8246042882969,336.3241968828105' />
+  <polygon class="parking-slot" id="f-slot-01" points='390.0,470.0 416.6666666666667,472.22222222222223 412.51439267397967,522.0495101344662 385.847726007313,519.827287912244' />
+  <polygon class="parking-slot" id="f-slot-02" points='416.6666666666667,472.22222222222223 443.3333333333333,474.44444444444446 439.1810593406463,524.2717323566884 412.51439267397967,522.0495101344662' />
+  <polygon class="parking-slot" id="f-slot-03" points='443.3333333333333,474.44444444444446 470.0,476.6666666666667 465.847726007313,526.4939545789107 439.1810593406463,524.2717323566884' />
+  <polygon class="parking-slot" id="f-slot-04" points='470.0,476.6666666666667 496.66666666666663,478.8888888888889 492.5143926739796,528.7161768011329 465.847726007313,526.4939545789107' />
+  <polygon class="parking-slot" id="f-slot-05" points='496.66666666666663,478.8888888888889 523.3333333333334,481.1111111111111 519.1810593406464,530.938399023355 492.5143926739796,528.7161768011329' />
+  <polygon class="parking-slot" id="f-slot-06" points='523.3333333333334,481.1111111111111 550.0,483.3333333333333 545.847726007313,533.1606212455773 519.1810593406464,530.938399023355' />
+  <polygon class="parking-slot" id="f-slot-07" points='550.0,483.3333333333333 576.6666666666666,485.55555555555554 572.5143926739796,535.3828434677995 545.847726007313,533.1606212455773' />
+  <polygon class="parking-slot" id="f-slot-08" points='576.6666666666666,485.55555555555554 603.3333333333333,487.77777777777777 599.1810593406462,537.6050656900218 572.5143926739796,535.3828434677995' />
+  <polygon class="parking-slot" id="f-slot-09" points='603.3333333333333,487.77777777777777 630.0,490.0 625.847726007313,539.827287912244 599.1810593406462,537.6050656900218' />
+  <polygon class="parking-slot" id="g-slot-01" points='320.0,670.0 346.3636363636364,672.7272727272727 341.2186788093611,722.4618624186003 314.85504244572473,719.7345896913275' />
+  <polygon class="parking-slot" id="g-slot-02" points='346.3636363636364,672.7272727272727 372.72727272727275,675.4545454545455 367.5823151729975,725.189135145873 341.2186788093611,722.4618624186003' />
+  <polygon class="parking-slot" id="g-slot-03" points='372.72727272727275,675.4545454545455 399.09090909090907,678.1818181818181 393.9459515366338,727.9164078731457 367.5823151729975,725.189135145873' />
+  <polygon class="parking-slot" id="g-slot-04" points='399.09090909090907,678.1818181818181 425.45454545454544,680.9090909090909 420.3095879002702,730.6436806004184 393.9459515366338,727.9164078731457' />
+  <polygon class="parking-slot" id="g-slot-05" points='425.45454545454544,680.9090909090909 451.8181818181818,683.6363636363636 446.67322426390655,733.3709533276912 420.3095879002702,730.6436806004184' />
+  <polygon class="parking-slot" id="g-slot-06" points='451.8181818181818,683.6363636363636 478.18181818181813,686.3636363636364 473.03686062754286,736.0982260549639 446.67322426390655,733.3709533276912' />
+  <polygon class="parking-slot" id="g-slot-07" points='478.18181818181813,686.3636363636364 504.5454545454545,689.0909090909091 499.40049699117924,738.8254987822367 473.03686062754286,736.0982260549639' />
+  <polygon class="parking-slot" id="g-slot-08" points='504.5454545454545,689.0909090909091 530.9090909090909,691.8181818181819 525.7641333548156,741.5527715095094 499.40049699117924,738.8254987822367' />
+  <polygon class="parking-slot" id="g-slot-09" points='530.9090909090909,691.8181818181819 557.2727272727273,694.5454545454545 552.127769718452,744.280044236782 525.7641333548156,741.5527715095094' />
+  <polygon class="parking-slot" id="g-slot-10" points='557.2727272727273,694.5454545454545 583.6363636363636,697.2727272727273 578.4914060820884,747.0073169640548 552.127769718452,744.280044236782' />
+  <polygon class="parking-slot" id="g-slot-11" points='583.6363636363636,697.2727272727273 610.0,700.0 604.8550424457247,749.7345896913275 578.4914060820884,747.0073169640548' />
+  <polygon class="parking-slot" id="h-slot-01" points='430.0,160.0 454.0,161.0 456.0523625725676,205.9531735016642 432.0523625725676,204.9531735016642' />
+  <polygon class="parking-slot" id="h-slot-02" points='454.0,161.0 478.0,162.0 480.0523625725676,206.9531735016642 456.0523625725676,205.9531735016642' />
+  <polygon class="parking-slot" id="h-slot-03" points='478.0,162.0 502.0,163.0 504.0523625725676,207.9531735016642 480.0523625725676,206.9531735016642' />
+  <polygon class="parking-slot" id="h-slot-04" points='502.0,163.0 526.0,164.0 528.0523625725675,208.9531735016642 504.0523625725676,207.9531735016642' />
+  <polygon class="parking-slot" id="h-slot-05" points='526.0,164.0 550.0,165.0 552.0523625725675,209.9531735016642 528.0523625725675,208.9531735016642' />
+  <polygon class="parking-slot" id="i-slot-01" points='600.0,360.0 626.6666666666666,361.6666666666667 625.291228950818,411.64774479719347 598.6245622841514,409.9810781305268' />
+  <polygon class="parking-slot" id="i-slot-02" points='626.6666666666666,361.6666666666667 653.3333333333334,363.3333333333333 651.9578956174847,413.3144114638601 625.291228950818,411.64774479719347' />
+  <polygon class="parking-slot" id="i-slot-03" points='653.3333333333334,363.3333333333333 680.0,365.0 678.6245622841514,414.9810781305268 651.9578956174847,413.3144114638601' />
+  <polygon class="parking-slot" id="i-slot-04" points='680.0,365.0 706.6666666666666,366.6666666666667 705.291228950818,416.64774479719347 678.6245622841514,414.9810781305268' />
+  <polygon class="parking-slot" id="i-slot-05" points='706.6666666666666,366.6666666666667 733.3333333333334,368.3333333333333 731.9578956174847,418.3144114638601 705.291228950818,416.64774479719347' />
+  <polygon class="parking-slot" id="i-slot-06" points='733.3333333333334,368.3333333333333 760.0,370.0 758.6245622841514,419.9810781305268 731.9578956174847,418.3144114638601' />
+  <polygon class="parking-slot" id="j-slot-01" points='600.0,520.0 626.6666666666666,521.6666666666666 625.291228950818,571.6477447971934 598.6245622841514,569.9810781305267' />
+  <polygon class="parking-slot" id="j-slot-02" points='626.6666666666666,521.6666666666666 653.3333333333334,523.3333333333334 651.9578956174847,573.3144114638601 625.291228950818,571.6477447971934' />
+  <polygon class="parking-slot" id="j-slot-03" points='653.3333333333334,523.3333333333334 680.0,525.0 678.6245622841514,574.9810781305267 651.9578956174847,573.3144114638601' />
+  <polygon class="parking-slot" id="j-slot-04" points='680.0,525.0 706.6666666666666,526.6666666666666 705.291228950818,576.6477447971934 678.6245622841514,574.9810781305267' />
+  <polygon class="parking-slot" id="j-slot-05" points='706.6666666666666,526.6666666666666 733.3333333333334,528.3333333333334 731.9578956174847,578.3144114638601 705.291228950818,576.6477447971934' />
+  <polygon class="parking-slot" id="j-slot-06" points='733.3333333333334,528.3333333333334 760.0,530.0 758.6245622841514,579.9810781305267 731.9578956174847,578.3144114638601' />
+  <polygon class="parking-slot" id="k-slot-01" points='1260.0,190.0 1290.0,195.0 1286.109824777406,244.8484356498528 1256.109824777406,239.8484356498528' />
+  <polygon class="parking-slot" id="k-slot-02" points='1290.0,195.0 1320.0,200.0 1316.109824777406,249.8484356498528 1286.109824777406,244.8484356498528' />
+  <polygon class="parking-slot" id="k-slot-03" points='1320.0,200.0 1350.0,205.0 1346.109824777406,254.8484356498528 1316.109824777406,249.8484356498528' />
+  <polygon class="parking-slot" id="k-slot-04" points='1350.0,205.0 1380.0,210.0 1376.109824777406,259.8484356498528 1346.109824777406,254.8484356498528' />
+  <polygon class="parking-slot" id="l-slot-01" points='1240.0,420.0 1240.0,445.7142857142857 1190.0,445.7142857142857 1190.0,420.0' />
+  <polygon class="parking-slot" id="l-slot-02" points='1240.0,445.7142857142857 1240.0,471.42857142857144 1190.0,471.42857142857144 1190.0,445.7142857142857' />
+  <polygon class="parking-slot" id="l-slot-03" points='1240.0,471.42857142857144 1240.0,497.1428571428571 1190.0,497.1428571428571 1190.0,471.42857142857144' />
+  <polygon class="parking-slot" id="l-slot-04" points='1240.0,497.1428571428571 1240.0,522.8571428571429 1190.0,522.8571428571429 1190.0,497.1428571428571' />
+  <polygon class="parking-slot" id="l-slot-05" points='1240.0,522.8571428571429 1240.0,548.5714285714286 1190.0,548.5714285714286 1190.0,522.8571428571429' />
+  <polygon class="parking-slot" id="l-slot-06" points='1240.0,548.5714285714286 1240.0,574.2857142857142 1190.0,574.2857142857142 1190.0,548.5714285714286' />
+  <polygon class="parking-slot" id="l-slot-07" points='1240.0,574.2857142857142 1240.0,600.0 1190.0,600.0 1190.0,574.2857142857142' />
+  <polygon class="parking-slot" id="m-slot-01" points='1380.0,420.0 1380.0,445.7142857142857 1330.0,445.7142857142857 1330.0,420.0' />
+  <polygon class="parking-slot" id="m-slot-02" points='1380.0,445.7142857142857 1380.0,471.42857142857144 1330.0,471.42857142857144 1330.0,445.7142857142857' />
+  <polygon class="parking-slot" id="m-slot-03" points='1380.0,471.42857142857144 1380.0,497.1428571428571 1330.0,497.1428571428571 1330.0,471.42857142857144' />
+  <polygon class="parking-slot" id="m-slot-04" points='1380.0,497.1428571428571 1380.0,522.8571428571429 1330.0,522.8571428571429 1330.0,497.1428571428571' />
+  <polygon class="parking-slot" id="m-slot-05" points='1380.0,522.8571428571429 1380.0,548.5714285714286 1330.0,548.5714285714286 1330.0,522.8571428571429' />
+  <polygon class="parking-slot" id="m-slot-06" points='1380.0,548.5714285714286 1380.0,574.2857142857142 1330.0,574.2857142857142 1330.0,548.5714285714286' />
+  <polygon class="parking-slot" id="m-slot-07" points='1380.0,574.2857142857142 1380.0,600.0 1330.0,600.0 1330.0,574.2857142857142' />
+  <polygon class="parking-slot" id="n-slot-01" points='980.0,740.0 1005.0,742.5 1001.7641596547364,792.3951835076289 976.7641596547364,789.8951835076289' />
+  <polygon class="parking-slot" id="n-slot-02" points='1005.0,742.5 1030.0,745.0 1026.7641596547364,794.8951835076289 1001.7641596547364,792.3951835076289' />
+  <polygon class="parking-slot" id="n-slot-03" points='1030.0,745.0 1055.0,747.5 1051.7641596547364,797.3951835076289 1026.7641596547364,794.8951835076289' />
+  <polygon class="parking-slot" id="n-slot-04" points='1055.0,747.5 1080.0,750.0 1076.7641596547364,799.8951835076289 1051.7641596547364,797.3951835076289' />
+  <polygon class="parking-slot" id="n-slot-05" points='1080.0,750.0 1105.0,752.5 1101.7641596547364,802.3951835076289 1076.7641596547364,799.8951835076289' />
+  <polygon class="parking-slot" id="n-slot-06" points='1105.0,752.5 1130.0,755.0 1126.7641596547364,804.8951835076289 1101.7641596547364,802.3951835076289' />
+  <polygon class="parking-slot" id="n-slot-07" points='1130.0,755.0 1155.0,757.5 1151.7641596547364,807.3951835076289 1126.7641596547364,804.8951835076289' />
+  <polygon class="parking-slot" id="n-slot-08" points='1155.0,757.5 1180.0,760.0 1176.7641596547364,809.8951835076289 1151.7641596547364,807.3951835076289' />
+  <polygon class="parking-slot" id="o-slot-01" points='1240.0,760.0 1268.0,762.0 1266.1803579197767,811.9668780563672 1238.1803579197767,809.9668780563672' />
+  <polygon class="parking-slot" id="o-slot-02" points='1268.0,762.0 1296.0,764.0 1294.1803579197767,813.9668780563672 1266.1803579197767,811.9668780563672' />
+  <polygon class="parking-slot" id="o-slot-03" points='1296.0,764.0 1324.0,766.0 1322.1803579197767,815.9668780563672 1294.1803579197767,813.9668780563672' />
+  <polygon class="parking-slot" id="o-slot-04" points='1324.0,766.0 1352.0,768.0 1350.1803579197767,817.9668780563672 1322.1803579197767,815.9668780563672' />
+  <polygon class="parking-slot" id="o-slot-05" points='1352.0,768.0 1380.0,770.0 1378.1803579197767,819.9668780563672 1350.1803579197767,817.9668780563672' />
+  </g>
+  <g id="slot-labels" class="toggle-layer" data-layer="slot-labels">
+  <text class="slot-label" id="label-a-slot-01" fill="#1F2937" x='442.1139262967748' y='249.58224928024038' text-anchor='middle' font-size='9' transform="rotate(6.7098368077569335 442.1139262967748 249.58224928024038)">A01</text>
+  <text class="slot-label" id="label-a-slot-02" fill="#1F2937" x='470.44725963010825' y='252.9155826135737' text-anchor='middle' font-size='9' transform="rotate(6.7098368077569335 470.44725963010825 252.9155826135737)">A02</text>
+  <text class="slot-label" id="label-a-slot-03" fill="#1F2937" x='498.78059296344156' y='256.24891594690706' text-anchor='middle' font-size='9' transform="rotate(6.7098368077569335 498.78059296344156 256.24891594690706)">A03</text>
+  <text class="slot-label" id="label-a-slot-04" fill="#1F2937" x='527.1139262967749' y='259.5822492802404' text-anchor='middle' font-size='9' transform="rotate(6.7098368077569335 527.1139262967749 259.5822492802404)">A04</text>
+  <text class="slot-label" id="label-a-slot-05" fill="#1F2937" x='555.4472596301083' y='262.9155826135737' text-anchor='middle' font-size='9' transform="rotate(6.7098368077569335 555.4472596301083 262.9155826135737)">A05</text>
+  <text class="slot-label" id="label-a-slot-06" fill="#1F2937" x='583.7805929634416' y='266.24891594690706' text-anchor='middle' font-size='9' transform="rotate(6.7098368077569335 583.7805929634416 266.24891594690706)">A06</text>
+  <text class="slot-label" id="label-b-slot-01" fill="#1F2937" x='372.12793469864664' y='449.08203448473694' text-anchor='middle' font-size='9' transform="rotate(4.763641690726178 372.12793469864664 449.08203448473694)">B01</text>
+  <text class="slot-label" id="label-b-slot-02" fill="#1F2937" x='398.79460136531327' y='451.3042567069592' text-anchor='middle' font-size='9' transform="rotate(4.763641690726178 398.79460136531327 451.3042567069592)">B02</text>
+  <text class="slot-label" id="label-b-slot-03" fill="#1F2937" x='425.46126803197996' y='453.52647892918145' text-anchor='middle' font-size='9' transform="rotate(4.763641690726178 425.46126803197996 453.52647892918145)">B03</text>
+  <text class="slot-label" id="label-b-slot-04" fill="#1F2937" x='452.12793469864664' y='455.7487011514037' text-anchor='middle' font-size='9' transform="rotate(4.763641690726178 452.12793469864664 455.7487011514037)">B04</text>
+  <text class="slot-label" id="label-b-slot-05" fill="#1F2937" x='478.7946013653133' y='457.97092337362585' text-anchor='middle' font-size='9' transform="rotate(4.763641690726178 478.7946013653133 457.97092337362585)">B05</text>
+  <text class="slot-label" id="label-b-slot-06" fill="#1F2937" x='505.46126803197996' y='460.193145595848' text-anchor='middle' font-size='9' transform="rotate(4.763641690726178 505.46126803197996 460.193145595848)">B06</text>
+  <text class="slot-label" id="label-b-slot-07" fill="#1F2937" x='532.1279346986465' y='462.41536781807037' text-anchor='middle' font-size='9' transform="rotate(4.763641690726178 532.1279346986465 462.41536781807037)">B07</text>
+  <text class="slot-label" id="label-b-slot-08" fill="#1F2937" x='558.7946013653133' y='464.63759004029254' text-anchor='middle' font-size='9' transform="rotate(4.763641690726178 558.7946013653133 464.63759004029254)">B08</text>
+  <text class="slot-label" id="label-b-slot-09" fill="#1F2937" x='585.4612680319799' y='466.85981226251477' text-anchor='middle' font-size='9' transform="rotate(4.763641690726178 585.4612680319799 466.85981226251477)">B09</text>
+  <text class="slot-label" id="label-c-slot-01" fill="#1F2937" x='301.47876256371194' y='649.305560939772' text-anchor='middle' font-size='9' transform="rotate(5.9061411137705 301.47876256371194 649.305560939772)">C01</text>
+  <text class="slot-label" id="label-c-slot-02" fill="#1F2937" x='327.84239892734826' y='652.0328336670447' text-anchor='middle' font-size='9' transform="rotate(5.9061411137705 327.84239892734826 652.0328336670447)">C02</text>
+  <text class="slot-label" id="label-c-slot-03" fill="#1F2937" x='354.2060352909846' y='654.7601063943173' text-anchor='middle' font-size='9' transform="rotate(5.9061411137705 354.2060352909846 654.7601063943173)">C03</text>
+  <text class="slot-label" id="label-c-slot-04" fill="#1F2937" x='380.569671654621' y='657.48737912159' text-anchor='middle' font-size='9' transform="rotate(5.9061411137705 380.569671654621 657.48737912159)">C04</text>
+  <text class="slot-label" id="label-c-slot-05" fill="#1F2937" x='406.9333080182573' y='660.2146518488628' text-anchor='middle' font-size='9' transform="rotate(5.9061411137705 406.9333080182573 660.2146518488628)">C05</text>
+  <text class="slot-label" id="label-c-slot-06" fill="#1F2937" x='433.2969443818937' y='662.9419245761355' text-anchor='middle' font-size='9' transform="rotate(5.9061411137705 433.2969443818937 662.9419245761355)">C06</text>
+  <text class="slot-label" id="label-c-slot-07" fill="#1F2937" x='459.66058074553' y='665.6691973034083' text-anchor='middle' font-size='9' transform="rotate(5.9061411137705 459.66058074553 665.6691973034083)">C07</text>
+  <text class="slot-label" id="label-c-slot-08" fill="#1F2937" x='486.02421710916644' y='668.396470030681' text-anchor='middle' font-size='9' transform="rotate(5.9061411137705 486.02421710916644 668.396470030681)">C08</text>
+  <text class="slot-label" id="label-c-slot-09" fill="#1F2937" x='512.3878534728028' y='671.1237427579538' text-anchor='middle' font-size='9' transform="rotate(5.9061411137705 512.3878534728028 671.1237427579538)">C09</text>
+  <text class="slot-label" id="label-c-slot-10" fill="#1F2937" x='538.7514898364392' y='673.8510154852265' text-anchor='middle' font-size='9' transform="rotate(5.9061411137705 538.7514898364392 673.8510154852265)">C10</text>
+  <text class="slot-label" id="label-c-slot-11" fill="#1F2937" x='565.1151262000756' y='676.5782882124992' text-anchor='middle' font-size='9' transform="rotate(5.9061411137705 565.1151262000756 676.5782882124992)">C11</text>
+  <text class="slot-label" id="label-d-slot-01" fill="#1F2937" x='231.19911726955405' y='849.6990947867099' text-anchor='middle' font-size='9' transform="rotate(7.594643368591445 231.19911726955405 849.6990947867099)">D01</text>
+  <text class="slot-label" id="label-d-slot-02" fill="#1F2937" x='258.47184454228136' y='853.3354584230736' text-anchor='middle' font-size='9' transform="rotate(7.594643368591445 258.47184454228136 853.3354584230736)">D02</text>
+  <text class="slot-label" id="label-d-slot-03" fill="#1F2937" x='285.7445718150086' y='856.9718220594372' text-anchor='middle' font-size='9' transform="rotate(7.594643368591445 285.7445718150086 856.9718220594372)">D03</text>
+  <text class="slot-label" id="label-d-slot-04" fill="#1F2937" x='313.0172990877359' y='860.6081856958008' text-anchor='middle' font-size='9' transform="rotate(7.594643368591445 313.0172990877359 860.6081856958008)">D04</text>
+  <text class="slot-label" id="label-d-slot-05" fill="#1F2937" x='340.2900263604632' y='864.2445493321645' text-anchor='middle' font-size='9' transform="rotate(7.594643368591445 340.2900263604632 864.2445493321645)">D05</text>
+  <text class="slot-label" id="label-d-slot-06" fill="#1F2937" x='367.5627536331904' y='867.8809129685282' text-anchor='middle' font-size='9' transform="rotate(7.594643368591445 367.5627536331904 867.8809129685282)">D06</text>
+  <text class="slot-label" id="label-d-slot-07" fill="#1F2937" x='394.8354809059177' y='871.5172766048918' text-anchor='middle' font-size='9' transform="rotate(7.594643368591445 394.8354809059177 871.5172766048918)">D07</text>
+  <text class="slot-label" id="label-d-slot-08" fill="#1F2937" x='422.108208178645' y='875.1536402412555' text-anchor='middle' font-size='9' transform="rotate(7.594643368591445 422.108208178645 875.1536402412555)">D08</text>
+  <text class="slot-label" id="label-d-slot-09" fill="#1F2937" x='449.3809354513723' y='878.7900038776191' text-anchor='middle' font-size='9' transform="rotate(7.594643368591445 449.3809354513723 878.7900038776191)">D09</text>
+  <text class="slot-label" id="label-d-slot-10" fill="#1F2937" x='476.6536627240996' y='882.4263675139827' text-anchor='middle' font-size='9' transform="rotate(7.594643368591445 476.6536627240996 882.4263675139827)">D10</text>
+  <text class="slot-label" id="label-d-slot-11" fill="#1F2937" x='503.92638999682674' y='886.0627311503463' text-anchor='middle' font-size='9' transform="rotate(7.594643368591445 503.92638999682674 886.0627311503463)">D11</text>
+  <text class="slot-label" id="label-e-slot-01" fill="#1F2937" x='471.24563547748176' y='299.49543177473856' text-anchor='middle' font-size='9' transform="rotate(6.7098368077569335 471.24563547748176 299.49543177473856)">E01</text>
+  <text class="slot-label" id="label-e-slot-02" fill="#1F2937" x='499.57896881081507' y='302.82876510807193' text-anchor='middle' font-size='9' transform="rotate(6.7098368077569335 499.57896881081507 302.82876510807193)">E02</text>
+  <text class="slot-label" id="label-e-slot-03" fill="#1F2937" x='527.9123021441484' y='306.16209844140525' text-anchor='middle' font-size='9' transform="rotate(6.7098368077569335 527.9123021441484 306.16209844140525)">E03</text>
+  <text class="slot-label" id="label-e-slot-04" fill="#1F2937" x='556.2456354774818' y='309.49543177473856' text-anchor='middle' font-size='9' transform="rotate(6.7098368077569335 556.2456354774818 309.49543177473856)">E04</text>
+  <text class="slot-label" id="label-e-slot-05" fill="#1F2937" x='584.5789688108151' y='312.82876510807193' text-anchor='middle' font-size='9' transform="rotate(6.7098368077569335 584.5789688108151 312.82876510807193)">E05</text>
+  <text class="slot-label" id="label-e-slot-06" fill="#1F2937" x='612.9123021441484' y='316.16209844140525' text-anchor='middle' font-size='9' transform="rotate(6.7098368077569335 612.9123021441484 316.16209844140525)">E06</text>
+  <text class="slot-label" id="label-f-slot-01" fill="#1F2937" x='401.25719633698986' y='499.02475506723306' text-anchor='middle' font-size='9' transform="rotate(4.763641690726178 401.25719633698986 499.02475506723306)">F01</text>
+  <text class="slot-label" id="label-f-slot-02" fill="#1F2937" x='427.9238630036565' y='501.24697728945534' text-anchor='middle' font-size='9' transform="rotate(4.763641690726178 427.9238630036565 501.24697728945534)">F02</text>
+  <text class="slot-label" id="label-f-slot-03" fill="#1F2937" x='454.5905296703231' y='503.4691995116775' text-anchor='middle' font-size='9' transform="rotate(4.763641690726178 454.5905296703231 503.4691995116775)">F03</text>
+  <text class="slot-label" id="label-f-slot-04" fill="#1F2937" x='481.25719633698986' y='505.6914217338998' text-anchor='middle' font-size='9' transform="rotate(4.763641690726178 481.25719633698986 505.6914217338998)">F04</text>
+  <text class="slot-label" id="label-f-slot-05" fill="#1F2937" x='507.9238630036565' y='507.913643956122' text-anchor='middle' font-size='9' transform="rotate(4.763641690726178 507.9238630036565 507.913643956122)">F05</text>
+  <text class="slot-label" id="label-f-slot-06" fill="#1F2937" x='534.5905296703231' y='510.13586617834414' text-anchor='middle' font-size='9' transform="rotate(4.763641690726178 534.5905296703231 510.13586617834414)">F06</text>
+  <text class="slot-label" id="label-f-slot-07" fill="#1F2937" x='561.2571963369898' y='512.3580884005664' text-anchor='middle' font-size='9' transform="rotate(4.763641690726178 561.2571963369898 512.3580884005664)">F07</text>
+  <text class="slot-label" id="label-f-slot-08" fill="#1F2937" x='587.9238630036565' y='514.5803106227886' text-anchor='middle' font-size='9' transform="rotate(4.763641690726178 587.9238630036565 514.5803106227886)">F08</text>
+  <text class="slot-label" id="label-f-slot-09" fill="#1F2937" x='614.5905296703231' y='516.8025328450109' text-anchor='middle' font-size='9' transform="rotate(4.763641690726178 614.5905296703231 516.8025328450109)">F09</text>
+  <text class="slot-label" id="label-g-slot-01" fill="#1F2937" x='330.60933940468055' y='699.2309312093003' text-anchor='middle' font-size='9' transform="rotate(5.9061411137705 330.60933940468055 699.2309312093003)">G01</text>
+  <text class="slot-label" id="label-g-slot-02" fill="#1F2937" x='356.9729757683169' y='701.9582039365729' text-anchor='middle' font-size='9' transform="rotate(5.9061411137705 356.9729757683169 701.9582039365729)">G02</text>
+  <text class="slot-label" id="label-g-slot-03" fill="#1F2937" x='383.3366121319533' y='704.6854766638455' text-anchor='middle' font-size='9' transform="rotate(5.9061411137705 383.3366121319533 704.6854766638455)">G03</text>
+  <text class="slot-label" id="label-g-slot-04" fill="#1F2937" x='409.7002484955896' y='707.4127493911183' text-anchor='middle' font-size='9' transform="rotate(5.9061411137705 409.7002484955896 707.4127493911183)">G04</text>
+  <text class="slot-label" id="label-g-slot-05" fill="#1F2937" x='436.063884859226' y='710.140022118391' text-anchor='middle' font-size='9' transform="rotate(5.9061411137705 436.063884859226 710.140022118391)">G05</text>
+  <text class="slot-label" id="label-g-slot-06" fill="#1F2937" x='462.42752122286237' y='712.8672948456638' text-anchor='middle' font-size='9' transform="rotate(5.9061411137705 462.42752122286237 712.8672948456638)">G06</text>
+  <text class="slot-label" id="label-g-slot-07" fill="#1F2937" x='488.7911575864987' y='715.5945675729365' text-anchor='middle' font-size='9' transform="rotate(5.9061411137705 488.7911575864987 715.5945675729365)">G07</text>
+  <text class="slot-label" id="label-g-slot-08" fill="#1F2937" x='515.1547939501352' y='718.3218403002093' text-anchor='middle' font-size='9' transform="rotate(5.9061411137705 515.1547939501352 718.3218403002093)">G08</text>
+  <text class="slot-label" id="label-g-slot-09" fill="#1F2937" x='541.5184303137714' y='721.049113027482' text-anchor='middle' font-size='9' transform="rotate(5.9061411137705 541.5184303137714 721.049113027482)">G09</text>
+  <text class="slot-label" id="label-g-slot-10" fill="#1F2937" x='567.8820666774078' y='723.7763857547545' text-anchor='middle' font-size='9' transform="rotate(5.9061411137705 567.8820666774078 723.7763857547545)">G10</text>
+  <text class="slot-label" id="label-g-slot-11" fill="#1F2937" x='594.2457030410442' y='726.5036584820274' text-anchor='middle' font-size='9' transform="rotate(5.9061411137705 594.2457030410442 726.5036584820274)">G11</text>
+  <text class="slot-label" id="label-h-slot-01" fill="#1F2937" x='443.02618128628376' y='185.9765867508321' text-anchor='middle' font-size='9' transform="rotate(2.3859440303888126 443.02618128628376 185.9765867508321)">H01</text>
+  <text class="slot-label" id="label-h-slot-02" fill="#1F2937" x='467.02618128628376' y='186.9765867508321' text-anchor='middle' font-size='9' transform="rotate(2.3859440303888126 467.02618128628376 186.9765867508321)">H02</text>
+  <text class="slot-label" id="label-h-slot-03" fill="#1F2937" x='491.02618128628376' y='187.9765867508321' text-anchor='middle' font-size='9' transform="rotate(2.3859440303888126 491.02618128628376 187.9765867508321)">H03</text>
+  <text class="slot-label" id="label-h-slot-04" fill="#1F2937" x='515.0261812862838' y='188.9765867508321' text-anchor='middle' font-size='9' transform="rotate(2.3859440303888126 515.0261812862838 188.9765867508321)">H04</text>
+  <text class="slot-label" id="label-h-slot-05" fill="#1F2937" x='539.0261812862838' y='189.9765867508321' text-anchor='middle' font-size='9' transform="rotate(2.3859440303888126 539.0261812862838 189.9765867508321)">H05</text>
+  <text class="slot-label" id="label-i-slot-01" fill="#1F2937" x='612.6456144754089' y='388.8238723985968' text-anchor='middle' font-size='9' transform="rotate(3.576334374997351 612.6456144754089 388.8238723985968)">I01</text>
+  <text class="slot-label" id="label-i-slot-02" fill="#1F2937" x='639.3122811420757' y='390.49053906526336' text-anchor='middle' font-size='9' transform="rotate(3.576334374997351 639.3122811420757 390.49053906526336)">I02</text>
+  <text class="slot-label" id="label-i-slot-03" fill="#1F2937" x='665.9789478087423' y='392.15720573193005' text-anchor='middle' font-size='9' transform="rotate(3.576334374997351 665.9789478087423 392.15720573193005)">I03</text>
+  <text class="slot-label" id="label-i-slot-04" fill="#1F2937" x='692.6456144754089' y='393.8238723985968' text-anchor='middle' font-size='9' transform="rotate(3.576334374997351 692.6456144754089 393.8238723985968)">I04</text>
+  <text class="slot-label" id="label-i-slot-05" fill="#1F2937" x='719.3122811420757' y='395.49053906526336' text-anchor='middle' font-size='9' transform="rotate(3.576334374997351 719.3122811420757 395.49053906526336)">I05</text>
+  <text class="slot-label" id="label-i-slot-06" fill="#1F2937" x='745.9789478087423' y='397.15720573193005' text-anchor='middle' font-size='9' transform="rotate(3.576334374997351 745.9789478087423 397.15720573193005)">I06</text>
+  <text class="slot-label" id="label-j-slot-01" fill="#1F2937" x='612.6456144754089' y='548.8238723985967' text-anchor='middle' font-size='9' transform="rotate(3.576334374997351 612.6456144754089 548.8238723985967)">J01</text>
+  <text class="slot-label" id="label-j-slot-02" fill="#1F2937" x='639.3122811420757' y='550.4905390652634' text-anchor='middle' font-size='9' transform="rotate(3.576334374997351 639.3122811420757 550.4905390652634)">J02</text>
+  <text class="slot-label" id="label-j-slot-03" fill="#1F2937" x='665.9789478087423' y='552.15720573193' text-anchor='middle' font-size='9' transform="rotate(3.576334374997351 665.9789478087423 552.15720573193)">J03</text>
+  <text class="slot-label" id="label-j-slot-04" fill="#1F2937" x='692.6456144754089' y='553.8238723985967' text-anchor='middle' font-size='9' transform="rotate(3.576334374997351 692.6456144754089 553.8238723985967)">J04</text>
+  <text class="slot-label" id="label-j-slot-05" fill="#1F2937" x='719.3122811420757' y='555.4905390652634' text-anchor='middle' font-size='9' transform="rotate(3.576334374997351 719.3122811420757 555.4905390652634)">J05</text>
+  <text class="slot-label" id="label-j-slot-06" fill="#1F2937" x='745.9789478087423' y='557.15720573193' text-anchor='middle' font-size='9' transform="rotate(3.576334374997351 745.9789478087423 557.15720573193)">J06</text>
+  <text class="slot-label" id="label-k-slot-01" fill="#1F2937" x='1273.054912388703' y='220.42421782492642' text-anchor='middle' font-size='9' transform="rotate(9.462322208025617 1273.054912388703 220.42421782492642)">K01</text>
+  <text class="slot-label" id="label-k-slot-02" fill="#1F2937" x='1303.054912388703' y='225.42421782492642' text-anchor='middle' font-size='9' transform="rotate(9.462322208025617 1303.054912388703 225.42421782492642)">K02</text>
+  <text class="slot-label" id="label-k-slot-03" fill="#1F2937" x='1333.054912388703' y='230.42421782492642' text-anchor='middle' font-size='9' transform="rotate(9.462322208025617 1333.054912388703 230.42421782492642)">K03</text>
+  <text class="slot-label" id="label-k-slot-04" fill="#1F2937" x='1363.054912388703' y='235.42421782492642' text-anchor='middle' font-size='9' transform="rotate(9.462322208025617 1363.054912388703 235.42421782492642)">K04</text>
+  <text class="slot-label" id="label-l-slot-01" fill="#1F2937" x='1215.0' y='435.8571428571429' text-anchor='middle' font-size='9' transform="rotate(90.0 1215.0 435.8571428571429)">L01</text>
+  <text class="slot-label" id="label-l-slot-02" fill="#1F2937" x='1215.0' y='461.57142857142856' text-anchor='middle' font-size='9' transform="rotate(90.0 1215.0 461.57142857142856)">L02</text>
+  <text class="slot-label" id="label-l-slot-03" fill="#1F2937" x='1215.0' y='487.2857142857143' text-anchor='middle' font-size='9' transform="rotate(90.0 1215.0 487.2857142857143)">L03</text>
+  <text class="slot-label" id="label-l-slot-04" fill="#1F2937" x='1215.0' y='513.0' text-anchor='middle' font-size='9' transform="rotate(90.0 1215.0 513.0)">L04</text>
+  <text class="slot-label" id="label-l-slot-05" fill="#1F2937" x='1215.0' y='538.7142857142858' text-anchor='middle' font-size='9' transform="rotate(90.0 1215.0 538.7142857142858)">L05</text>
+  <text class="slot-label" id="label-l-slot-06" fill="#1F2937" x='1215.0' y='564.4285714285713' text-anchor='middle' font-size='9' transform="rotate(90.0 1215.0 564.4285714285713)">L06</text>
+  <text class="slot-label" id="label-l-slot-07" fill="#1F2937" x='1215.0' y='590.1428571428571' text-anchor='middle' font-size='9' transform="rotate(90.0 1215.0 590.1428571428571)">L07</text>
+  <text class="slot-label" id="label-m-slot-01" fill="#1F2937" x='1355.0' y='435.8571428571429' text-anchor='middle' font-size='9' transform="rotate(90.0 1355.0 435.8571428571429)">M01</text>
+  <text class="slot-label" id="label-m-slot-02" fill="#1F2937" x='1355.0' y='461.57142857142856' text-anchor='middle' font-size='9' transform="rotate(90.0 1355.0 461.57142857142856)">M02</text>
+  <text class="slot-label" id="label-m-slot-03" fill="#1F2937" x='1355.0' y='487.2857142857143' text-anchor='middle' font-size='9' transform="rotate(90.0 1355.0 487.2857142857143)">M03</text>
+  <text class="slot-label" id="label-m-slot-04" fill="#1F2937" x='1355.0' y='513.0' text-anchor='middle' font-size='9' transform="rotate(90.0 1355.0 513.0)">M04</text>
+  <text class="slot-label" id="label-m-slot-05" fill="#1F2937" x='1355.0' y='538.7142857142858' text-anchor='middle' font-size='9' transform="rotate(90.0 1355.0 538.7142857142858)">M05</text>
+  <text class="slot-label" id="label-m-slot-06" fill="#1F2937" x='1355.0' y='564.4285714285713' text-anchor='middle' font-size='9' transform="rotate(90.0 1355.0 564.4285714285713)">M06</text>
+  <text class="slot-label" id="label-m-slot-07" fill="#1F2937" x='1355.0' y='590.1428571428571' text-anchor='middle' font-size='9' transform="rotate(90.0 1355.0 590.1428571428571)">M07</text>
+  <text class="slot-label" id="label-n-slot-01" fill="#1F2937" x='990.8820798273682' y='769.1975917538143' text-anchor='middle' font-size='9' transform="rotate(5.710593137499642 990.8820798273682 769.1975917538143)">N01</text>
+  <text class="slot-label" id="label-n-slot-02" fill="#1F2937" x='1015.8820798273682' y='771.6975917538143' text-anchor='middle' font-size='9' transform="rotate(5.710593137499642 1015.8820798273682 771.6975917538143)">N02</text>
+  <text class="slot-label" id="label-n-slot-03" fill="#1F2937" x='1040.8820798273682' y='774.1975917538143' text-anchor='middle' font-size='9' transform="rotate(5.710593137499642 1040.8820798273682 774.1975917538143)">N03</text>
+  <text class="slot-label" id="label-n-slot-04" fill="#1F2937" x='1065.8820798273682' y='776.6975917538143' text-anchor='middle' font-size='9' transform="rotate(5.710593137499642 1065.8820798273682 776.6975917538143)">N04</text>
+  <text class="slot-label" id="label-n-slot-05" fill="#1F2937" x='1090.8820798273682' y='779.1975917538143' text-anchor='middle' font-size='9' transform="rotate(5.710593137499642 1090.8820798273682 779.1975917538143)">N05</text>
+  <text class="slot-label" id="label-n-slot-06" fill="#1F2937" x='1115.8820798273682' y='781.6975917538143' text-anchor='middle' font-size='9' transform="rotate(5.710593137499642 1115.8820798273682 781.6975917538143)">N06</text>
+  <text class="slot-label" id="label-n-slot-07" fill="#1F2937" x='1140.8820798273682' y='784.1975917538143' text-anchor='middle' font-size='9' transform="rotate(5.710593137499642 1140.8820798273682 784.1975917538143)">N07</text>
+  <text class="slot-label" id="label-n-slot-08" fill="#1F2937" x='1165.8820798273682' y='786.6975917538143' text-anchor='middle' font-size='9' transform="rotate(5.710593137499642 1165.8820798273682 786.6975917538143)">N08</text>
+  <text class="slot-label" id="label-o-slot-01" fill="#1F2937" x='1253.0901789598884' y='788.9834390281835' text-anchor='middle' font-size='9' transform="rotate(4.085616779974877 1253.0901789598884 788.9834390281835)">O01</text>
+  <text class="slot-label" id="label-o-slot-02" fill="#1F2937" x='1281.0901789598884' y='790.9834390281835' text-anchor='middle' font-size='9' transform="rotate(4.085616779974877 1281.0901789598884 790.9834390281835)">O02</text>
+  <text class="slot-label" id="label-o-slot-03" fill="#1F2937" x='1309.0901789598884' y='792.9834390281835' text-anchor='middle' font-size='9' transform="rotate(4.085616779974877 1309.0901789598884 792.9834390281835)">O03</text>
+  <text class="slot-label" id="label-o-slot-04" fill="#1F2937" x='1337.0901789598884' y='794.9834390281835' text-anchor='middle' font-size='9' transform="rotate(4.085616779974877 1337.0901789598884 794.9834390281835)">O04</text>
+  <text class="slot-label" id="label-o-slot-05" fill="#1F2937" x='1365.0901789598884' y='796.9834390281835' text-anchor='middle' font-size='9' transform="rotate(4.085616779974877 1365.0901789598884 796.9834390281835)">O05</text>
+  </g>
+  <g id="structural-columns">
+  <polygon class="column" id="column-01" fill="#7A7A7A" stroke="#2B2B2B" stroke-width="1" points='412.53,252.18 424.35,250.09 427.47,267.82 415.65,269.91' />
+  <polygon class="column" id="column-02" fill="#7A7A7A" stroke="#2B2B2B" stroke-width="1" points='502.53,292.18 514.35,290.09 517.47,307.82 505.65,309.91' />
+  <polygon class="column" id="column-03" fill="#7A7A7A" stroke="#2B2B2B" stroke-width="1" points='342.81,451.92 354.69,450.25 357.19,468.08 345.31,469.75' />
+  <polygon class="column" id="column-04" fill="#7A7A7A" stroke="#2B2B2B" stroke-width="1" points='492.81,491.92 504.69,490.25 507.19,508.08 495.31,509.75' />
+  <polygon class="column" id="column-05" fill="#7A7A7A" stroke="#2B2B2B" stroke-width="1" points='273.09,651.68 285.03,650.42 286.91,668.32 274.97,669.58' />
+  <polygon class="column" id="column-06" fill="#7A7A7A" stroke="#2B2B2B" stroke-width="1" points='473.09,701.68 485.03,700.42 486.91,718.32 474.97,719.58' />
+  <polygon class="column" id="column-07" fill="#7A7A7A" stroke="#2B2B2B" stroke-width="1" points='713.0,610.0 727.0,610.0 727.0,630.0 713.0,630.0' />
+  <polygon class="column" id="column-08" fill="#7A7A7A" stroke="#2B2B2B" stroke-width="1" points='713.0,490.0 727.0,490.0 727.0,510.0 713.0,510.0' />
+  <polygon class="column" id="column-09" fill="#7A7A7A" stroke="#2B2B2B" stroke-width="1" points='973.0,390.0 987.0,390.0 987.0,410.0 973.0,410.0' />
+  <polygon class="column" id="column-10" fill="#7A7A7A" stroke="#2B2B2B" stroke-width="1" points='1093.0,370.0 1107.0,370.0 1107.0,390.0 1093.0,390.0' />
+  <polygon class="column" id="column-11" fill="#7A7A7A" stroke="#2B2B2B" stroke-width="1" points='1213.0,370.0 1227.0,370.0 1227.0,390.0 1213.0,390.0' />
+  <polygon class="column" id="column-12" fill="#7A7A7A" stroke="#2B2B2B" stroke-width="1" points='1373.0,390.0 1387.0,390.0 1387.0,410.0 1373.0,410.0' />
+  <polygon class="column" id="column-13" fill="#7A7A7A" stroke="#2B2B2B" stroke-width="1" points='1213.0,710.0 1227.0,710.0 1227.0,730.0 1213.0,730.0' />
+  <polygon class="column" id="column-14" fill="#7A7A7A" stroke="#2B2B2B" stroke-width="1" points='1383.0,750.0 1397.0,750.0 1397.0,770.0 1383.0,770.0' />
+  </g>
+  <g id="facilities">
+  <polygon class="facility" id="elevator-1-cargo" fill="#D0E6F7" stroke="#3A7CA5" stroke-width="2" points='104.55,545.59 172.16,527.47 195.45,614.41 127.84,632.53' />
+  <polygon class="facility" id="elevator-2" fill="#D0E6F7" stroke="#3A7CA5" stroke-width="2" points='323.51,135.82 382.6,125.4 396.49,204.18 337.4,214.6' />
+  <polygon class="facility" id="elevator-5" fill="#D0E6F7" stroke="#3A7CA5" stroke-width="2" points='439.08,520.31 508.4,510.57 520.92,599.69 451.6,609.43' />
+  <polygon class="facility" id="elevator-4" fill="#D0E6F7" stroke="#3A7CA5" stroke-width="2" points='1115.0,245.0 1205.0,245.0 1205.0,355.0 1115.0,355.0' />
+  <polygon class="facility" id="escalator-16" fill="#D0E6F7" stroke="#3A7CA5" stroke-width="2" points='1250.0,215.0 1310.0,215.0 1310.0,305.0 1250.0,305.0' />
+  <polygon class="facility" id="escalator-17" fill="#D0E6F7" stroke="#3A7CA5" stroke-width="2" points='1270.0,495.0 1330.0,495.0 1330.0,585.0 1270.0,585.0' />
+  </g>
+  <g id="ramps">
+  <polygon class="ramp" id="ramp-entrance-west" fill="#D5D5D5" stroke="#2B2B2B" stroke-width="2" points='75.48,694.31 160.05,663.53 204.52,785.69 119.95,816.47' />
+  <polygon class="ramp" id="ramp-exit-east" fill="#D5D5D5" stroke="#2B2B2B" stroke-width="2" points='1386.25,226.78 1465.95,233.75 1453.75,373.22 1374.05,366.25' />
+  </g>
+  <g id="annotations" class="toggle-layer" data-layer="annotations">
+  <text class="facility-label" id="label-elevator-1-cargo" fill="#1F2937" x='150' y='584' text-anchor='middle' font-size='11'>1号货梯</text>
+  <text class="facility-label" id="label-elevator-2" fill="#1F2937" x='360' y='174' text-anchor='middle' font-size='11'>2号电梯</text>
+  <text class="facility-label" id="label-elevator-5" fill="#1F2937" x='480' y='564' text-anchor='middle' font-size='11'>5号电梯</text>
+  <text class="facility-label" id="label-elevator-4" fill="#1F2937" x='1160' y='304' text-anchor='middle' font-size='11'>4号电梯</text>
+  <text class="facility-label" id="label-escalator-16" fill="#1F2937" x='1280' y='264' text-anchor='middle' font-size='11'>扶梯16</text>
+  <text class="facility-label" id="label-escalator-17" fill="#1F2937" x='1300' y='544' text-anchor='middle' font-size='11'>扶梯17</text>
+  <text class="ramp-label" id="label-ramp-entrance-west" fill="#1F2937" x='140' y='744' text-anchor='middle' font-size='10'>入口坡道</text>
+  <text class="ramp-label" id="label-ramp-exit-east" fill="#1F2937" x='1420' y='304' text-anchor='middle' font-size='10'>出口坡道</text>
+  <text class="parking-symbol" fill="#9CA3AF" x='1330' y='160' text-anchor='middle' font-size='48'>P</text>
+  <text class="floor-title" fill="#1F2937" x='80' y='110' text-anchor='start' font-size='22'>B5 停车场平面图</text>
+  <text class="scale-note" fill="#5A5A5A" x='80' y='140' text-anchor='start' font-size='11'>1 SVG 单位 ≈ 0.1 m（比例由参考图目视估算，供路径规划叠加使用）</text>
+  </g>
+  <g id="direction-arrows" class="toggle-layer" data-layer="direction-arrows">
+  <path class='direction-arrow' d='M550,880 L562.7279220613578,892.7279220613578 M562.7279220613578,892.7279220613578 L556.6425893557367,891.097362077212 M562.7279220613578,892.7279220613578 L561.097362077212,886.6425893557367' fill='none' stroke='#5A7A96' stroke-width='2' stroke-linecap='round' />
+  <path class='direction-arrow' d='M750,680 L762.7279220613578,692.7279220613578 M762.7279220613578,692.7279220613578 L756.6425893557367,691.097362077212 M762.7279220613578,692.7279220613578 L761.097362077212,686.6425893557367' fill='none' stroke='#5A7A96' stroke-width='2' stroke-linecap='round' />
+  <path class='direction-arrow' d='M950,480 L962.7279220613578,492.72792206135784 M962.7279220613578,492.72792206135784 L956.6425893557367,491.097362077212 M962.7279220613578,492.72792206135784 L961.097362077212,486.64258935573673' fill='none' stroke='#5A7A96' stroke-width='2' stroke-linecap='round' />
+  <path class='direction-arrow' d='M1200,300 L1212.727922061358,312.72792206135784 M1212.727922061358,312.72792206135784 L1206.6425893557368,311.097362077212 M1212.727922061358,312.72792206135784 L1211.097362077212,306.64258935573673' fill='none' stroke='#5A7A96' stroke-width='2' stroke-linecap='round' />
+  <path class='direction-arrow' d='M220,720 L236.3135401666597,712.3928712886674 M236.3135401666597,712.3928712886674 L232.7000086176481,717.553529167688 M236.3135401666597,712.3928712886674 L230.0375135686817,711.8437901093571' fill='none' stroke='#5A7A96' stroke-width='2' stroke-linecap='round' />
+  <path class='direction-arrow' d='M290,520 L306.3135401666597,512.3928712886674 M306.3135401666597,512.3928712886674 L302.7000086176481,517.553529167688 M306.3135401666597,512.3928712886674 L300.03751356868173,511.84379010935714' fill='none' stroke='#5A7A96' stroke-width='2' stroke-linecap='round' />
+  <path class='direction-arrow' d='M360,320 L376.3135401666597,312.39287128866744 M376.3135401666597,312.39287128866744 L372.7000086176481,317.5535291676881 M376.3135401666597,312.39287128866744 L370.03751356868173,311.8437901093572' fill='none' stroke='#5A7A96' stroke-width='2' stroke-linecap='round' />
+  <path class='direction-arrow' d='M850,380 L868.0,380.0 M868.0,380.0 L862.544039956158,383.15 M868.0,380.0 L862.544039956158,376.85' fill='none' stroke='#5A7A96' stroke-width='2' stroke-linecap='round' />
+  <path class='direction-arrow' d='M1050,360 L1068.0,360.0 M1068.0,360.0 L1062.544039956158,363.15 M1068.0,360.0 L1062.544039956158,356.85' fill='none' stroke='#5A7A96' stroke-width='2' stroke-linecap='round' />
+  <path class='direction-arrow' d='M1240,600 L1240.0,618.0 M1240.0,618.0 L1236.85,612.544039956158 M1240.0,618.0 L1243.15,612.544039956158' fill='none' stroke='#5A7A96' stroke-width='2' stroke-linecap='round' />
+  <path class='direction-arrow' d='M1380,600 L1380.0,582.0 M1380.0,582.0 L1383.15,587.455960043842 M1380.0,582.0 L1376.85,587.455960043842' fill='none' stroke='#5A7A96' stroke-width='2' stroke-linecap='round' />
+  </g>
+  <g id="scale-bar">
+  <line class="scale-line" stroke="#2B2B2B" stroke-width="3" x1='80' y1='1020' x2='180' y2='1020' />
+  <line class="scale-tick" stroke="#2B2B2B" stroke-width="2" x1='80' y1='1015' x2='80' y2='1025' />
+  <line class="scale-tick" stroke="#2B2B2B" stroke-width="2" x1='180' y1='1015' x2='180' y2='1025' />
+  <text class="scale-text" fill="#1F2937" x='130' y='1040' text-anchor='middle' font-size='11'>10 m</text>
+  </g>
+  <g id="north-arrow">
+  <line class="north-line" stroke="#2B2B2B" stroke-width="3" marker-end="url(#arrowhead)" x1='1500' y1='110' x2='1500' y2='50' />
+  <text class="north-label" fill="#1F2937" x='1512' y='80' text-anchor='start' font-size='16'>N</text>
+  </g>
+</svg>
+    </div>
+  </div>
+
+  <script>
+    (function() {{
+      const container = document.getElementById('canvas-container');
+      const svg = document.getElementById('floor-plan');
+      const status = document.getElementById('zoom-status');
+      let scale = 1;
+      let translateX = 0;
+      let translateY = 0;
+      let isDragging = false;
+      let startX = 0;
+      let startY = 0;
+
+      function updateTransform() {{
+        svg.style.transform = `translate(${{translateX}}px, ${{translateY}}px) scale(${{scale}})`;
+        status.textContent = `缩放: ${{(scale * 100).toFixed(0)}}%`;
+      }}
+
+      document.getElementById('btn-zoom-in').addEventListener('click', () => {{
+        scale = Math.min(scale * 1.2, 8);
+        updateTransform();
+      }});
+      document.getElementById('btn-zoom-out').addEventListener('click', () => {{
+        scale = Math.max(scale / 1.2, 0.3);
+        updateTransform();
+      }});
+      document.getElementById('btn-reset').addEventListener('click', () => {{
+        scale = 1;
+        translateX = 0;
+        translateY = 0;
+        updateTransform();
+      }});
+
+      container.addEventListener('wheel', (e) => {{
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? 0.9 : 1.1;
+        const rect = container.getBoundingClientRect();
+        const mx = e.clientX - rect.left;
+        const my = e.clientY - rect.top;
+        const newScale = Math.min(Math.max(scale * delta, 0.3), 8);
+        // 以鼠标位置为中心缩放
+        translateX = mx - (mx - translateX) * (newScale / scale);
+        translateY = my - (my - translateY) * (newScale / scale);
+        scale = newScale;
+        updateTransform();
+      }}, {{ passive: false }});
+
+      container.addEventListener('mousedown', (e) => {{
+        if (e.button !== 0) return;
+        isDragging = true;
+        startX = e.clientX - translateX;
+        startY = e.clientY - translateY;
+        container.classList.add('grabbing');
+      }});
+      window.addEventListener('mousemove', (e) => {{
+        if (!isDragging) return;
+        translateX = e.clientX - startX;
+        translateY = e.clientY - startY;
+        updateTransform();
+      }});
+      window.addEventListener('mouseup', () => {{
+        isDragging = false;
+        container.classList.remove('grabbing');
+      }});
+
+      function toggleLayer(btnId, selector) {{
+        const btn = document.getElementById(btnId);
+        const layers = document.querySelectorAll(selector);
+        btn.addEventListener('click', () => {{
+          const hidden = btn.classList.toggle('active');
+          layers.forEach(el => el.classList.toggle('hidden', !hidden));
+        }});
+      }}
+      toggleLayer('btn-toggle-labels', '#slot-labels');
+      toggleLayer('btn-toggle-annotations', '#annotations');
+      toggleLayer('btn-toggle-arrows', '#direction-arrows');
+
+      updateTransform();
+    }})();
+  </script>
+</body>
+</html>

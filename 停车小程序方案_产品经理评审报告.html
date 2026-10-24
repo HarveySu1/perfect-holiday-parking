@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>《完美金鹰·假日商圈智能停车小程序方案》产品经理评审报告</title>
+<style>
+  :root{
+    --bg:#FFFFFF; --bg2:#F7F6F2; --bd:#E3E1D9; --tx:#2C2C2A; --tx2:#5F5E5A; --tx3:#888780;
+    --red-bg:#FCEBEB; --red-bd:#E24B4A; --red-tx:#791F1F;
+    --amb-bg:#FAEEDA; --amb-bd:#EF9F27; --amb-tx:#633806;
+    --grn-bg:#EAF3DE; --grn-bd:#639922; --grn-tx:#27500A;
+    --blu-bg:#E6F1FB; --blu-bd:#378ADD; --blu-tx:#0C447C;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg2); color:var(--tx);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    font-size:14px; line-height:1.75; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:940px; margin:0 auto; padding:40px 24px 80px;}
+  .paper{background:var(--bg); border:1px solid var(--bd); border-radius:12px; padding:44px 48px;}
+  h1{font-size:24px; font-weight:600; margin:0 0 6px; letter-spacing:-0.2px;}
+  .sub{color:var(--tx2); font-size:13px; margin:0 0 4px;}
+  .meta{color:var(--tx3); font-size:12px; margin:0 0 28px;}
+  h2{font-size:17px; font-weight:600; margin:38px 0 14px; padding-bottom:8px; border-bottom:1px solid var(--bd);}
+  h3{font-size:15px; font-weight:600; margin:24px 0 10px;}
+  h4{font-size:14px; font-weight:600; margin:18px 0 6px;}
+  p{margin:0 0 12px;}
+  ul,ol{margin:0 0 12px; padding-left:22px;}
+  li{margin-bottom:6px;}
+  table{width:100%; border-collapse:collapse; margin:14px 0 18px; font-size:13px;}
+  th{background:var(--bg2); text-align:left; font-weight:600; padding:9px 10px; border:1px solid var(--bd);}
+  td{padding:9px 10px; border:1px solid var(--bd); vertical-align:top;}
+  td.c,th.c{text-align:center;}
+  .hero{display:grid; grid-template-columns:200px 1fr; gap:14px; margin:20px 0 8px;}
+  .card{border-radius:10px; padding:16px 18px; border:1px solid;}
+  .card.score{background:var(--red-bg); border-color:var(--red-bd);}
+  .card.score .n{font-size:34px; font-weight:600; color:var(--red-tx); line-height:1.1;}
+  .card.score .l{font-size:12px; color:var(--red-tx); opacity:.9;}
+  .card.verdict{background:var(--amb-bg); border-color:var(--amb-bd);}
+  .card.verdict .l{font-size:12px; color:var(--amb-tx); font-weight:600; margin-bottom:4px;}
+  .card.verdict .t{font-size:13px; color:var(--amb-tx);}
+  .tag{display:inline-block; font-size:11px; font-weight:600; padding:2px 8px; border-radius:4px; line-height:1.6; vertical-align:2px;}
+  .t0{background:var(--red-bg); color:var(--red-tx); border:1px solid var(--red-bd);}
+  .t1{background:var(--amb-bg); color:var(--amb-tx); border:1px solid var(--amb-bd);}
+  .t2{background:var(--blu-bg); color:var(--blu-tx); border:1px solid var(--blu-bd);}
+  .fix{background:var(--bg2); border-left:3px solid var(--blu-bd); border-radius:0 8px 8px 0; padding:12px 16px; margin:10px 0 18px;}
+  .fix .h{font-size:12px; font-weight:600; color:var(--blu-tx); margin-bottom:4px;}
+  .good{border-left-color:var(--grn-bd);}
+  .good .h{color:var(--grn-tx);}
+  .bad{border-left-color:var(--red-bd);}
+  .bad .h{color:var(--red-tx);}
+  .quote{color:var(--tx2); font-size:13px; border-left:2px solid var(--bd); padding-left:12px; margin:8px 0 14px;}
+  code{font-family:ui-monospace,"SFMono-Regular",Consolas,monospace; font-size:12.5px; background:var(--bg2); padding:1px 5px; border-radius:4px;}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  .pl{border:1px solid var(--bd); border-radius:10px; padding:14px 16px; background:var(--bg);}
+  .pl .ttl{font-size:13px; font-weight:600; margin-bottom:6px;}
+  .foot{margin-top:36px; padding-top:14px; border-top:1px solid var(--bd); color:var(--tx3); font-size:12px;}
+  @media print{ body{background:#fff;} .paper{border:none; padding:0;} .wrap{padding:0; max-width:none;} }
+  @media (max-width:720px){ .hero{grid-template-columns:1fr;} .grid2{grid-template-columns:1fr;} .paper{padding:24px 18px;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="paper">
+
+  <h1>《完美金鹰·假日商圈智能停车小程序方案》立项评审报告</h1>
+  <p class="sub">评审视角：互联网产品经理（PRD 产品视角 + BRD 商业视角）</p>
+  <p class="meta">被评审文档：《"完美金鹰·假日商圈"智能停车小程序方案》 · 评审日期：2026-09-20 · 评审结论：有条件退回修改</p>
+
+  <div class="hero">
+    <div class="card score">
+      <div class="l">综合得分</div>
+      <div class="n">48</div>
+      <div class="l">/ 100 分 · 评级 C</div>
+    </div>
+    <div class="card verdict">
+      <div class="l">一句话结论</div>
+      <div class="t">产品直觉不错、成本控制意识强、文档可读性好；但方案建立在"用户愿意主动录车位号"这一未经验证的假设上，且缺少竞品尽调、缺少成功度量、核心链路存在三处会导致产品直接失效的硬伤。建议在完成 P0 五项修复后重新提交立项，不建议按现状进入开发排期。</div>
+    </div>
+  </div>
+
+  <h2>一、评分标准（满分 100 分）</h2>
+  <p>评分采用产品经理立项评审通用的八维加权模型，权重向"是否被验证"和"能否落地"倾斜 —— 一份方案书写得再漂亮，如果假设未验证、指标不可度量，在立项会上是不加分的。</p>
+  <table>
+    <thead><tr>
+      <th style="width:20%">维度</th><th class="c" style="width:8%">权重</th><th style="width:44%">评分依据（评分尺）</th><th class="c" style="width:9%">得分</th><th class="c" style="width:10%">得分类</th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td>1. 用户洞察与问题定义</td><td class="c">15</td>
+        <td>痛点是否真实且被量化；是否有用户画像与场景分层；核心行为假设是否被小样本验证；是否有可信数据来源</td>
+        <td class="c">10</td><td class="c" style="color:var(--amb-tx)">合格</td>
+      </tr>
+      <tr>
+        <td>2. 竞品与替代方案调研</td><td class="c">10</td>
+        <td>是否调研现有替代方案（商场会员系统、第三方停车平台、地图App）；是否说明"为什么现在没人做/我们为什么能做"</td>
+        <td class="c">3</td><td class="c" style="color:var(--red-tx)">严重缺失</td>
+      </tr>
+      <tr>
+        <td>3. 产品方案与功能设计</td><td class="c">20</td>
+        <td>核心用户旅程是否闭环无断点；功能优先级是否有取舍；MVP 边界是否合理；异常场景是否覆盖</td>
+        <td class="c">12</td><td class="c" style="color:var(--amb-tx)">合格偏弱</td>
+      </tr>
+      <tr>
+        <td>4. 技术可行性与实现路径</td><td class="c">15</td>
+        <td>架构是否匹配规模；关键外部依赖是否识别；技术资源是否投在真正的难点上；是否有降级方案</td>
+        <td class="c">8</td><td class="c" style="color:var(--amb-tx)">合格偏弱</td>
+      </tr>
+      <tr>
+        <td>5. 商业价值与成功度量</td><td class="c">15</td>
+        <td>是否有北极星指标与漏斗；是否有 ROI 测算口径；效益数字是否有推导过程而非拍脑袋</td>
+        <td class="c">6</td><td class="c" style="color:var(--red-tx)">不合格</td>
+      </tr>
+      <tr>
+        <td>6. 落地运营与推广</td><td class="c">10</td>
+        <td>是否有冷启动路径；是否明确出资方/牵头方/协作方 RACI；是否覆盖后期维护责任与成本</td>
+        <td class="c">3</td><td class="c" style="color:var(--red-tx)">严重缺失</td>
+      </tr>
+      <tr>
+        <td>7. 合规、风险与容错</td><td class="c">10</td>
+        <td>个人信息合规（车牌属敏感个人信息行踪推论）；平台审核规则；弱网/离线容错；物料耐久与防破坏</td>
+        <td class="c">3</td><td class="c" style="color:var(--red-tx)">严重缺失</td>
+      </tr>
+      <tr>
+        <td>8. 文档表达与立项完备</td><td class="c">5</td>
+        <td>是否有摘要、版本、数据脚注、排期、团队配置；是否便于决策者五分钟读完</td>
+        <td class="c">3</td><td class="c" style="color:var(--amb-tx)">合格</td>
+      </tr>
+      <tr style="background:var(--bg2)">
+        <td><strong>合计</strong></td><td class="c"><strong>100</strong></td>
+        <td><strong>评级口径：A≥85 直接立项｜B 70–84 小改后立项｜C 50–69 大改后复审｜D&lt;50 重写立项论证</strong></td>
+        <td class="c"><strong>48</strong></td><td class="c" style="color:var(--red-tx)"><strong>D</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>二、方案做对了什么（保留项）</h2>
+  <p>评审不是为了否定，以下四条请在修改稿中务必保留，它们是这份方案真正的资产。</p>
+  <div class="grid2">
+    <div class="pl">
+      <div class="ttl">1. 避重就轻的路线选择是对的</div>
+      <p style="margin:0;font-size:13px;color:var(--tx2)">拒绝 15–30 万硬件改造，走"轻量 + 存量资产"路线，把首年成本压到 6–9 万。这个成本量级使它有可能绕过冗长的采购流程，直接用市场/会员预算落地 —— 这是本方案最大的商业价值。</p>
+    </div>
+    <div class="pl">
+      <div class="ttl">2. 跨商场统一车位编码是真壁垒</div>
+      <p style="margin:0;font-size:13px;color:var(--tx2)"><code>WXH-B2-A056</code> 这类全局唯一编码，把两个物理连通但系统割裂的商场抽象成一张网。通用反向寻车各家都能做，"跨场统一层"才是别人抄不走的部分。</p>
+    </div>
+    <div class="pl">
+      <div class="ttl">3. 痛点定义有数据、有体感</div>
+      <p style="margin:0;font-size:13px;color:var(--tx2)">62 万㎡、3000 万年客流、80 万会员、4500 车位、寻车 8 分钟 —— 用规模数据建立议题重量级，用"忘记停哪一层"建立共情，听众一分钟就能进状态。</p>
+    </div>
+    <div class="pl">
+      <div class="ttl">4. 分期节奏与成本对照表写得好</div>
+      <p style="margin:0;font-size:13px;color:var(--tx2)">三期路径清晰，投入对比表（6–9 万 vs 70–125 万）是最有说服力的一页。保留它，但补上收益侧。</p>
+    </div>
+  </div>
+
+  <h2>三、必须修复的问题：五个 P0</h2>
+  <p>P0 的定义是：<strong>不修，方案在立项会上会被一句话否决，或上线后用户第一次尝试就流失。</strong>按"致命程度"排序。</p>
+
+  <h3><span class="tag t0">P0-1</span> 竞品尽调缺失 —— 这是最可能被一句话枪毙的点</h3>
+  <div class="quote">方案原文把"反向寻车"当作市场空白来处理，全文没有出现任何竞品或替代方案。</div>
+  <p><strong>为什么致命：</strong>国内主流商场（尤其万象城/万象汇体系）的会员小程序里，"绑定车牌 → 输入/点击找车 → 场内车位相机定位车辆"已是运营多年的成熟标配；第三方停车平台（捷停车、ETCP、科拓等）也已覆盖大量车场。立项会上最可能出现的一句话是："这个功能我们会员系统里已经有了。"届时方案没有任何应答弹药。</p>
+  <div class="fix">
+    <div class="h">修改动作（约 2 人天，零成本）</div>
+    <ol style="margin:0">
+      <li>做一张<strong>替代方案尽调表</strong>：逐项确认并写明现状 —— ① 两个商场现有会员小程序是否已有找车功能；② 场内道闸/车位相机供应商是谁，是否已有车牌级反向寻车；③ 微信"停车服务"、支付宝、高德/百度地图的停车场卡片是否已覆盖该商圈。</li>
+      <li>在方案里写<strong>决策分支</strong>，而不是赌一个结论：<br>· 若已有 → 本方案定位调整为"补充层"，唯一差异化是<strong>跨商场统一编码与跨场路径</strong>，砍掉单场找车叙事；<br>· 若没有 → 说明"为什么这里没有"（大概率是两个主体系统不通），而这恰恰证明<strong>跨商场</strong>才是真问题。</li>
+      <li>无论分支如何，都把标题中的"反向寻车"降级为一个功能点，把主线叙事换成<strong>"两个商场，一个停车系统"</strong>。</li>
+    </ol>
+  </div>
+
+  <h3><span class="tag t0">P0-2</span> 核心痛点被定义反了 —— "扫电梯口二维码定位"这一步是伪需求</h3>
+  <div class="quote">原文 3.3：定位当前位置 = 用户在电梯口/楼梯口扫描墙上的二维码。</div>
+  <p><strong>为什么致命：</strong>用户下来找车时，他<strong>知道自己在哪</strong>——他是自己乘电梯下到 B2 的。他不知道的是<strong>车在哪</strong>。方案给"已知信息"设计了一个需要额外主动操作的步骤，同时给"未知信息"（车位坐标）只留了不可靠的输入方式。这导致核心链路多了一个必然流失的断点：用户出电梯 → 找二维码 → 扫码（可能没网、可能被遮挡、可能被广告牌挡住）→ 才看得到路线。真实场景里，用户在第二步就走了。</p>
+  <div class="fix">
+    <div class="h">修改动作（产品逻辑重构，开发量反而下降）</div>
+    <ol style="margin:0">
+      <li><strong>删除强制扫码定位环节</strong>。改为：打开"找车"页 → 顶部一个下拉选择器让用户确认所在位置（万象汇 B2-3号梯厅 / 假日 B1-连廊口…），<strong>默认值 = 该用户停车时记录的入口电梯厅</strong>（多数人从哪下去就从哪上来），一键确认即可。</li>
+      <li><strong>电梯厅/连廊口的扫码降级为"可选增强"</strong>：扫得到就自动填,扫不到也不阻断。</li>
+      <li>把节省下来的开发资源全部投到真正的难点上 —— <strong>提高"停车时录车位号"这一步的转化率</strong>（见 P0-4）。</li>
+    </ol>
+  </div>
+
+  <h3><span class="tag t0">P0-3</span> 地下五层大概率无网络 —— 方案未做离线兜底</h3>
+  <p><strong>为什么致命：</strong>B1 至 B5 的深层停车场，运营商信号普遍极弱甚至无服务。而本方案每一环都依赖联网：扫描小程序码要请求后端、拉地图要下载、查录音要读云端。用户最需要一个答案的时刻，小程序在转圈 —— 产品在这一秒直接失信，且不会有第二次机会。</p>
+  <div class="fix">
+    <div class="h">修改动作（低成本，是本次最高性价比的一改）</div>
+    <ol style="margin:0">
+      <li><strong>二维码改为纯文本二维码，而非小程序码。</strong>码的内容直接是 <code>WXH-B2-A056</code>。好处：① 微信原生"扫一扫"可离线读出文本，无需联网、无需先打开小程序；② 任何扫码工具（含车机、相机）都可读；③ 打印/制作成本不变。小程序内扫码对它有天然兼容。</li>
+      <li><strong>车位记录双写</strong>：写入 <code>wx.setStorageSync</code> 本地缓存 + 云端（联网时异步补传）。无论如何，用户在本机能看到自己的记录。</li>
+      <li><strong>静态地图包内置随包下发</strong>：车库矢量图只有几百 KB，随小程序包发布，不依赖 CDN 实时下载。</li>
+      <li><strong>断网态 UI</strong>：明确提示"当前无网络，已为您展示离线缓存的车位信息 + 静态地图"，而不是无限 loading。</li>
+      <li>V1 前置准入：上线前必须做一次<strong>实地信号测试</strong>（电信/移动/联通三网，B1–B5 每层每个电梯厅），结果写进附录。</li>
+    </ol>
+  </div>
+
+  <h3><span class="tag t0">P0-4</span> "停车 5 分钟后微信推送提醒"在平台规则上不可行</h3>
+  <p><strong>为什么致命：</strong>小程序模板消息已废弃，现行机制是<strong>订阅消息</strong>——必须用户主动点击授权，且<strong>一次性订阅只能推送一次</strong>。方案所设想的"每次停车都自动提醒"不存在这样的通道。若强行依赖它，防遗忘机制——方案里唯一的防流失兜底——等于归零。</p>
+  <div class="fix">
+    <div class="h">修改动作（把提醒从"线上推送"改为"物理场景前置"）</div>
+    <ol style="margin:0">
+      <li><strong>主防线放在物理触点</strong>：在电梯厅、扶梯口、车位柱面二维码旁统一印同一句文案 —— <code>扫一下记车位，省下找车十分钟</code>。用户在"刚下车、手里还拿着手机"的时刻被提醒，比五分钟后一条推送有效得多，且零成本、无平台限制。</li>
+      <li><strong>订阅消息做合规版</strong>：在扫码记录成功后（此刻用户动机最强）弹出一次性订阅授权，文案明确用途"用于您离场时提醒核对车位"。</li>
+      <li><strong>增加低成本的二次兜底</strong>：记录成功后引导用户把"车位卡片"发给自己微信里一位家人/同行人（详见 P1-6），既防遗忘又顺带拉新。</li>
+    </ol>
+  </div>
+
+  <h3><span class="tag t0">P0-5</span> 收集车牌号涉及敏感个人信息，且无合规设计</h3>
+  <p><strong>为什么致命：</strong>车牌号属于个人信息；"车牌 + 停车记录 + 时间戳"的组合可推定自然人<strong>行踪轨迹</strong>，属于敏感个人信息，需单独同意、最小必要、留存期限明示。当前方案把车牌作为必填字段，而全文无隐私政策、无授权流程、无留存期限、无删除机制。结果有两个：① 微信小程序审核大概率不通过（收集个人信息必须在《用户隐私保护指引》中逐项声明并获同意）；② 商场法务与信息安全评审卡住。</p>
+  <div class="fix">
+    <div class="h">修改动作（同时提升转化率）</div>
+    <ol style="margin:0">
+      <li><strong>MVP 阶段不收集车牌</strong>。以 <code>openid</code> 为唯一主键，车位号即可完整跑通"记录 → 寻车"闭环。车牌仅在未来"缴费/月卡/无感支付"等确有必要的场景中后置收集。</li>
+      <li>补充<strong>合规小节</strong>：数据最小化清单、隐私政策、《用户隐私保护指引》字段声明、用户删除与注销入口、数据留存期限（建议停车记录保留 30 天后自动清理终态）。</li>
+      <li>补充<strong>安全提示</strong>：寻车页增加"请勿边行走边查看手机"提示，并支持一键语音播报路线。</li>
+    </ol>
+  </div>
+
+  <h2>四、开发前必须调整：六个 P1</h2>
+
+  <h3><span class="tag t1">P1-1</span> MVP 砍掉一半，只验证一个假设</h3>
+  <p>当前 MVP 里塞了统一编码、三种录入方式、静态地图、A* 路径、新能源模块、充电桩五字段数据表 —— 这不是 MVP，这是完整一期。<strong>本方案唯一的风险假设是"用户会不会录车位号"，MVP 应当只为验证它而存在。</strong></p>
+  <div class="fix">
+    <div class="h">建议的 MVP 边界</div>
+    <p style="margin:0 0 6px"><strong>只做一条链路：</strong>现场扫码（或拍照留存）→ 记录车位号 → 找车时展示"车位卡片"。</p>
+    <ul style="margin:0">
+      <li>车位卡片内容：车位号 + 楼层/区域 + 现场照片 + 用户手写备注（如"靠红色柱子"）+ 一张静态分区示意图（高亮所在区域）。</li>
+      <li><strong>砍出 MVP：</strong>A* 路径规划（改为预置的"电梯厅 → 各区域"方向图 + 文字指引）、新能源/充电桩模块（改为跳转第三方 App 的外链）、占用率推荐。</li>
+      <li>理由：用户要的是"我的车在那个方向第几排"，不是一条算法最优曲线。走到区域差十米，肉眼一秒解决。</li>
+    </ul>
+  </div>
+
+  <h3><span class="tag t1">P1-2</span> 设立可判定的 Go / No-Go 指标</h3>
+  <p>没有验收标准的 MVP 无法指导决策。建议把以下三条写进方案，作为是否进入二期的硬门槛。</p>
+  <table>
+    <thead><tr><th style="width:26%">指标</th><th style="width:20%">定义</th><th class="c" style="width:14%">Go 门槛</th><th>不达标时的动作</th></tr></thead>
+    <tbody>
+      <tr><td><strong>录号率</strong>（北极星）</td><td>到场停车会员中完成车位记录的比例</td><td class="c">≥ 25%</td><td>回炉优化录入环节（前置时机、物料文案、激励），不进二期</td></tr>
+      <tr><td>寻车使用留存</td><td>录号用户中，7 日内再次打开并完成一次寻车的比例</td><td class="c">≥ 40%</td><td>说明卡片信息不足以替代记忆，需补照片/备注引导</td></tr>
+      <tr><td>自评寻车时长</td><td>寻车完成后单题打分（30 秒内完成，≤5 分制）</td><td class="c">均值降 ≥ 3 分钟</td><td>价值假设不成立，暂停投入</td></tr>
+      <tr><td>弱网可用率</td><td>地下各层成功加载记录的比例</td><td class="c">≥ 95%</td><td>离线方案不达标，先补技术再做推广</td></tr>
+    </tbody>
+  </table>
+
+  <h3><span class="tag t1">P1-3</span> 二维码改为贴柱面并先行试点，别一次铺 8000 张</h3>
+  <p><strong>落地bug：</strong>原文设计"每个车位上方或地面张贴二维码"。但车停进车位后，车位地面/范围内的码<strong>被自己的车压住或遮挡</strong>，用户下车时根本扫不到。同时 8000 张只算了 0.1–0.5 元物料价，未算张贴人工（按 1 分钟/张 ≈ 17 人天）、未算后期污损更换。</p>
+  <div class="fix">
+    <div class="h">修改动作</div>
+    <ol style="margin:0">
+      <li><strong>改贴柱面/墙面，离地约 1.5 米</strong>（或一个柱面覆盖周边 4–6 个车位，码上印面向的车位号区间）。点位从 8000 降到约 1500–2000 个，物料+施工量降约 75%。</li>
+      <li>材质用室内耐腐蚀 PVC / 反光贴，避免地面碾压损耗。</li>
+      <li><strong>先在单层或单区试点 200 个车位，跑两周</strong>，观测扫码率、污损率、误扫率。用试点数据决定是否全量，同时这批数据就是 P1-2 里的"录号率"基线。</li>
+    </ol>
+  </div>
+
+  <h3><span class="tag t1">P1-4</span> 别把立项押在"拿到商场 CAD 图纸"上</h3>
+  <p>CAD 图纸是全文风险最高却未进风险表的外部依赖：属工程部资产、常涉及消防图、且改造后往往未更新。写"获取并处理两个商场的车库平面图"一笔带过，等于把第一天阻塞全部寄希望于一次跨部门协调。</p>
+  <div class="fix">
+    <div class="h">修改动作（去依赖化）</div>
+    <ol style="margin:0">
+      <li><strong>主线改为现场拍照 + 简化矢量重绘</strong>：用手绘/矢量工具描一张"示意图"，只需表达"电梯厅—主通道—分区块"的拓扑关系，不需要工程级精度。1–2 人现场拍照半天 + 描图 2 天即可。</li>
+      <li><strong>车位坐标从"逐点测绘"降为"区块中心点"</strong>：不逐个标定 8000 个车位的 xy 坐标，只标定约 150 个区域的中心点。步行导航到区域差十几米毫无影响，工作量降约 98%。</li>
+      <li>把"获取 CAD"写进风险表，对策是"拿不到则走拍照重绘路径，不影响上线"。</li>
+    </ol>
+  </div>
+
+  <h3><span class="tag t1">P1-5</span> A* 算法是过度设计，技术资源投错了地方</h3>
+  <p>车库路网拓扑通常只有几十个节点，Dijkstra 甚至 BFS 足够，部分场景用"预置路线表"更稳。真正的难点是<strong>起点获取</strong>与<strong>终点坐标的覆盖率</strong>，方案却把最多技术笔墨给了最不重要的部分。</p>
+  <div class="fix">
+    <div class="h">修改动作</div>
+    <ol style="margin:0">
+      <li>技术章节改为："路径计算在本拓扑规模下采用预置路线/轻量最短路径即可，V1 优先保证结果可读性与离线可用性。" 保留 A* 作为未来扩展项。</li>
+      <li>腾出的资源投到 P0-3（离线兜底）和 P1-2（录入转化率）上 —— 那才是决定产品生死的变量。</li>
+    </ol>
+  </div>
+
+  <h3><span class="tag t1">P1-6</span> 补上治理、运营与 ROI</h3>
+  <div class="fix">
+    <div class="h">修改动作（补进方案的三个小节）</div>
+    <ol style="margin:0">
+      <li><strong>RACI 与出资方</strong>：两个商场物理已连通，但预算、系统、运营可能是两个主体。必须写明出资方（会员预算 / 信息化预算 / 市场费用）、落地牵头方、两方各自的配合事项与审批节点。这是"能不能落地"的隐形一号卡点。</li>
+      <li><strong>ROI 粗算</strong>：即便数据粗糙也要给口径 —— 开车到店场次 × 录号渗透率 × 单次节省寻车时长换算的满意度/复访/停车券核销。同时回答"6–9 万谁来付、从哪笔预算出"。</li>
+      <li><strong>冷启动与增长钩子</strong>：① 电梯厅/缴费机/连廊口的统一物料文案；② 记录成功后引导"<strong>把车位卡片发给家人/同行人</strong>"（大量场景是家人代取车，这是天然的零成本传播）；③ 商场公众号一次推文 + 会员短信一次触达。</li>
+    </ol>
+  </div>
+
+  <h2>五、可选优化：四个 P2</h2>
+  <ul>
+    <li><span class="tag t2">P2-1</span> <strong>跨商场推荐改为规则式。</strong>MVP 用"用户上报推算占用率"在冷启动时既无数据又有幸存者偏差，推荐失败会直接摧毁信任。改为按"目的地店铺所属楼栋 + 步行距离"做确定性推荐文案："去假日广场 XX 书店，建议停万象汇 B2，走连廊约 5 分钟。"</li>
+    <li><span class="tag t2">P2-2</span> <strong>不做自建充电桩实时数据。</strong>用户手机上通常已有地图 App 或运营商 App 且数据更准。改为外链跳转到第三方，车位层保留"附近有桩"提示即可。</li>
+    <li><span class="tag t2">P2-3</span> <strong>补两三个用户画像与场景。</strong>会员/非会员、新能源/燃油、首访/常客，需求差异明显；特别建议新增<strong>"家人代取车"场景</strong>。</li>
+    <li><span class="tag t2">P2-4</span> <strong>立项补充物理约束调研。</strong>连廊是否所有楼层贯通、夜间/特定时段是否关闭、是否有净高与限高差异 —— 这些直接决定跨商场路径是否成立。</li>
+  </ul>
+
+  <h2>六、修改优先级与预计重投入</h2>
+  <table>
+    <thead><tr><th class="c" style="width:10%">优先级</th><th style="width:34%">待办</th><th class="c" style="width:16%">预计投入</th><th>完成后影响</th></tr></thead>
+    <tbody>
+      <tr><td class="c"><span class="tag t0">P0</span></td><td>P0-1 替代方案尽调</td><td class="c">2 人天</td><td>决定项目是否成立、叙事主线是否需要重写</td></tr>
+      <tr><td class="c"><span class="tag t0">P0</span></td><td>P0-2 核心链路重构（去伪定位环节）</td><td class="c">1 人天（改文档）</td><td>开发量下降，转化率上升</td></tr>
+      <tr><td class="c"><span class="tag t0">P0</span></td><td>P0-3 离线兜底方案</td><td class="c">文档 1 天 / 开发 +3–5 天</td><td>消除最高致死风险</td></tr>
+      <tr><td class="c"><span class="tag t0">P0</span></td><td>P0-4 提醒机制改为物理触点</td><td class="c">0.5 人天</td><td>保住防遗忘这条唯一兜底</td></tr>
+      <tr><td class="c"><span class="tag t0">P0</span></td><td>P0-5 合规与去车牌化</td><td class="c">1 人天</td><td>通过微信审核与法务评审，注册转化提升</td></tr>
+      <tr><td class="c"><span class="tag t1">P1</span></td><td>P1-1 至 P1-6（MVP 边界、指标、试点、去图纸依赖、去 A*、治理 ROI）</td><td class="c">文档 3–4 人天</td><td>方案具备可立项性</td></tr>
+      <tr style="background:var(--bg2)"><td class="c"><strong>小计</strong></td><td>全部 P0 + P1 文档修改</td><td class="c"><strong>约 8–10 人天</strong></td><td><strong>预计评分可提升至 78–85 分区间</strong></td></tr>
+    </tbody>
+  </table>
+  <div class="fix good">
+    <div class="h">给作者的一点判断</div>
+    <p style="margin:0">这份方案的产品直觉是对的 —— 它准确地抓住了"轻量"这个唯一可行的切口，且成本控制意识强。扣分主要不在想法，而在<strong>验证</strong>：假设没被验证、竞品没被调研、指标没被定义、下落环境没被实测。把这四件事补齐，它是一份能过会的好方案。补齐的顺序按上表走，不要并行。</p>
+  </div>
+
+  <div class="foot">
+    评审人：产品经理视角 · 评审日期：2026-09-20 · 评分模型：八维加权（详见第一节）<br>
+    本文档为独立评审意见，评分基于所提供文档内容，不含对未写明事项的推定加分。实地信号测试与替代方案尽调的结果回来后，建议重评一次。
+  </div>
+
+</div>
+</div>
+</body>
+</html>
