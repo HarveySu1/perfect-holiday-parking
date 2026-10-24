@@ -40,3 +40,8 @@ __pycache__/
 *.pyc
 .venv/
 venv/
+
+# ===== Local tool data (not project source) =====
+.cloudstudio
+.cloudstudio/
+.slidep/
